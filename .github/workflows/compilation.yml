@@ -1,0 +1,13 @@
+name: Native compilation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compile-linux:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - run: echo Hello, world!
