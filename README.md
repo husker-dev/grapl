@@ -1,2 +1,2 @@
 # offscreen-jgl
-Java tool for creating offscreen OpenGL contexts
+Java tool for creating offscreen, thread-independent OpenGL contexts
