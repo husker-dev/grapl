@@ -11,6 +11,7 @@ jobs:
       
       - name: "Install Mesa"
         run: |
+          lsb_release -a
           sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:amd64
           sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
       - name: "Install JDK"
