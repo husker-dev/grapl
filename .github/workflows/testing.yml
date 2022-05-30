@@ -15,5 +15,5 @@ jobs:
     - uses: actions/checkout@v1
 
     - run: |
-        git update-index --chmod=+x gradlew
+        chmod +x ./gradlew
         ./gradlew test
