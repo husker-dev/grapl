@@ -15,16 +15,10 @@ jobs:
         uses: Symbitic/install-cmake@v0.1.0
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-      - run: pwd
-      - run: ls
-      - run: cd ..
-      - run: pwd
-      - run: ls
-      
-      - run: cd native
-      - run: pwd
-      - run: ls
-      - run: cmake --build ./ --clean-first 
+
+      - run: |
+          cd native
+          cmake --build ./ --clean-first 
       
       - uses: actions/upload-artifact@v2
         with:
