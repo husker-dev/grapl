@@ -47,6 +47,7 @@ jobs:
           cmake --build ./
           
           # x64
+          dir
           rm -r CMakeFiles
           del CMakeCache.txt
           cmake -A "Win64" .
