@@ -63,6 +63,23 @@ jobs:
         with:
           name: Windows
           path: ./native/lib
+  compile-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Compile"
+        run: |
+          cd native
+
+          cmake .
+          cmake --build ./
+          
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
+        with:
+          name: MacOS
+          path: ./native/lib
         
       
 
