@@ -15,7 +15,7 @@ jobs:
         uses: Symbitic/install-cmake@v0.1.0
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-      - run: cd ${{runner.workspace}}/native
+      - run: cd native
       - run: cmake --clean-first --build ./
       
       - uses: actions/upload-artifact@v2
