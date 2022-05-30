@@ -43,7 +43,7 @@ if (APPLE)
     add_library(ojgl-x64 SHARED macos.cpp)
     include_directories(/System/Library/Frameworks)
     find_library(OpenGL_LIBRARY OpenGL)
-    target_link_libraries(VEngineRenderer ${OpenGL_LIBRARY})
+    target_link_libraries(ojgl-x64 ${OpenGL_LIBRARY})
 endif()
 
 
