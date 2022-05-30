@@ -18,10 +18,10 @@ if (UNIX AND NOT APPLE)
     target_link_libraries(ojgl-x86 -lX11 -lGL)
     set_target_properties(ojgl-x86 PROPERTIES COMPILE_FLAGS "-m32" LINK_FLAGS "-m32")
 
-    # message(Compile x64)
-    # add_library(ojgl-x64 SHARED linux.cpp)
-    # target_link_libraries(ojgl-x64 -lX11 -lGL)
-    # set_target_properties(ojgl-x64 PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-m64")
+    message(Compile x64)
+    add_library(ojgl-x64 SHARED linux.cpp)
+    target_link_libraries(ojgl-x64 -lX11 -lGL)
+    set_target_properties(ojgl-x64 PROPERTIES COMPILE_FLAGS "-m64" LINK_FLAGS "-m64")
 endif()
 
 
