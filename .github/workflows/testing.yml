@@ -8,9 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    
-    - name: "Install Mesa"
-      run: sudo apt-get install mesa-common-dev
+    - uses: openrndr/setup-opengl@v1.1
     
     - name: "Testing"
       continue-on-error: true
