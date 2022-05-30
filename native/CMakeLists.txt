@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_OSX_ARCHITECTURES arm64 x86_64)
 
 project ("ojgl")
 

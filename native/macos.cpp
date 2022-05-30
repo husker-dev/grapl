@@ -5,7 +5,7 @@
 extern "C" {
 
 
-JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
+JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
     CGLContextObj context;
 
     CGLPixelFormatAttribute attributes[4] = {
@@ -25,11 +25,11 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_nCreateContext(JNIEnv*
     return (jlong)context;
 }
 
-JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_nGetCurrentContext(JNIEnv* env, jobject) {
+JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
     return (jlong)CGLGetCurrentContext();
 }
 
-JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_nSetCurrentContext(JNIEnv* env, jobject, jlong context) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_MacPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong context) {
     return CGLSetCurrentContext((CGLContextObj)context) == 0;
 }
 }
