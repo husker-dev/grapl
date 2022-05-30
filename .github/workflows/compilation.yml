@@ -21,6 +21,8 @@ jobs:
         with:
           build-dir: ${{runner.workspace}}/natives
           build-type: MinSizeRel
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       
 
       
