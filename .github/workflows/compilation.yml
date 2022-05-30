@@ -41,19 +41,26 @@ jobs:
       - name: "Compile"
         run: |
           cd native
-          cmake .
-          cmake --build ./
+          
+          dir
+          mkdir x86
+          cd x86
+          cmake -A "Win32" ../
+          cmake -DX86=1 --build .
+          cd ..
+          dir
+          
+          mkdir x64
+          cd x64
+          cmake -A "x64" ../
+          cmake -DX64=1 --build .
+          cd ..
+          dir
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
         with:
           name: Windows
-          path: ./native/lib
-          
-      - name: "Upload libraries 2"
-        uses: actions/upload-artifact@v2
-        with:
-          name: Windows 2
           path: ./native/Debug
         
       
