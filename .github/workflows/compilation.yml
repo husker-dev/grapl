@@ -16,7 +16,7 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           
-      - run: cmake --build ./native
+      - run: cmake --clean-first --build ./native
       
       - uses: actions/upload-artifact@v2
         with:
