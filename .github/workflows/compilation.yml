@@ -14,8 +14,10 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update
           sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
+          
       - name: "Install JDK"
         run: sudo apt-get install default-jre
+        
       - name: "Install GCC multilib"
         run: sudo apt-get install gcc-multilib g++-multilib
       
@@ -35,7 +37,16 @@ jobs:
         with:
           name: Linux
           path: ./native/lib
-        
+          
+  compile-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          cd native
+          cmake -B ./native -S . -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          cmake --build ./ 
         
       
 
