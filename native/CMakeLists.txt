@@ -26,8 +26,13 @@ endif()
 
 # Windows
 if (WIN32)
-    add_library(ojgl-x64 SHARED windows.cpp wgl.h)
-    target_link_libraries(ojgl-x64 opengl32.lib)
+    if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "x64")
+        add_library(ojgl-x64 SHARED windows.cpp wgl.h)
+        target_link_libraries(ojgl-x64 opengl32.lib)
+    elseif("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "Win32")
+        add_library(ojgl-x86 SHARED windows.cpp wgl.h)
+        target_link_libraries(ojgl-x86 opengl32.lib)
+    endif()
 endif (WIN32)
 
 
