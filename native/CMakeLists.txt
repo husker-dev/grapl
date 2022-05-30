@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.8)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_OSX_ARCHITECTURES arm64 x86_64)
 
 project ("ojgl")
 
@@ -39,11 +40,10 @@ endif()
 
 # MacOS
 if (APPLE)
-    message(Compile x64)
-    add_library(ojgl-x64 SHARED macos.cpp)
+    add_library(ojgl SHARED macos.cpp)
     include_directories(/System/Library/Frameworks)
     find_library(OpenGL_LIBRARY OpenGL)
-    target_link_libraries(ojgl-x64 ${OpenGL_LIBRARY})
+    target_link_libraries(ojgl ${OpenGL_LIBRARY})
 endif()
 
 
