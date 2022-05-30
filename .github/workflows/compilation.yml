@@ -14,7 +14,7 @@ jobs:
       - name: "CMake build"
         uses: ashutoshvarma/action-cmake-build@v1
         with:
-          build-dir: ${{runner.workspace}}/build
+          build-dir: ${{runner.workspace}}/natives
           build-type: MinSizeRel
       
 
