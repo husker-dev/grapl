@@ -42,26 +42,27 @@ jobs:
         run: |
           cd native
           
-          dir
           mkdir x86
           cd x86
           cmake -A "Win32" ../ -DX86=1
           cmake --build .
           cd ..
-          dir
           
           mkdir x64
           cd x64
           cmake -A "x64" ../ -DX64=1
           cmake --build .
           cd ..
-          dir
+          
+          mkdir lib
+          copy x64/Debug/ojgl-x64.dll lib
+          copy x86/Debug/ojgl-x86.dll lib
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
         with:
           name: Windows
-          path: ./native/Debug
+          path: ./native/lib
         
       
 
