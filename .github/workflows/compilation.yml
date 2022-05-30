@@ -42,19 +42,20 @@ jobs:
         run: |
           cd native
           
-          # x86
+          dir
           mkdir x86
           cd x86
           cmake -A "Win32" ../
           cmake --build .
           cd ..
+          dir
           
-          # x64
           mkdir x64
           cd x64
           cmake -A "Win64" ../
           cmake --build .
           cd ..
+          dir
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
