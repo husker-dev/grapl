@@ -15,6 +15,7 @@ jobs:
         run: sudo apt-get install gcc-multilib g++-multilib
       - name: "Install Mesa"
         run: |
+          sudo apt-get update
           sudo apt-get install libglu1-mesa-dev mesa-common-dev
           sudo apt-get install libglu1-mesa-dev:i386 mesa-common-dev:i386
      
