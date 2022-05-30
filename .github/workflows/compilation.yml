@@ -11,16 +11,9 @@ jobs:
       
       - name: "Install Mesa"
         run: |
-          lsb_release -a
-          sudo apt-get install mesa-common-dev:amd64
-          TEMP_DEB="$(mktemp)"
-          wget -O "$TEMP_DEB" 'http://security.ubuntu.com/ubuntu/pool/main/m/mesa/mesa-common-dev_21.2.6-0ubuntu0.1~20.04.2_i386.deb'
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install mesa-common-dev:i386
-          
-          rm -f "$TEMP_DEB"
-        # sudo dpkg -i "$TEMP_DEB"
+          sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
       - name: "Install JDK"
         run: sudo apt-get install default-jre
       - name: "Install GCC multilib"
