@@ -41,9 +41,10 @@ jobs:
       - name: "Compile"
         run: |
           cd native
-          cmake .
-          cmake -DCMAKE_GENERATOR_PLATFORM=x64 --build ./
-          cmake -DCMAKE_GENERATOR_PLATFORM=Win32 --build ./
+          cmake -DCMAKE_GENERATOR_PLATFORM=x64 .
+          cmake --build ./
+          cmake -DCMAKE_GENERATOR_PLATFORM=Win32 .
+          cmake --build ./
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
