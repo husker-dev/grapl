@@ -19,10 +19,5 @@ class WGLContext(
     context: Long,
     val dc: Long
 ): GLContext(context) {
-
-    init {
-        println("$context $dc")
-    }
-
     override fun makeCurrent() = WinGLPlatform.nSetCurrentContext(dc, context)
 }
