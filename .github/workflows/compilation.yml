@@ -10,6 +10,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - run: sudo apt-get install default-jre
+      - run: sudo apt-get install gcc-multilib g++-multilib
       - run: sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
      
       - name: "Install CMake"
