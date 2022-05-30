@@ -19,7 +19,8 @@ jobs:
       - name: "CMake build"
         uses: ashutoshvarma/action-cmake-build@v1
         with:
-          build-dir: ${{runner.workspace}}/natives
+          source-dir: ${{ runner.workspace }}/natives
+          build-dir: ${{ runner.workspace }}/natives/build
           build-type: MinSizeRel
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
