@@ -5,12 +5,13 @@ on:
 
 jobs:
   test:
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-
-    - run: |
+    
+    - name: "Testing"
+      continue-on-error: true
+      run: |
         mkdir output
         cd output
         chmod +x ../gradlew
