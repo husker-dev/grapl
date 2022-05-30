@@ -41,15 +41,15 @@ jobs:
       - name: "Compile"
         run: |
           cd native
-          cmake -A "Win32" .
-          cmake --build ./
-          cmake -A "Win64" .
-          cmake --build ./
+          cmake -A "Win32" ./x86
+          cmake --build ./x86
+          cmake -A "Win64" ./x64
+          cmake --build ./x64
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
         with:
-          name: Windows 2
+          name: Windows
           path: ./native/Debug
         
       
