@@ -15,6 +15,7 @@ jobs:
         uses: Symbitic/install-cmake@v0.1.0
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      - run: pwd
       - run: cd native
       - run: pwd
       - run: cmake --build ./ --clean-first 
