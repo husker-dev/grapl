@@ -45,7 +45,7 @@ jobs:
 
       - run: |
           cd native
-          cmake -B ./native -S . -DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          cmake -B ./native -S . -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
           cmake --build ./ 
         
       
