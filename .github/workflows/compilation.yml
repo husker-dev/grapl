@@ -20,11 +20,6 @@ jobs:
         
       - name: "Install GCC multilib"
         run: sudo apt-get install gcc-multilib g++-multilib
-      
-      - name: "Install CMake"
-        uses: Symbitic/install-cmake@v0.1.0
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           
       - name: "Compile"
         run: |
@@ -45,7 +40,7 @@ jobs:
 
       - run: |
           cd native
-          cmake -B ./ -S . -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake
+          cmake .
           cmake --build ./
         
       
