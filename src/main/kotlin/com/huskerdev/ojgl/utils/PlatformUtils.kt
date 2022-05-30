@@ -8,7 +8,7 @@ const val MacOS = 2
 class PlatformUtils {
 
     companion object {
-        val os = System.getProperty("os.name", "generic").run {
+        val os = System.getProperty("os.name", "generic").lowercase().run {
             return@run if ("mac" in this || "darwin" in this) MacOS
             else if ("win" in this) Windows
             else if ("nux" in this || "nix" in this || "aix" in this) Linux

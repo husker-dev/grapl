@@ -16,7 +16,7 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
     return result;
 }
 
-JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
+JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
     Display* display = XOpenDisplay(nullptr);
     Window win = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 100, 100, 0, 0, 0);
 
@@ -46,12 +46,12 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxPlatform_nC
     return createLongArray(env, 3, array);
 }
 
-JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
+JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
     jlong array[] = { (jlong)glXGetCurrentDisplay(), (jlong)glXGetCurrentDrawable(), (jlong)glXGetCurrentContext() };
     return createLongArray(env, 3, array);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_ojgl_platforms_LinuxPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong display, jlong window, jlong context) {
+JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong display, jlong window, jlong context) {
     return glXMakeCurrent((Display*)display, (Window)window, (GLXContext)context);
 }
 }

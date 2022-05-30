@@ -14,6 +14,9 @@ abstract class GLContext(
         @JvmField var CORE_PROFILE = true
         @JvmField var COMPATIBILITY_PROFILE = false
 
+        @JvmStatic fun createNew(): GLContext = createNew(COMPATIBILITY_PROFILE)
+        @JvmStatic fun createNew(shareWith: GLContext): GLContext = createNew(COMPATIBILITY_PROFILE, shareWith)
+
         @JvmStatic
         fun createNew(profile: Boolean, shareWith: GLContext) = createNew(profile, shareWith.context)
 

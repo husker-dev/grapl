@@ -113,19 +113,19 @@ void checkBasicFunctions() {
     }
 }
 
-JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
+JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
     checkBasicFunctions();
 
     jlong array[2] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC() };
     return createLongArray(env, 2, array);
 }
 
-JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_WinPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
     checkBasicFunctions();
     return wglMakeCurrent((HDC)dc, (HGLRC)rc);
 }
 
-JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
+JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
     checkBasicFunctions();
 
     GLint context_attributes[] = {
