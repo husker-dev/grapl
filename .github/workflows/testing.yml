@@ -12,13 +12,11 @@ jobs:
     - name: "Testing"
       continue-on-error: true
       run: |
-        mkdir output
-        cd output
-        chmod +x ../gradlew
-        ../gradlew test
+        chmod +x ./gradlew
+        ./gradlew test
         
     - name: "Upload outputs"
       uses: actions/upload-artifact@v2
       with:
         name: Linux
-        path: ./output
+        path: ./
