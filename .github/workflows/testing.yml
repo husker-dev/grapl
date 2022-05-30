@@ -9,6 +9,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     
+    - name: "Install Mesa"
+      run: sudo apt-get install mesa-common-dev
+    
     - name: "Testing"
       continue-on-error: true
       run: |
