@@ -23,6 +23,7 @@ jobs:
       
       - run: cd native
       - run: pwd
+      - run: ls
       - run: cmake --build ./ --clean-first 
       
       - uses: actions/upload-artifact@v2
