@@ -41,8 +41,11 @@ endif()
 # MacOS
 if (APPLE)
     add_library(ojgl SHARED macos.cpp)
+
     include_directories(/System/Library/Frameworks)
     find_library(OpenGL_LIBRARY OpenGL)
+
+    set_target_properties(ojgl PROPERTIES PREFIX "")
     target_link_libraries(ojgl ${OpenGL_LIBRARY})
 endif()
 
