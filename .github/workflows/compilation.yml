@@ -18,6 +18,11 @@ jobs:
 
       - run: |
           cd native
+          pwd
+          ls
+          
+      - run: |
+          cd native
           cmake --build ./ --clean-first 
       
       - uses: actions/upload-artifact@v2
