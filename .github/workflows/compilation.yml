@@ -20,11 +20,12 @@ jobs:
       - run: |
           cd native
           cmake .
-          cmake --build ./ --clean-first 
+          cmake --build ./ -DX64=True
+          cmake --build ./ -DX86=True
       
       - uses: actions/upload-artifact@v2
         with:
-          name: Artifacts
+          name: Linux
           path: ./native/lib
         
         
