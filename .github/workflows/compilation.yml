@@ -38,10 +38,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: |
+      - name: "Compile"
+        run: |
           cd native
           cmake .
           cmake --build ./
+          
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows
+          path: ./native/lib
+          
+      - name: "Upload libraries 2"
+        uses: actions/upload-artifact@v2
+        with:
+          name: Windows 2
+          path: ./native/Debug
         
       
 
