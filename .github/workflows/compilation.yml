@@ -43,15 +43,18 @@ jobs:
           cd native
           
           # x86
-          cmake -A "Win32" .
-          cmake --build ./
+          mkdir x86
+          cd x86
+          cmake -A "Win32" ../
+          cmake --build .
+          cd ..
           
           # x64
-          dir
-          rm -r CMakeFiles
-          del CMakeCache.txt
-          cmake -A "Win64" .
-          cmake --build ./
+          mkdir x64
+          cd x64
+          cmake -A "Win64" ../
+          cmake --build .
+          cd ..
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
