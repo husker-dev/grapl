@@ -11,6 +11,7 @@ jobs:
       
       - name: "Install Mesa"
         run: |
+          deb http://security.ubuntu.com/ubuntu bionic-security main 
           sudo apt-get update
           sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
       - name: "Install JDK"
