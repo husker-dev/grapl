@@ -1,6 +1,7 @@
+#define UNICODE
+
 #include <d3d9.h>
 #include <gl/GL.h>
-#include <Windows.h>
 
 #include "wgl.h"
 #include <jni.h>
