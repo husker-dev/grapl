@@ -41,10 +41,16 @@ jobs:
       - name: "Compile"
         run: |
           cd native
-          cmake -A "Win32" ./x86
-          cmake --build ./x86
-          cmake -A "Win64" ./x64
-          cmake --build ./x64
+          
+          # x86
+          cmake -A "Win32" .
+          cmake --build ./
+          
+          # x64
+          rm -r CMakeFiles
+          del CMakeCache.txt
+          cmake -A "Win64" .
+          cmake --build ./
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
