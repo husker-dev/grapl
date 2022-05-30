@@ -69,7 +69,7 @@ jobs:
         run: |
           cd native
 
-          cmake .
+          cmake "-DCMAKE_OSX_ARCHITECTURES=x86_64;i386" . 
           cmake --build ./
           
       - name: "Upload libraries"
