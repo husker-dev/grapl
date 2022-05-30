@@ -16,7 +16,7 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           
-      - run: cd ./native
+      - run: cd native
       - run: cmake .
       - run: cmake --build ./
       
