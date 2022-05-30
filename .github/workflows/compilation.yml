@@ -16,7 +16,13 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           
-      - run: cmake --build ./native
+      - run: cd ./native
+      - run: cmake --build .
+      
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Artifacts
+          path: ./lib
         
         
       
