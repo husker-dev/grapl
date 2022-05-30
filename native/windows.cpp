@@ -7,7 +7,6 @@
 #include <jni.h>
 #include <iostream>
 
-#define JNIEXPORT1 __attribute__((unused)) JNIEXPORT
 
 // Emulate internal JavaFX's code for memory mapping
 struct IManagedResource {
@@ -33,7 +32,7 @@ HDC dc = nullptr;
 PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
 
-PFNWGLDXOPENDEVICENVPROC                wglDXOpenDeviceNV = 0;
+PFNWGLDXOPENDEVICENVPROC                wglDXOpenDeviceNV = nullptr;
 PFNWGLDXREGISTEROBJECTNVPROC            wglDXRegisterObjectNV;
 PFNWGLDXSETRESOURCESHAREHANDLENVPROC    wglDXSetResourceShareHandleNV;
 PFNWGLDXUNREGISTEROBJECTNVPROC          wglDXUnregisterObjectNV;
@@ -127,19 +126,19 @@ void checkBasicFunctions() {
     }
 }
 
-JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_getCurrentContext(JNIEnv* env, jobject) {
+JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_getCurrentContext(JNIEnv* env, jobject) {
     checkBasicFunctions();
 
     jlong array[2] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC() };
     return createLongArray(env, 2, array);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_setCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_setCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
     checkBasicFunctions();
     return wglMakeCurrent((HDC)dc, (HGLRC)rc);
 }
 
-JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
+JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
     checkBasicFunctions();
 
     GLint context_attributes[] = {
@@ -155,37 +154,37 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createC
     return createLongArray(env, 2, array);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_hasDXInterop(JNIEnv* env, jobject) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_hasDXInterop(JNIEnv* env, jobject) {
     checkBasicFunctions();
     return wglDXOpenDeviceNV != 0;
 }
 
-JNIEXPORT1 jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
+JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXOpenDeviceNV(JNIEnv* env, jobject, jlong dxDevice) {
     checkBasicFunctions();
     return (jlong)wglDXOpenDeviceNV((void*)dxDevice);
 }
 
-JNIEXPORT1 jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXRegisterObjectNV(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
+JNIEXPORT jlong JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXRegisterObjectNV(JNIEnv* env, jobject, jlong device, jlong dxResource, jint name, jint type, jint access) {
     checkBasicFunctions();
     return (jlong)wglDXRegisterObjectNV((HANDLE)device, (void*)dxResource, name, type, access);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXSetResourceShareHandleNV(JNIEnv* env, jobject, jlong dxResource, jlong shareHandle) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXSetResourceShareHandleNV(JNIEnv* env, jobject, jlong dxResource, jlong shareHandle) {
     checkBasicFunctions();
     return (jboolean)wglDXSetResourceShareHandleNV((void*)dxResource, (HANDLE)shareHandle);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnregisterObjectNV(JNIEnv* env, jobject, jlong device, jlong object) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnregisterObjectNV(JNIEnv* env, jobject, jlong device, jlong object) {
     checkBasicFunctions();
     return (jboolean)wglDXUnregisterObjectNV((HANDLE)device, (HANDLE)object);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXLockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXLockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
     checkBasicFunctions();
     return wglDXLockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
 }
 
-JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnlockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
+JNIEXPORT jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnlockObjectsNV(JNIEnv* env, jobject, jlong handle, jlong textureHandle) {
     checkBasicFunctions();
     return wglDXUnlockObjectsNV((HANDLE)handle, 1, (HANDLE*)&textureHandle);
 }
@@ -194,7 +193,7 @@ JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_wglDXUnlo
         D3D
     ===========
 */
-JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createD3DTexture(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
+JNIEXPORT jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createD3DTexture(JNIEnv* env, jobject, jlong _device, jint width, jint height) {
     IDirect3DDevice9Ex* device = (IDirect3DDevice9Ex*)_device;
 
     // It is impportant to set NULL
@@ -209,7 +208,7 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_createD
     return createLongArray(env, 2, array);
 }
 
-JNIEXPORT1 void JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_replaceD3DTextureInResource(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
+JNIEXPORT void JNICALL Java_com_huskerdev_openglfx_utils_WinUtils_replaceD3DTextureInResource(JNIEnv* env, jobject, jlong _resource, jlong newTexture) {
 D3DResource* resource = (D3DResource*)_resource;
 IDirect3DTexture9* texture = (IDirect3DTexture9*)newTexture;
 
