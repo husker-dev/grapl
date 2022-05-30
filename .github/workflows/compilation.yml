@@ -30,7 +30,8 @@ jobs:
           cmake .
           cmake --build ./ 
       
-      - uses: actions/upload-artifact@v2
+      - name: "Upload libraries"
+        uses: actions/upload-artifact@v2
         with:
           name: Linux
           path: ./native/lib
