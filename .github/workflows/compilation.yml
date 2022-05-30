@@ -13,7 +13,10 @@ jobs:
         run: |
           lsb_release -a
           sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:amd64
-          sudo dpkg -i https://security.ubuntu.com/ubuntu/pool/main/m/mesa/mesa-common-dev_21.2.6-0ubuntu0.1~20.04.2_i386.deb
+          TEMP_DEB="$(mktemp)"
+          wget -O "$TEMP_DEB" 'https://security.ubuntu.com/ubuntu/pool/main/m/mesa/mesa-common-dev_21.2.6-0ubuntu0.1~20.04.2_i386.deb'
+          sudo dpkg -i "$TEMP_DEB"
+          rm -f "$TEMP_DEB"
       - name: "Install JDK"
         run: sudo apt-get install default-jre
       - name: "Install GCC multilib"
