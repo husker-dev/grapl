@@ -11,7 +11,7 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_nCreateContext(JNIEnv*
     CGLPixelFormatAttribute attributes[4] = {
             kCGLPFAAccelerated,
             kCGLPFAOpenGLProfile,
-            (CGLPixelFormatAttribute) isCore ? kCGLOGLPVersion_3_2_Core : kCGLOGLPVersion_Legacy,
+            (CGLPixelFormatAttribute) (isCore ? kCGLOGLPVersion_3_2_Core : kCGLOGLPVersion_Legacy),
             (CGLPixelFormatAttribute) 0
     };
 
@@ -30,6 +30,6 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_nGetCurrentContext(JNI
 }
 
 JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_nSetCurrentContext(JNIEnv* env, jobject, jlong context) {
-    return CGLSetCurrentContext(context) == 0;
+    return CGLSetCurrentContext((CGLContextObj)context) == 0;
 }
 }
