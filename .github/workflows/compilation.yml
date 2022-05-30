@@ -41,9 +41,9 @@ jobs:
       - name: "Compile"
         run: |
           cd native
-          cmake -DCMAKE_GENERATOR_PLATFORM=x64 .
+          cmake -G "Visual Studio 17 2022 Win32" .
           cmake --build ./
-          cmake -DCMAKE_GENERATOR_PLATFORM=Win32 .
+          cmake -G "Visual Studio 17 2022 Win64" .
           cmake --build ./
           
       - name: "Upload libraries"
