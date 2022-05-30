@@ -15,9 +15,9 @@ jobs:
         uses: Symbitic/install-cmake@v0.1.0
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
-      
-      - name: "Building"
-        run: cmake ./native
+          
+      - run: cd ./native
+      - run: cmake --build .
         
         
       
