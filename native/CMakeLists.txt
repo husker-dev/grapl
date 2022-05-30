@@ -27,7 +27,7 @@ endif()
 # Windows
 if (WIN32)
     add_library(ojgl-x64 SHARED windows.cpp wgl.h)
-
+    message(${JNI_INCLUDE_DIRS})
     # target_link_libraries(ojgl-x64 user32 gdi32 d3d9)
 
 endif (WIN32)
