@@ -13,6 +13,8 @@ jobs:
      
       - name: "Install CMake"
         uses: Symbitic/install-cmake@v0.1.0
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
       - name: "CMake build"
         uses: ashutoshvarma/action-cmake-build@v1
