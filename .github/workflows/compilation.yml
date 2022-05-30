@@ -17,7 +17,8 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
           
-      - run: |
+      - name: "Compile"
+        run: |
           cd native
           cmake .
           cmake -DX64=1 --build ./ 
@@ -26,7 +27,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Linux
-          path: ./native/lib
+          path: ./native
         
         
       
