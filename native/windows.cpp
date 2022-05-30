@@ -3,6 +3,7 @@
 #include <d3d9.h>
 #include <gl/GL.h>
 
+#include <wingdi.h>
 #include "wgl.h"
 #include <jni.h>
 #include <iostream>
