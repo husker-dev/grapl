@@ -16,6 +16,11 @@ jobs:
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       - run: pwd
+      - run: ls
+      - run: cd ..
+      - run: pwd
+      - run: ls
+      
       - run: cd native
       - run: pwd
       - run: cmake --build ./ --clean-first 
