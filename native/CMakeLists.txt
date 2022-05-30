@@ -35,7 +35,16 @@ if (WIN32)
         add_library(ojgl-x86 SHARED windows.cpp wgl.h)
         target_link_libraries(ojgl-x86 opengl32.lib)
     endif()
-endif (WIN32)
+endif()
+
+# MacOS
+if (APPLE)
+    message(Compile x64)
+    add_library(ojgl-x64 SHARED macos.cpp)
+    include_directories(/System/Library/Frameworks)
+    find_library(OpenGL_LIBRARY OpenGL)
+    target_link_libraries(VEngineRenderer ${OpenGL_LIBRARY})
+endif()
 
 
 
