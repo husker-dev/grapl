@@ -7,7 +7,15 @@ jobs:
   compile-linux:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
+      
+      - run: sudo apt-get install default-jre
+     
+      - name: "CMake build"
+        uses: ashutoshvarma/action-cmake-build@v1
+        with:
+          build-dir: ${{runner.workspace}}/build
+          build-type: MinSizeRel
+      
 
-      - run: echo Hello, world!
+      
