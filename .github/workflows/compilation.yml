@@ -9,9 +9,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - run: sudo apt-get install default-jre
-      - run: sudo apt-get install gcc-multilib g++-multilib
-      - run: sudo apt-get install libglu1-mesa-dev freeglut3-dev mesa-common-dev
+      - name: "Install Mesa"
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
+      - name: "Install JDK"
+        run: sudo apt-get install default-jre
+      - name: "Install GCC multilib"
+        run: sudo apt-get install gcc-multilib g++-multilib
+      
      
       - name: "Install CMake"
         uses: Symbitic/install-cmake@v0.1.0
