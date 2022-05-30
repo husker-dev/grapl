@@ -67,7 +67,7 @@ void checkBasicFunctions() {
                     NULL);
             HDC dc = GetDC(hwnd);
 
-            int pixel_format = 0;
+            int pixel_format;
             if (!(pixel_format = ChoosePixelFormat(dc, &pfd)))
                 std::cout << "Failed to choose pixel format" << std::endl;
             if (!SetPixelFormat(dc, pixel_format, &pfd))
@@ -89,7 +89,7 @@ void checkBasicFunctions() {
 
         // Create window with ARB pixel attributes
         HWND hwnd = CreateWindow(
-                L"openglfx", L"",
+                L"ojgl", L"",
                 WS_OVERLAPPEDWINDOW,
                 0, 0,
                 100, 100,
