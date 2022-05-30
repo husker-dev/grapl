@@ -19,7 +19,6 @@ jobs:
       - name: "Install GCC multilib"
         run: sudo apt-get install gcc-multilib g++-multilib
       
-     
       - name: "Install CMake"
         uses: Symbitic/install-cmake@v0.1.0
         env:
@@ -34,7 +33,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: Linux
-          path: ./native
+          path: ./native/lib
         
         
       
