@@ -20,8 +20,8 @@ jobs:
       - run: |
           cd native
           cmake .
-          cmake --build ./ -DX64=True
-          cmake --build ./ -DX86=True
+          cmake -DX64 --build ./ 
+          cmake -DX86 --build ./ 
       
       - uses: actions/upload-artifact@v2
         with:
