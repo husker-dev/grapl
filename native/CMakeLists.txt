@@ -27,7 +27,7 @@ endif()
 # Windows
 if (WIN32)
     add_library(ojgl-x64 SHARED windows.cpp wgl.h)
-    # include_directories($ENV{UniversalCRTSdkDir}/Include/10.0.19041.0/ucrt)
+
     # target_link_libraries(ojgl-x64 user32 gdi32 d3d9)
 
 endif (WIN32)
