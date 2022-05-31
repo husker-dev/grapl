@@ -1,6 +1,7 @@
 name: Test platforms
 
 on:
+  pull_request:
   workflow_dispatch:
 
 jobs:
