@@ -8,20 +8,20 @@ class OJGLTest {
 
     @Test
     fun createInstance() {
-        assertEquals(GLContext.createNew().makeCurrent(), true)
+        assertEquals(GLContext.create().makeCurrent(), true)
     }
 
     @Test
     fun createShared() {
-        val first = GLContext.createNew()
-        val second = GLContext.createNew(first)
+        val first = GLContext.create()
+        val second = GLContext.create(first)
         assertEquals(second.makeCurrent(), true)
     }
 
     @Test
     fun fromCurrent() {
-        GLContext.createNew().makeCurrent()
-        val second = GLContext.fromCurrent()
+        GLContext.create().makeCurrent()
+        val second = GLContext.current()
         assertEquals(second.makeCurrent(), true)
     }
 
