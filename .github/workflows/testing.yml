@@ -20,3 +20,14 @@ jobs:
       run: |
         chmod +x ./gradlew
         xvfb-run ./gradlew test
+        
+  macos:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v1
+    - run: sudo port install mesa
+    
+    - name: "Testing"
+      run: |
+        chmod +x ./gradlew
+        ./gradlew test
