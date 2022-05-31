@@ -44,7 +44,7 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_
             GLX_PBUFFER_HEIGHT, 32,
             None
     };
-    GLXPbuffer pbuffer = glXCreatePbuffer(display, fbConfigs[0], pbufferAttribs);
+    GLXPbuffer pbuffer = glXCreatePbuffer(display, fbc[0], pbufferAttribs);
 
     jlong array[] = { (jlong)display, (jlong)pbuffer, (jlong)context };
     return createLongArray(env, 3, array);
