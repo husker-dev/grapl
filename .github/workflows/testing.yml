@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  linux:
     runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
@@ -12,6 +12,5 @@ jobs:
     
     - name: "Testing"
       run: |
-        xvfb-run glxinfo
         chmod +x ./gradlew
         xvfb-run ./gradlew test
