@@ -31,7 +31,6 @@ class GLXContext(
     context: Long,
 ): GLContext(context) {
     init {
-        println("$display $window $handle")
-        System.out.flush()
+        throw RuntimeException("$display $window $handle")
     }
 }
