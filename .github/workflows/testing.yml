@@ -12,6 +12,6 @@ jobs:
     
     - name: "Testing"
       run: |
-        glxinfo
+        xvfb-run glxinfo
         chmod +x ./gradlew
         ./gradlew test
