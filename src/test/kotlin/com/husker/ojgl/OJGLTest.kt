@@ -17,7 +17,7 @@ class OJGLTest {
     fun createShared() {
         val first = GLContext.createNew()
         val second = GLContext.createNew(first)
-        throw RuntimeException(second.makeCurrent().toString())
+        second.makeCurrent()
 
         testGL()
     }
