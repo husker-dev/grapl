@@ -4,11 +4,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  linux:
+    runs-on: ubuntu-18.04
     steps:
     - uses: actions/checkout@v1
-
-    - run: |
+    - uses: openrndr/setup-opengl@v1.1
+    
+    - name: "Testing"
+      run: |
         chmod +x ./gradlew
-        ./gradlew test
+        xvfb-run ./gradlew test
