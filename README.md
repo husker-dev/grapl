@@ -22,9 +22,9 @@ val context = GLContext.create()
 val context = GLContext.create(anotherContext)
 ```
 
-#### Create with Core/Compat profile
+#### Create with Core profile
 ```kotlin
-val context = GLContext.create(CORE_PROFILE)
+val context = GLContext.create(true)
 ```
 
 #### Get current
