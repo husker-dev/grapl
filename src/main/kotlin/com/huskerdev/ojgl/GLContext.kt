@@ -17,7 +17,7 @@ abstract class GLContext(
         @JvmOverloads
         fun create(
             shareWith: Long = 0L,
-            coreProfile: Boolean
+            coreProfile: Boolean = false
         ) = GLPlatform.current.createContext(coreProfile, shareWith)
 
         @JvmStatic
