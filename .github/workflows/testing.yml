@@ -25,7 +25,7 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
-    - run: sudo port install mesa
+    # - run: sudo port install mesa
     
     - name: "Testing"
       run: |
