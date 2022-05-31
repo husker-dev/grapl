@@ -1,6 +1,6 @@
 package com.huskerdev.ojgl
 
-import com.huskerdev.ojgl.utils.PlatformUtils
+import com.huskerdev.ojgl.platforms.*
 import com.huskerdev.ojgl.utils.*
 import java.io.FileOutputStream
 
@@ -32,5 +32,18 @@ abstract class GLPlatform {
             }catch (_: Exception){}
             System.load(tmpFileName)
         }
+
+        val current by lazy {
+            when(PlatformUtils.os) {
+                Windows -> WinGLPlatform()
+                Linux -> LinuxGLPlatform()
+                MacOS -> MacGLPlatform()
+                else -> throw UnsupportedOperationException("Unsupported OS")
+            }
+        }
     }
+
+    abstract fun createContext(profile: Boolean, shareWith: Long): GLContext
+    abstract fun createFromCurrent(): GLContext
+    abstract fun makeCurrent(context: GLContext?): Boolean
 }
