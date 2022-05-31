@@ -29,8 +29,4 @@ class GLXContext(
     val display: Long,
     val window: Long,
     context: Long,
-): GLContext(context) {
-    init {
-        throw RuntimeException("$display $window $handle")
-    }
-}
+): GLContext(context)
