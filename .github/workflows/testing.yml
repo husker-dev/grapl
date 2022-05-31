@@ -14,4 +14,4 @@ jobs:
       run: |
         xvfb-run glxinfo
         chmod +x ./gradlew
-        ./gradlew test
+        xvfb-run ./gradlew test
