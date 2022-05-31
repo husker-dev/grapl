@@ -32,5 +32,6 @@ class GLXContext(
 ): GLContext(context) {
     init {
         println("$display $window $handle")
+        System.out.flush()
     }
 }
