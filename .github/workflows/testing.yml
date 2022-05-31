@@ -44,6 +44,8 @@ jobs:
         "C:\Program Files\7-Zip\7z.exe" x mesa.7z
         mklink opengl32.dll "x64\opengl32.dll"
         mklink libglapi.dll "x64\libglapi.dll"
+        mklink libgallium_wgl.dll "x64\libgallium_wgl.dll"
+        mklink dxil.dll "x64\dxil.dll"
         
     - name: "Testing"
       run: ./gradlew test
