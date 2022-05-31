@@ -31,20 +31,4 @@ jobs:
       run: |
         chmod +x ./gradlew
         ./gradlew test
-        
-  windows:
-    runs-on: windows-latest
-    steps:
-    - uses: actions/checkout@v1
-    
-    - name: "Preparing OpenGL"
-      shell: cmd
-      run: |
-        curl.exe -L --output mesa.7z --url https://github.com/pal1000/mesa-dist-win/releases/download/22.1.0/mesa3d-22.1.0-release-msvc.7z
-        "C:\Program Files\7-Zip\7z.exe" x mesa.7z
-        copy x64\libgallium_wgl.dll %JAVA_HOME%/bin
-        copy x64\opengl32.dll %JAVA_HOME%/bin
-        copy x64\libglapi.dll %JAVA_HOME%/bin
-        
-    - name: "Testing"
-      run: ./gradlew test
+      
