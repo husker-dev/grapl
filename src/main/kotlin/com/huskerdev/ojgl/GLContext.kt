@@ -7,21 +7,18 @@ abstract class GLContext(
 
     companion object {
 
-        @JvmField var CORE_PROFILE = true
-        @JvmField var COMPATIBILITY_PROFILE = false
-
         @JvmStatic
         fun create(
             shareWith: GLContext,
-            profile: Boolean = COMPATIBILITY_PROFILE
-        ) = create(shareWith.handle, profile)
+            coreProfile: Boolean = false
+        ) = create(shareWith.handle, coreProfile)
 
         @JvmStatic
         @JvmOverloads
         fun create(
             shareWith: Long = 0L,
-            profile: Boolean = COMPATIBILITY_PROFILE
-        ) = GLPlatform.current.createContext(profile, shareWith)
+            coreProfile: Boolean
+        ) = GLPlatform.current.createContext(coreProfile, shareWith)
 
         @JvmStatic
         fun current() = GLPlatform.current.createFromCurrent()
