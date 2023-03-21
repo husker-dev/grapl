@@ -1,6 +1,5 @@
 #define UNICODE
 
-#include <d3d9.h>
 #include <gl/GL.h>
 
 #include <wingdi.h>
@@ -9,24 +8,6 @@
 #include <iostream>
 
 
-// Emulate internal JavaFX's code for memory mapping
-struct IManagedResource {
-    void* virtualTable;
-
-    IManagedResource* pPrev;
-    IManagedResource* pNext;
-};
-
-struct D3DResource {
-    IManagedResource managedResource;
-    IDirect3DResource9* pResource;
-    IDirect3DSwapChain9* pSwapChain;
-    IDirect3DSurface9* pSurface;
-    IDirect3DSurface9* pDepthSurface;
-    IDirect3DTexture9* pTexture;
-
-    D3DSURFACE_DESC desc;
-};
 
 HDC dc = nullptr;
 
