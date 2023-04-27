@@ -1,6 +1,5 @@
 #define UNICODE
 
-#include <gl/GL.h>
 
 #include <wingdi.h>
 #include "wgl.h"
