@@ -41,19 +41,19 @@ jobs:
           
           mkdir x86
           cd x86
-          cmake -A "Win32" ../ -DX86=1
-          cmake --build .
+          cmake -A "Win32" ../ -D X86=1
+          cmake --build . --config Relase
           cd ..
           
           mkdir x64
           cd x64
-          cmake -A "x64" ../ -DX64=1
-          cmake --build .
+          cmake -A "x64" ../ -D X64=1
+          cmake --build . --config Release
           cd ..
           
           mkdir lib
-          copy x64/Debug/ojgl-x64.dll lib
-          copy x86/Debug/ojgl-x86.dll lib
+          copy x64/Release/ojgl-x64.dll lib
+          copy x86/Release/ojgl-x86.dll lib
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
