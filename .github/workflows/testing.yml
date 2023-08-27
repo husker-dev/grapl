@@ -44,10 +44,10 @@ jobs:
       run: |
         powershell wget "https://github.com/pal1000/mesa-dist-win/releases/download/23.1.6/mesa3d-23.1.6-release-msvc.7z" -outfile "mesa3d.7z"
         powershell 7z x 'mesa3d.7z'
+        cp -R x64/* ./
         
     
     - name: "Testing"
       run: |
-        cd x64
         ../gradlew.bat test
       
