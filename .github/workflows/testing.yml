@@ -41,6 +41,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: "Preparing OpenGL"
+      shell: pwsh
       run: |
         wget "https://github.com/pal1000/mesa-dist-win/releases/download/23.1.6/mesa3d-23.1.6-release-mingw.7z" -outfile "mesa3d.7z"
         7z e 'mesa3d.7z'
