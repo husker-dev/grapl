@@ -46,6 +46,7 @@ jobs:
         powershell wget "https://github.com/mmozeiko/build-mesa/releases/download/23.1.6/mesa-llvmpipe-23.1.6.zip" -outfile "mesa-llvmpipe.7z"
         powershell 7z x 'mesa-llvmpipe.7z'
         dir
+        cp opengl32.dll C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\8.0.382-5\x64\bin
     
     - name: "Testing"
       run: |
