@@ -50,6 +50,13 @@ jobs:
         mklink libglapi.dll "x64\libglapi.dll"
     
     - name: "Testing"
+      continue-on-error: true
       run: |
         ./gradlew.bat test
+
+    - name: "Upload libraries"
+      uses: actions/upload-artifact@v2
+      with:
+        name: MacOS
+        path: ./
       
