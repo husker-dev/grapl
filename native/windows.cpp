@@ -18,7 +18,9 @@ typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareC
 typedef BOOL(WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 
 PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
+PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormat;
 PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
+
 
 extern "C" {
 
@@ -65,6 +67,7 @@ void checkBasicFunctions() {
 
             // Load functions
             wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+            wglChoosePixelFormat = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormat");
             wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
             // Destroy dummy context
