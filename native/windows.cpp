@@ -90,7 +90,7 @@ void checkBasicFunctions() {
         UINT pixel_formats_count;
 
         int pixel_attributes[] = {
-                WGL_DRAW_TO_WINDOW_ARB, GL_FALSE,
+                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
                 WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
                 0
         };
