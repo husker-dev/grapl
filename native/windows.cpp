@@ -18,7 +18,6 @@ typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareC
 typedef BOOL(WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 
 PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
-PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormat;
 PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
 
 
@@ -67,7 +66,6 @@ void checkBasicFunctions() {
 
             // Load functions
             wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-            wglChoosePixelFormat = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormat");
             wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
 
             // Destroy dummy context
@@ -92,11 +90,11 @@ void checkBasicFunctions() {
         UINT pixel_formats_count;
 
         int pixel_attributes[] = {
-                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
+                WGL_DRAW_TO_WINDOW_ARB, GL_FALSE,
                 WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
                 0
         };
-        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count) && !wglChoosePixelFormat(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
+        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
             std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
         if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
             std::cout << "Failed to set pixel format (WGL)" << std::endl;
