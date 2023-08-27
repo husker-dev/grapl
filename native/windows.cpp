@@ -1,14 +1,21 @@
 #define UNICODE
 
-
-#include <wingdi.h>
-#include "wgl.h"
+#include <windows.h>
+#include <gl/gl.h>
 #include <jni.h>
 #include <iostream>
 
 
 
 HDC dc = nullptr;
+
+#define WGL_DRAW_TO_WINDOW_ARB            0x2001
+#define WGL_SUPPORT_OPENGL_ARB            0x2010
+#define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
+typedef BOOL(WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 
 PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;

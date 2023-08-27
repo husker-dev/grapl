@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.8)
+set (CMAKE_CXX_STANDARD 20)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 project ("ojgl")
@@ -8,6 +9,7 @@ include_directories(${JNI_INCLUDE_DIRS})
 
 # Linux
 if (UNIX AND NOT APPLE)
+
     find_package(X11 REQUIRED)
     include_directories(${X11_INCLUDE_DIR})
 
@@ -28,11 +30,11 @@ endif()
 if (WIN32)
     if(X64)
         message(Compile x64)
-        add_library(ojgl-x64 SHARED windows.cpp wgl.h)
+        add_library(ojgl-x64 SHARED windows.cpp)
         target_link_libraries(ojgl-x64 opengl32.lib)
     elseif(X86)
         message(Compile x86)
-        add_library(ojgl-x86 SHARED windows.cpp wgl.h)
+        add_library(ojgl-x86 SHARED windows.cpp)
         target_link_libraries(ojgl-x86 opengl32.lib)
     endif()
 endif()
