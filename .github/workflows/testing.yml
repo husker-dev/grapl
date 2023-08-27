@@ -46,11 +46,8 @@ jobs:
         powershell wget "https://github.com/mmozeiko/build-mesa/releases/download/23.1.6/mesa-llvmpipe-23.1.6.zip" -outfile "mesa-llvmpipe.7z"
         powershell 7z x 'mesa-llvmpipe.7z'
         dir
-        mklink opengl32.dll "opengl32.dll"
-        mklink OPENGL32.dll "opengl32.dll"
     
     - name: "Testing"
-      continue-on-error: true
       run: |
         ./gradlew.bat test
 
