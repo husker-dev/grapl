@@ -49,5 +49,5 @@ jobs:
     
     - name: "Testing"
       run: |
-        ../gradlew.bat test
+        ./gradlew.bat test
       
