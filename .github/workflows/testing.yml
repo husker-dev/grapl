@@ -18,7 +18,7 @@ jobs:
       run: |
         sudo add-apt-repository ppa:kisak/kisak-mesa
         sudo apt update
-        sudo apt upgrade
+        sudo apt install mesa-utils
     
     - name: "Testing"
       run: |
