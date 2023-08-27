@@ -93,7 +93,7 @@ void checkBasicFunctions() {
                 WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
                 0
         };
-        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
+        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count) && !wglChoosePixelFormat(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
             std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
         if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
             std::cout << "Failed to set pixel format (WGL)" << std::endl;
