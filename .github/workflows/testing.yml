@@ -34,4 +34,13 @@ jobs:
       run: |
         chmod +x ./gradlew
         ./gradlew test
+
+  windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v1
+    
+    - name: "Testing"
+      run: |
+        ./gradlew.bat test
       
