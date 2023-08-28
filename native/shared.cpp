@@ -107,7 +107,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_init(JNIEnv* env, jobject) 
     a_glFramebufferRenderbuffer = (GLFRAMEBUFFERRENDERBUFFERPROC)a_GetProcAddress("glFramebufferRenderbuffer");
     a_glRenderbufferStorage = (GLRENDERBUFFERSTORAGEPROC)a_GetProcAddress("glRenderbufferStorage");
     a_glFramebufferTexture2D = (GLFRAMEBUFFERTEXTURE2DPROC)a_GetProcAddress("glFramebufferTexture2D");
-    a_glBindTextures = (GLBINDTEXTURESPROC)a_GetProcAddress("glBindTexture");
+    a_glBindTexture = (GLBINDTEXTURESPROC)a_GetProcAddress("glBindTexture");
     a_glBindRenderbuffer = (GLBINDRENDERBUFFERPROC)a_GetProcAddress("glBindRenderbuffer");
     a_glBindFramebuffer = (GLBINDFRAMEBUFFERPROC)a_GetProcAddress("glBindFramebuffer");
     a_glGenTextures = (GLGENTEXTURESPROC)a_GetProcAddress("glGenTextures");
