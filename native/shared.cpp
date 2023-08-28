@@ -95,8 +95,9 @@ void* a_GetProcAddress(const char* name) {
             std::cout << "Testing path: " << NAMES[i] << ": " << libGL << std::endl;
         }
     }
-    std::cout << "Getting ProcAddr of " << name << ": " << dlsym(libGL, name) << std::endl;
-    return (void*)dlsym(libGL, name);
+    void* procAddr = dlsym(libGL, name);
+    std::cout << "Getting ProcAddr of " << name << ": " << procAddr << std::endl;
+    return procAddr;
 #endif
 }
 
@@ -133,8 +134,8 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteTextures(JNIEnv* en
 }
 
 JNIEXPORT jint JNICALL Java_com_huskerdev_ojgl_GLMin_glGenFramebuffers(JNIEnv* env, jobject) {
-    std::cout << "glGenFramebuffers: " << a_glGenFramebuffers << std::endl;
-    GLuint framebuffer;
+    GLuint framebuffer = 0;
+    std::cout << "glGenFramebuffers: " << a_glGenFramebuffers << " " << &framebuffer << std::endl;
     a_glGenFramebuffers(1, &framebuffer);
     return framebuffer;
 }
