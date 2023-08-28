@@ -16,7 +16,6 @@ static void* libGL;
 #elif defined(__APPLE__)
 #include <dlfcn.h>
 #include <OpenGL/gl.h>
-
 static void* libGL;
 
 #endif
@@ -135,7 +134,9 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteTextures(JNIEnv* en
 
 JNIEXPORT jint JNICALL Java_com_huskerdev_ojgl_GLMin_glGenFramebuffers(JNIEnv* env, jobject) {
     GLuint framebuffer = 0;
-    std::cout << "glGenFramebuffers: " << a_glGenFramebuffers << " " << &framebuffer << std::endl;
+
+    std::cout << "glGenFramebuffers: " << a_glGenFramebuffers << " " << a_GetProcAddress("glGenFramebuffers") << (GLGENFRAMEBUFFERSPROC)a_GetProcAddress("glGenFramebuffers") << std::endl;
+    a_glGenFramebuffers = (GLGENFRAMEBUFFERSPROC)a_GetProcAddress("glGenFramebuffers");
     a_glGenFramebuffers(1, &framebuffer);
     return framebuffer;
 }
