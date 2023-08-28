@@ -28,7 +28,7 @@ typedef void (*GLGENRENDERBUFFERSPROC)(GLsizei n, GLuint* renderbuffers);
 typedef void (*GLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
 typedef void (*GLBINDFRAMEBUFFERPROC)(GLenum target, GLuint framebuffer);
 typedef void (*GLBINDRENDERBUFFERPROC)(GLenum target, GLuint renderbuffer);
-typedef void (*GLBINDTEXTURESPROC)(GLuint first, GLsizei count, const GLuint* textures);
+typedef void (*GLBINDTEXTURESPROC)(GLenum target, GLuint texture);
 typedef void (*GLFRAMEBUFFERTEXTURE2DPROC)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
 typedef void (*GLRENDERBUFFERSTORAGEPROC)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
 typedef void (*GLFRAMEBUFFERRENDERBUFFERPROC)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
@@ -45,7 +45,7 @@ GLREADPIXELSPROC a_glReadPixels;
 GLFRAMEBUFFERRENDERBUFFERPROC a_glFramebufferRenderbuffer;
 GLRENDERBUFFERSTORAGEPROC a_glRenderbufferStorage;
 GLFRAMEBUFFERTEXTURE2DPROC a_glFramebufferTexture2D;
-GLBINDTEXTURESPROC a_glBindTextures;
+GLBINDTEXTURESPROC a_glBindTexture;
 GLBINDRENDERBUFFERPROC a_glBindRenderbuffer;
 GLBINDFRAMEBUFFERPROC a_glBindFramebuffer;
 GLGENTEXTURESPROC a_glGenTextures;
@@ -95,7 +95,7 @@ void* a_GetProcAddress(const char* name) {
         }
     }
     std::cout << "Getting ProcAddr of " << name << ": " << dlsym(libGL, name) << std::endl;
-    return dlsym(libGL, name);
+    return (void*)dlsym(libGL, name);
 #endif
 }
 
@@ -107,7 +107,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_init(JNIEnv* env, jobject) 
     a_glFramebufferRenderbuffer = (GLFRAMEBUFFERRENDERBUFFERPROC)a_GetProcAddress("glFramebufferRenderbuffer");
     a_glRenderbufferStorage = (GLRENDERBUFFERSTORAGEPROC)a_GetProcAddress("glRenderbufferStorage");
     a_glFramebufferTexture2D = (GLFRAMEBUFFERTEXTURE2DPROC)a_GetProcAddress("glFramebufferTexture2D");
-    a_glBindTextures = (GLBINDTEXTURESPROC)a_GetProcAddress("glBindTextures");
+    a_glBindTextures = (GLBINDTEXTURESPROC)a_GetProcAddress("glBindTexture");
     a_glBindRenderbuffer = (GLBINDRENDERBUFFERPROC)a_GetProcAddress("glBindRenderbuffer");
     a_glBindFramebuffer = (GLBINDFRAMEBUFFERPROC)a_GetProcAddress("glBindFramebuffer");
     a_glGenTextures = (GLGENTEXTURESPROC)a_GetProcAddress("glGenTextures");
@@ -120,6 +120,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_init(JNIEnv* env, jobject) 
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteFramebuffers(JNIEnv* env, jobject, jint fbo) {
+    std::cout << "a_glDeleteFramebuffers: " << a_glDeleteFramebuffers << std::endl;
     a_glDeleteFramebuffers(1, (GLuint*)&fbo);
 }
 
@@ -158,7 +159,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glBindRenderbuffer(JNIEnv* 
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glBindTexture(JNIEnv* env, jobject, jint target, jint texture) {
-    a_glBindTextures(target, 1, (GLuint*)&texture);
+    a_glBindTexture(target, texture);
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glFramebufferTexture2D(JNIEnv* env, jobject, jint target, jint attachment, jint texture, jint texId, jint level) {
