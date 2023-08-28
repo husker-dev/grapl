@@ -20,7 +20,6 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
 
 JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
     Display* display = XOpenDisplay(nullptr);
-    //Window win = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0, 100, 100, 0, 0, 0);
 
     static int visual_attribs[] = { None };
 

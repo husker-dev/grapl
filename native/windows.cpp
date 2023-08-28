@@ -5,8 +5,6 @@
 #include <jni.h>
 #include <iostream>
 
-
-
 HDC dc = nullptr;
 
 #define WGL_DRAW_TO_WINDOW_ARB            0x2001
@@ -123,7 +121,7 @@ JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCr
 
     HGLRC rc;
     if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
-    std::cout << "Failed to create context (WGL)" << std::endl;
+        std::cout << "Failed to create context (WGL)" << std::endl;
 
     jlong array[2] = { (jlong)rc, (jlong)dc };
     return createLongArray(env, 2, array);
