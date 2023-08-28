@@ -1,96 +1,117 @@
-#define UNICODE
 #include <jni.h>
 
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #include <windows.h>
+#include <iostream>
 #include <gl/gl.h>
+static HMODULE libGL;
+
 #elif defined(__linux__)
 #include <GL/gl.h>
 #include <GL/glx.h>
+static void* libGL;
+
 #elif defined(__APPLE__)
 #include <OpenGL/gl.h>
-#include <mach-o/dyld.h>
-#include <stdlib.h>
-#include <string.h>
+static void* libGL;
+
 #endif
 
-typedef void (*PFNGLDELETEFRAMEBUFFERSPROC)(GLsizei n, const GLuint* framebuffers);
-typedef void (*PFNGLDELETERENDERBUFFERSPROC)(GLsizei n, const GLuint* renderbuffers);
-typedef void (*PFNGLDELETETEXTURESPROC)(GLsizei n, const GLuint* textures);
-typedef void (*PFNGLGENFRAMEBUFFERSPROC)(GLsizei n, GLuint* framebuffers);
-typedef void (*PFNGLGENRENDERBUFFERSPROC)(GLsizei n, GLuint* renderbuffers);
-typedef void (*PFNGLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
-typedef void (*PFNGLBINDFRAMEBUFFERPROC)(GLenum target, GLuint framebuffer);
-typedef void (*PFNGLBINDRENDERBUFFERPROC)(GLenum target, GLuint renderbuffer);
-typedef void (*PFNGLBINDTEXTURESPROC)(GLuint first, GLsizei count, const GLuint* textures);
-typedef void (*PFNGLFRAMEBUFFERTEXTURE2DPROC)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-typedef void (*PFNGLRENDERBUFFERSTORAGEPROC)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-typedef void (*PFNGLFRAMEBUFFERRENDERBUFFERPROC)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-typedef void (*PFNGLREADPIXELSPROC)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
-typedef void (*PFNGLTEXIMAGE2DPROC)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels);
-typedef void (*PFNGLTEXPARAMETERIPROC)(GLenum target, GLenum pname, GLint param);
-typedef void (*PFNGLVIEWPORTPROC)(GLint x, GLint y, GLsizei width, GLsizei height);
-typedef void (*PFNGLFINISHPROC)(void);
+typedef void (*GLDELETEFRAMEBUFFERSPROC)(GLsizei n, const GLuint* framebuffers);
+typedef void (*GLDELETERENDERBUFFERSPROC)(GLsizei n, const GLuint* renderbuffers);
+typedef void (*GLDELETETEXTURESPROC)(GLsizei n, const GLuint* textures);
+typedef void (*GLGENFRAMEBUFFERSPROC)(GLsizei n, GLuint* framebuffers);
+typedef void (*GLGENRENDERBUFFERSPROC)(GLsizei n, GLuint* renderbuffers);
+typedef void (*GLGENTEXTURESPROC)(GLsizei n, GLuint* textures);
+typedef void (*GLBINDFRAMEBUFFERPROC)(GLenum target, GLuint framebuffer);
+typedef void (*GLBINDRENDERBUFFERPROC)(GLenum target, GLuint renderbuffer);
+typedef void (*GLBINDTEXTURESPROC)(GLuint first, GLsizei count, const GLuint* textures);
+typedef void (*GLFRAMEBUFFERTEXTURE2DPROC)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
+typedef void (*GLRENDERBUFFERSTORAGEPROC)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+typedef void (*GLFRAMEBUFFERRENDERBUFFERPROC)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
+typedef void (*GLREADPIXELSPROC)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void* pixels);
+typedef void (*GLTEXIMAGE2DPROC)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void* pixels);
+typedef void (*GLTEXPARAMETERIPROC)(GLenum target, GLenum pname, GLint param);
+typedef void (*GLVIEWPORTPROC)(GLint x, GLint y, GLsizei width, GLsizei height);
+typedef void (*GLFINISHPROC)(void);
 
-PFNGLVIEWPORTPROC a_glViewport;
-PFNGLTEXPARAMETERIPROC a_glTexParameteri;
-PFNGLTEXIMAGE2DPROC a_glTexImage2D;
-PFNGLREADPIXELSPROC a_glReadPixels;
-PFNGLFRAMEBUFFERRENDERBUFFERPROC a_glFramebufferRenderbuffer;
-PFNGLRENDERBUFFERSTORAGEPROC a_glRenderbufferStorage;
-PFNGLFRAMEBUFFERTEXTURE2DPROC a_glFramebufferTexture2D;
-PFNGLBINDTEXTURESPROC a_glBindTextures;
-PFNGLBINDRENDERBUFFERPROC a_glBindRenderbuffer;
-PFNGLBINDFRAMEBUFFERPROC a_glBindFramebuffer;
-PFNGLGENTEXTURESPROC a_glGenTextures;
-PFNGLGENRENDERBUFFERSPROC a_glGenRenderbuffers;
-PFNGLGENFRAMEBUFFERSPROC a_glGenFramebuffers;
-PFNGLDELETETEXTURESPROC a_glDeleteTextures;
-PFNGLDELETERENDERBUFFERSPROC a_glDeleteRenderbuffers;
-PFNGLDELETEFRAMEBUFFERSPROC a_glDeleteFramebuffers;
-PFNGLFINISHPROC a_glFinish;
+GLVIEWPORTPROC a_glViewport;
+GLTEXPARAMETERIPROC a_glTexParameteri;
+GLTEXIMAGE2DPROC a_glTexImage2D;
+GLREADPIXELSPROC a_glReadPixels;
+GLFRAMEBUFFERRENDERBUFFERPROC a_glFramebufferRenderbuffer;
+GLRENDERBUFFERSTORAGEPROC a_glRenderbufferStorage;
+GLFRAMEBUFFERTEXTURE2DPROC a_glFramebufferTexture2D;
+GLBINDTEXTURESPROC a_glBindTextures;
+GLBINDRENDERBUFFERPROC a_glBindRenderbuffer;
+GLBINDFRAMEBUFFERPROC a_glBindFramebuffer;
+GLGENTEXTURESPROC a_glGenTextures;
+GLGENRENDERBUFFERSPROC a_glGenRenderbuffers;
+GLGENFRAMEBUFFERSPROC a_glGenFramebuffers;
+GLDELETETEXTURESPROC a_glDeleteTextures;
+GLDELETERENDERBUFFERSPROC a_glDeleteRenderbuffers;
+GLDELETEFRAMEBUFFERSPROC a_glDeleteFramebuffers;
+GLFINISHPROC a_glFinish;
 
 extern "C" {
 
 // GLMin
 void* a_GetProcAddress(const char* name) {
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
-    return (void*)wglGetProcAddress(name);
+    if(libGL == NULL) 
+        libGL = LoadLibraryW(L"opengl32.dll");
+    void* procAddr = wglGetProcAddress(name);
+    if(procAddr == NULL)
+        procAddr = GetProcAddress(libGL, name);
+    return procAddr;
+
 #elif defined(__linux__)
-    return (void*)glXGetProcAddressARB((GLubyte*)name);
+    if(libGL == NULL){
+        static const char *NAMES[] = {"libGL.so.1", "libGL.so"};
+        for(int i = 0; i < 2; i++)
+            if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
+                break;
+    }
+    void* procAddr = glXGetProcAddressARB((GLubyte*)name);
+    if(procAddr == NULL)
+        procAddr = dlsym(libGL, name);
+    return procAddr;
+
 #elif defined(__APPLE__)
-    NSSymbol symbol;
-    char* symbolName;
-    symbolName = (char*)malloc(strlen(name) + 2);
-    strcpy(symbolName + 1, name);
-    symbolName[0] = '_';
-    symbol = NULL;
-    if (NSIsSymbolNameDefined(symbolName))
-        symbol = NSLookupAndBindSymbol(symbolName);
-    free(symbolName);
-    return symbol ? NSAddressOfSymbol(symbol) : NULL;
+    if(libGL == NULL){
+        static const char *NAMES[] = {
+            "../Frameworks/OpenGL.framework/OpenGL",
+            "/Library/Frameworks/OpenGL.framework/OpenGL",
+            "/System/Library/Frameworks/OpenGL.framework/OpenGL",
+            "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
+        };
+        for(int i = 0; i < 4; i++)
+            if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
+                break;
+    }
+    return dlsym(libGL, name);
 #endif
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_init(JNIEnv* env, jobject) {
-    a_glViewport = (PFNGLVIEWPORTPROC)a_GetProcAddress("glViewport");
-    a_glTexParameteri = (PFNGLTEXPARAMETERIPROC)a_GetProcAddress("glTexParameteri");
-    a_glTexImage2D = (PFNGLTEXIMAGE2DPROC)a_GetProcAddress("glTexImage2D");
-    a_glReadPixels = (PFNGLREADPIXELSPROC)a_GetProcAddress("glReadPixels");
-    a_glFramebufferRenderbuffer = (PFNGLFRAMEBUFFERRENDERBUFFERPROC)a_GetProcAddress("glFramebufferRenderbuffer");
-    a_glRenderbufferStorage = (PFNGLRENDERBUFFERSTORAGEPROC)a_GetProcAddress("glRenderbufferStorage");
-    a_glFramebufferTexture2D = (PFNGLFRAMEBUFFERTEXTURE2DPROC)a_GetProcAddress("glFramebufferTexture2D");
-    a_glBindTextures = (PFNGLBINDTEXTURESPROC)a_GetProcAddress("glBindTextures");
-    a_glBindRenderbuffer = (PFNGLBINDRENDERBUFFERPROC)a_GetProcAddress("glBindRenderbuffer");
-    a_glBindFramebuffer = (PFNGLBINDFRAMEBUFFERPROC)a_GetProcAddress("glBindFramebuffer");
-    a_glGenTextures = (PFNGLGENTEXTURESPROC)a_GetProcAddress("glGenTextures");
-    a_glGenRenderbuffers = (PFNGLGENRENDERBUFFERSPROC)a_GetProcAddress("glGenRenderbuffers");
-    a_glGenFramebuffers = (PFNGLGENFRAMEBUFFERSPROC)a_GetProcAddress("glGenFramebuffers");
-    a_glDeleteTextures = (PFNGLDELETETEXTURESPROC)a_GetProcAddress("glDeleteTextures");
-    a_glDeleteRenderbuffers = (PFNGLDELETERENDERBUFFERSPROC)a_GetProcAddress("glDeleteRenderbuffers");
-    a_glDeleteFramebuffers = (PFNGLDELETEFRAMEBUFFERSPROC)a_GetProcAddress("glDeleteFramebuffers");
-    a_glFinish = (PFNGLFINISHPROC)a_GetProcAddress("glFinish");
+    a_glViewport = (GLVIEWPORTPROC)a_GetProcAddress("glViewport");
+    a_glTexParameteri = (GLTEXPARAMETERIPROC)a_GetProcAddress("glTexParameteri");
+    a_glTexImage2D = (GLTEXIMAGE2DPROC)a_GetProcAddress("glTexImage2D");
+    a_glReadPixels = (GLREADPIXELSPROC)a_GetProcAddress("glReadPixels");
+    a_glFramebufferRenderbuffer = (GLFRAMEBUFFERRENDERBUFFERPROC)a_GetProcAddress("glFramebufferRenderbuffer");
+    a_glRenderbufferStorage = (GLRENDERBUFFERSTORAGEPROC)a_GetProcAddress("glRenderbufferStorage");
+    a_glFramebufferTexture2D = (GLFRAMEBUFFERTEXTURE2DPROC)a_GetProcAddress("glFramebufferTexture2D");
+    a_glBindTextures = (GLBINDTEXTURESPROC)a_GetProcAddress("glBindTextures");
+    a_glBindRenderbuffer = (GLBINDRENDERBUFFERPROC)a_GetProcAddress("glBindRenderbuffer");
+    a_glBindFramebuffer = (GLBINDFRAMEBUFFERPROC)a_GetProcAddress("glBindFramebuffer");
+    a_glGenTextures = (GLGENTEXTURESPROC)a_GetProcAddress("glGenTextures");
+    a_glGenRenderbuffers = (GLGENRENDERBUFFERSPROC)a_GetProcAddress("glGenRenderbuffers");
+    a_glGenFramebuffers = (GLGENFRAMEBUFFERSPROC)a_GetProcAddress("glGenFramebuffers");
+    a_glDeleteTextures = (GLDELETETEXTURESPROC)a_GetProcAddress("glDeleteTextures");
+    a_glDeleteRenderbuffers = (GLDELETERENDERBUFFERSPROC)a_GetProcAddress("glDeleteRenderbuffers");
+    a_glDeleteFramebuffers = (GLDELETEFRAMEBUFFERSPROC)a_GetProcAddress("glDeleteFramebuffers");
+    a_glFinish = (GLFINISHPROC)a_GetProcAddress("glFinish");
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteFramebuffers(JNIEnv* env, jobject, jint fbo) {
