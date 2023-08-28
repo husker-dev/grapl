@@ -1,5 +1,6 @@
 #include <jni.h>
 
+#include <iostream>
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #include <windows.h>
@@ -15,7 +16,7 @@ static void* libGL;
 #elif defined(__APPLE__)
 #include <dlfcn.h>
 #include <OpenGL/gl.h>
-#include <iostream>
+
 static void* libGL;
 
 #endif
