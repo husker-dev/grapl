@@ -15,6 +15,7 @@ static void* libGL;
 #elif defined(__APPLE__)
 #include <dlfcn.h>
 #include <OpenGL/gl.h>
+#include <iostream>
 static void* libGL;
 
 #endif
@@ -87,10 +88,13 @@ void* a_GetProcAddress(const char* name) {
             "/System/Library/Frameworks/OpenGL.framework/OpenGL",
             "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
         };
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 4; i++){
             if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
                 break;
+            std::cout << "Testing path: " << NAMES[i] << ": " << libGL << std::endl;
+        }
     }
+    std::cout << "Getting ProcAddr of " << name << ": " << dlsym(libGL, name) << std::endl;
     return dlsym(libGL, name);
 #endif
 }
