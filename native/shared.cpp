@@ -7,6 +7,7 @@
 #include <gl/gl.h>
 #elif defined(__linux__)
 #include <GL/gl.h>
+#include <GL/glx.h>
 #elif defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <mach-o/dyld.h>
@@ -61,7 +62,7 @@ void* a_GetProcAddress(const char* name) {
 #elif defined(__APPLE__)
     NSSymbol symbol;
     char* symbolName;
-    symbolName = malloc(strlen(name) + 2);
+    symbolName = (char*)malloc(strlen(name) + 2);
     strcpy(symbolName + 1, name);
     symbolName[0] = '_';
     symbol = NULL;
