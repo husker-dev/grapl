@@ -18,11 +18,9 @@ static void* libGL;
 #include <OpenGL/gl.h>
 static void* libGL;
 
-#import <mach-o/dyld.h>
-#import <stdlib.h>
-#import <string.h>
-
 #endif
+
+extern "C" {
 
 typedef void (*GLDELETEFRAMEBUFFERSPROC)(GLsizei n, const GLuint* framebuffers);
 typedef void (*GLDELETERENDERBUFFERSPROC)(GLsizei n, const GLuint* renderbuffers);
@@ -60,7 +58,7 @@ GLDELETERENDERBUFFERSPROC a_glDeleteRenderbuffers;
 GLDELETEFRAMEBUFFERSPROC a_glDeleteFramebuffers;
 GLFINISHPROC a_glFinish;
 
-extern "C" {
+
 
 // GLMin
 void* a_GetProcAddress(const char* name) {
@@ -85,7 +83,6 @@ void* a_GetProcAddress(const char* name) {
     return procAddr;
 
 #elif defined(__APPLE__)
-    /*
     if(libGL == NULL){
         static const char *NAMES[] = {
             "../Frameworks/OpenGL.framework/OpenGL",
@@ -102,17 +99,6 @@ void* a_GetProcAddress(const char* name) {
     void* procAddr = dlsym(libGL, name);
     std::cout << "Getting ProcAddr of " << name << ": " << procAddr << std::endl;
     return procAddr;
-    */
-    NSSymbol symbol;
-    char *symbolName;
-    symbolName = (char*)malloc (strlen (name) + 2); // 1
-    strcpy(symbolName + 1, name); // 2
-    symbolName[0] = '_'; // 3
-    symbol = NULL;
-    if (NSIsSymbolNameDefined (symbolName)) // 4
-        symbol = NSLookupAndBindSymbol (symbolName);
-    free (symbolName); // 5
-    return symbol ? NSAddressOfSymbol (symbol) : NULL; 
 #endif
 }
 
