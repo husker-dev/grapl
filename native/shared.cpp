@@ -121,7 +121,6 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_init(JNIEnv* env, jobject) 
 }
 
 JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteFramebuffers(JNIEnv* env, jobject, jint fbo) {
-    std::cout << "a_glDeleteFramebuffers: " << a_glDeleteFramebuffers << std::endl;
     a_glDeleteFramebuffers(1, (GLuint*)&fbo);
 }
 
@@ -134,6 +133,7 @@ JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_GLMin_glDeleteTextures(JNIEnv* en
 }
 
 JNIEXPORT jint JNICALL Java_com_huskerdev_ojgl_GLMin_glGenFramebuffers(JNIEnv* env, jobject) {
+    std::cout << "glGenFramebuffers: " << a_glGenFramebuffers << std::endl;
     GLuint framebuffer;
     a_glGenFramebuffers(1, &framebuffer);
     return framebuffer;
