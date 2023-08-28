@@ -3,16 +3,17 @@
 
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #include <windows.h>
-#include <iostream>
 #include <gl/gl.h>
 static HMODULE libGL;
 
 #elif defined(__linux__)
+#include <dlfcn.h>
 #include <GL/gl.h>
 #include <GL/glx.h>
 static void* libGL;
 
 #elif defined(__APPLE__)
+#include <dlfcn.h>
 #include <OpenGL/gl.h>
 static void* libGL;
 
