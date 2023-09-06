@@ -1,5 +1,6 @@
 package com.huskerdev.ojgl.utils
 
+import java.io.File
 import java.io.FileOutputStream
 
 enum class OS(val displayName: String) {
@@ -47,11 +48,11 @@ class PlatformUtils {
             var fileName = path.replace("/", "-")
             if(fileName.startsWith("-")) fileName = fileName.substring(1)
 
-            val tmpFilePath = "${System.getProperty("java.io.tmpdir")}$fileName"
-            FileOutputStream(tmpFilePath).use {
+            val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
+            FileOutputStream(tmpFile).use {
                 this::class.java.getResourceAsStream(path)!!.copyTo(it)
             }
-            System.load(tmpFilePath)
+            System.load(tmpFile.absolutePath)
         }
     }
 }
