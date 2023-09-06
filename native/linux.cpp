@@ -7,12 +7,12 @@
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
-typedef void (*glXDestroyContextProc)(Display*, GLXContext);
+//typedef void (*glXDestroyContextProc)(Display*, GLXContext);
 
 static bool initialized = false;
 static glXCreateContextAttribsARBProc   glXCreateContextAttribsARB;
 static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
-static glXDestroyContextProc            glXDestroyContext;
+//static glXDestroyContextProc            glXDestroyContext;
 
 
 
@@ -28,7 +28,7 @@ void checkBasicFunctions() {
 
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)       glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
     glXMakeContextCurrentARB = (glXMakeContextCurrentARBProc)           glXGetProcAddressARB((GLubyte*) "glXMakeContextCurrent");
-    glXDestroyContext = (glXDestroyContextProc)                         glXGetProcAddressARB((GLubyte*) "glXDestroyContext");
+    //glXDestroyContext = (glXDestroyContextProc)                         glXGetProcAddressARB((GLubyte*) "glXDestroyContext");
 }
 
 extern "C" {
