@@ -6,12 +6,6 @@
 #define JNIEXPORT1 __attribute__((unused)) JNIEXPORT
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-//typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
-
-static bool initialized = false;
-static glXCreateContextAttribsARBProc   glXCreateContextAttribsARB;
-//static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
-
 
 
 jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
@@ -20,20 +14,11 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
     return result;
 }
 
-void checkBasicFunctions() {
-    if(initialized) return;
-    initialized = true;
-
-    glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)       glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    //glXMakeContextCurrentARB = (glXMakeContextCurrentARBProc)           glXGetProcAddressARB((GLubyte*) "glXMakeContextCurrent");
-    //glXDestroyContext = (glXDestroyContextProc)                         glXGetProcAddressARB((GLubyte*) "glXDestroyContext");
-}
-
 extern "C" {
 
 JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
-    checkBasicFunctions();
     Display* display = XOpenDisplay(nullptr);
+    auto glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc) glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
 
     int num_fbc = 0;
     static int visual_attribs[] = { None };
@@ -59,18 +44,15 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_
 }
 
 JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
-    checkBasicFunctions();
     jlong array[] = { (jlong)glXGetCurrentDisplay(), (jlong)glXGetCurrentDrawable(), (jlong)glXGetCurrentContext() };
     return createLongArray(env, 3, array);
 }
 
 JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong display, jlong pbuffer, jlong context) {
-    checkBasicFunctions();
     return glXMakeContextCurrent((Display*)display, (GLXPbuffer)pbuffer, (GLXPbuffer)pbuffer, (GLXContext)context);
 }
 
 JNIEXPORT1 void JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong display, jlong context) {
-    checkBasicFunctions();
     glXDestroyContext((Display*)display, (GLXContext)context);
 }
 }
