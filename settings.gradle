@@ -1,2 +1,2 @@
 rootProject.name = 'offscreen-jgl'
-
+include 'native'
