@@ -52,7 +52,8 @@ jobs:
       - name: "Compile"
         run: |
           chmod +x ./gradlew
-          ./gradlew compile
+          cd native
+          ../gradlew compile
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2

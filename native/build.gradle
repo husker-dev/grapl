@@ -1,6 +1,6 @@
 import org.gradle.internal.os.OperatingSystem
 
-void execute(String command, File directory = file(System.getProperty("user.dir") + "/native")){
+void execute(String command, File directory = file("./")){
     if(OperatingSystem.current().isMacOsX()){
         def shFile = new File(directory, "compile_script.sh")
         shFile.text = "#!/bin/sh\n" + command
@@ -46,7 +46,7 @@ tasks.register('compile') {
                 into "lib"
             }
         } else if (os.isMacOsX()) {
-            execute("cmake ./ ")
+            execute("cmake ./ -DCMAKE_OSX_ARCHITECTURES=\"arm64;x86_64\"")
             execute("cmake --build ./")
         } else throw new Exception("Unsupported OS")
     }
