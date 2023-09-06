@@ -1,4 +1,3 @@
-#include <iostream>
 #include <jni.h>
 #include <GL/glx.h>
 #include <X11/Xlib.h>
@@ -10,6 +9,7 @@ typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXC
 typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
 typedef void (*glXDestroyContextProc)(Display*, GLXContext);
 
+static bool initialized = false;
 static glXCreateContextAttribsARBProc   glXCreateContextAttribsARB;
 static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
 static glXDestroyContextProc            glXDestroyContext;
@@ -23,8 +23,8 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
 }
 
 void checkBasicFunctions() {
-    if(glXCreateContextAttribsARB != NULL)
-        return;
+    if(initialized) return;
+    initialized = true;
 
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)       glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
     glXMakeContextCurrentARB = (glXMakeContextCurrentARBProc)           glXGetProcAddressARB((GLubyte*) "glXMakeContextCurrent");
