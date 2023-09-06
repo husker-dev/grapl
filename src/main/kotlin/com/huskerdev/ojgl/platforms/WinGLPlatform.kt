@@ -9,6 +9,7 @@ class WinGLPlatform: GLPlatform() {
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long): LongArray
+        @JvmStatic private external fun nDeleteContext(dc: Long, rc: Long)
     }
 
     override fun createContext(profile: Boolean, shareWith: Long) =
@@ -22,6 +23,9 @@ class WinGLPlatform: GLPlatform() {
             (context as WGLContext?)?.dc ?: 0L,
             context?.handle ?: 0L
         )
+
+    override fun delete(context: GLContext) =
+        nDeleteContext((context as WGLContext).dc, context.handle)
 }
 
 class WGLContext(

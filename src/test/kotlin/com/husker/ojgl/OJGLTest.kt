@@ -25,4 +25,16 @@ class OJGLTest {
         assertEquals(second.makeCurrent(), true)
     }
 
+    @Test
+    fun clearContext() {
+        GLContext.create().makeCurrent()
+        assertEquals(GLContext.clear(), true)
+    }
+
+    @Test
+    fun deleteContext() {
+        GLContext.create().makeCurrent()
+        GLContext.delete(GLContext.current())
+    }
+
 }

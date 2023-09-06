@@ -25,6 +25,9 @@ abstract class GLContext(
 
         @JvmStatic
         fun clear() = GLPlatform.current.makeCurrent(null)
+
+        @JvmStatic
+        fun delete(context: GLContext) = GLPlatform.current.delete(context)
     }
 
     fun makeCurrent() = GLPlatform.current.makeCurrent(this)

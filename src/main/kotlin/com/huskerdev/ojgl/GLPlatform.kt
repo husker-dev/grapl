@@ -29,4 +29,5 @@ abstract class GLPlatform {
     abstract fun createContext(profile: Boolean, shareWith: Long): GLContext
     abstract fun createFromCurrent(): GLContext
     abstract fun makeCurrent(context: GLContext?): Boolean
+    abstract fun delete(context: GLContext)
 }

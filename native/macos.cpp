@@ -32,4 +32,8 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nGetCurr
 JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong context) {
     return CGLSetCurrentContext((CGLContextObj)context) == 0;
 }
+
+JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong context) {
+    CGLDestroyContext((CGLContextObj)context);
+}
 }
