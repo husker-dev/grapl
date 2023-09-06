@@ -1,4 +1,3 @@
-#include <iostream>
 #include <jni.h>
 #include <OpenGL/OpenGL.h>
 

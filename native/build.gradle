@@ -22,7 +22,7 @@ tasks.register('compile') {
         } else if (os.isWindows()) {
             file('x64').mkdirs()
             file('x86').mkdirs()
-            file('libs').mkdirs()
+            file('lib').mkdirs()
 
             execute("cmake -A \"Win32\" ../ -D X86=1", file("x86"))
             execute("cmake --build . --config MinSizeRel", file("x86"))
@@ -32,11 +32,11 @@ tasks.register('compile') {
 
             copy {
                 from "x64/MinSizeRel/${libBaseName}-x64.dll"
-                into "libs"
+                into "lib"
             }
             copy {
                 from "x86/MinSizeRel/${libBaseName}-x86.dll"
-                into "libs"
+                into "lib"
             }
         } else if (os.isMacOsX()) {
             execute("cmake . -DCMAKE_OSX_ARCHITECTURES=\"arm64;x86_64\"")
