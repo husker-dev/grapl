@@ -20,7 +20,7 @@ jobs:
           
       - name: "Compile"
         run: |
-          gradlew compile
+          ./gradlew compile
       
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
@@ -50,7 +50,7 @@ jobs:
 
       - name: "Compile"
         run: |
-          gradlew compile
+          ./gradlew compile
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
