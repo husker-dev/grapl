@@ -20,9 +20,7 @@ jobs:
           
       - name: "Compile"
         run: |
-          cd native
-          cmake .
-          cmake --build ./ 
+          gradlew compile
       
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
@@ -37,23 +35,7 @@ jobs:
 
       - name: "Compile"
         run: |
-          cd native
-          
-          mkdir x86
-          cd x86
-          cmake -A "Win32" ../ -D X86=1
-          cmake --build . --config MinSizeRel
-          cd ..
-          
-          mkdir x64
-          cd x64
-          cmake -A "x64" ../ -D X64=1
-          cmake --build . --config MinSizeRel
-          cd ..
-          
-          mkdir lib
-          copy x64/MinSizeRel/ojgl-x64.dll lib
-          copy x86/MinSizeRel/ojgl-x86.dll lib
+          ./gradlew compile
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
@@ -68,9 +50,7 @@ jobs:
 
       - name: "Compile"
         run: |
-          cd native
-          cmake . -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
-          cmake --build ./
+          gradlew compile
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
