@@ -42,7 +42,6 @@ endif()
 # MacOS
 if (APPLE)
     add_library(offscreen-jgl SHARED macos.cpp)
-    target_link_libraries(offscreen-jgl INTERFACE "-L/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib")
 
     include_directories(/System/Library/Frameworks)
     find_library(OpenGL_LIBRARY OpenGL)
