@@ -8,7 +8,7 @@ void execute(String command, File directory = file("./")){
         command = "${shFile}"
     }
 
-    def process = Runtime.getRuntime().exec(command)
+    def process = Runtime.getRuntime().exec(command, null, directory)
     BufferedReader r = new BufferedReader(new InputStreamReader(process.getInputStream()))
     String line
     while ((line = r.readLine()) != null)
