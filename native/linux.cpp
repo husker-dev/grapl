@@ -14,7 +14,7 @@ static glXCreateContextAttribsARBProc   glXCreateContextAttribsARB;
 static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
 static glXDestroyContextProc            glXDestroyContext;
 
-extern "C" {
+
 
 jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
     jlongArray result = env->NewLongArray(size);
@@ -31,6 +31,8 @@ void checkBasicFunctions() {
     glXDestroyContext = (glXDestroyContextProc)                         glXGetProcAddressARB((GLubyte*) "glXDestroyContext");
 }
 
+extern "C" {
+
 JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
     checkBasicFunctions();
     Display* display = XOpenDisplay(nullptr);
@@ -44,7 +46,6 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_
             GLX_CONTEXT_PROFILE_MASK_ARB, isCore ? GLX_CONTEXT_CORE_PROFILE_BIT_ARB : GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
             None
     };
-
     GLXContext context = glXCreateContextAttribsARB(display, fbc[0], (GLXContext)shareWith, true, context_attribs);
 
     // Creating PBuffer

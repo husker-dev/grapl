@@ -127,9 +127,8 @@ JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCr
     return createLongArray(env, 2, array);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
+JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong rc) {
     checkBasicFunctions();
     wglDeleteContext((HGLRC)rc);
-    ReleaseDC(WindowFromDC((HDC)dc), (HDC)dc);
 }
 }
