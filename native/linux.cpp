@@ -6,13 +6,11 @@
 #define JNIEXPORT1 __attribute__((unused)) JNIEXPORT
 
 typedef GLXContext (*glXCreateContextAttribsARBProc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
-//typedef void (*glXDestroyContextProc)(Display*, GLXContext);
+//typedef Bool (*glXMakeContextCurrentARBProc)(Display*, GLXDrawable, GLXDrawable, GLXContext);
 
 static bool initialized = false;
 static glXCreateContextAttribsARBProc   glXCreateContextAttribsARB;
-static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
-//static glXDestroyContextProc            glXDestroyContext;
+//static glXMakeContextCurrentARBProc     glXMakeContextCurrentARB;
 
 
 
@@ -27,7 +25,7 @@ void checkBasicFunctions() {
     initialized = true;
 
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)       glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    glXMakeContextCurrentARB = (glXMakeContextCurrentARBProc)           glXGetProcAddressARB((GLubyte*) "glXMakeContextCurrent");
+    //glXMakeContextCurrentARB = (glXMakeContextCurrentARBProc)           glXGetProcAddressARB((GLubyte*) "glXMakeContextCurrent");
     //glXDestroyContext = (glXDestroyContextProc)                         glXGetProcAddressARB((GLubyte*) "glXDestroyContext");
 }
 
@@ -68,7 +66,7 @@ JNIEXPORT1 jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_
 
 JNIEXPORT1 jboolean JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong display, jlong pbuffer, jlong context) {
     checkBasicFunctions();
-    return glXMakeContextCurrentARB((Display*)display, (GLXPbuffer)pbuffer, (GLXPbuffer)pbuffer, (GLXContext)context);
+    return glXMakeContextCurrent((Display*)display, (GLXPbuffer)pbuffer, (GLXPbuffer)pbuffer, (GLXContext)context);
 }
 
 JNIEXPORT1 void JNICALL Java_com_huskerdev_ojgl_platforms_LinuxGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong display, jlong context) {
