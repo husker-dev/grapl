@@ -52,15 +52,10 @@ jobs:
       - name: "Compile"
         run: |
           chmod +x ./gradlew
-          cd native
-          ../gradlew compile
+          ./gradlew compile
           
       - name: "Upload libraries"
         uses: actions/upload-artifact@v2
         with:
           name: MacOS
-          path: ./native/lib
-        
-      
-
-      
+          path: ./native/build/lib
