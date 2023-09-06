@@ -20,6 +20,7 @@ jobs:
           
       - name: "Compile"
         run: |
+          chmod +x ./gradlew
           ./gradlew compile
       
       - name: "Upload libraries"
@@ -50,6 +51,7 @@ jobs:
 
       - name: "Compile"
         run: |
+          chmod +x ./gradlew
           ./gradlew compile
           
       - name: "Upload libraries"
