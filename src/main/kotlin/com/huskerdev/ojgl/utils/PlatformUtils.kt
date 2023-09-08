@@ -49,9 +49,11 @@ class PlatformUtils {
             if(fileName.startsWith("-")) fileName = fileName.substring(1)
 
             val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
-            FileOutputStream(tmpFile).use {
-                this::class.java.getResourceAsStream(path)!!.copyTo(it)
-            }
+            try {
+                FileOutputStream(tmpFile).use {
+                    this::class.java.getResourceAsStream(path)!!.copyTo(it)
+                }
+            }catch (_: Exception){}
             System.load(tmpFile.absolutePath)
         }
     }

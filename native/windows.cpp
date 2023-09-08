@@ -9,6 +9,14 @@ HDC dc = nullptr;
 
 #define WGL_DRAW_TO_WINDOW_ARB            0x2001
 #define WGL_SUPPORT_OPENGL_ARB            0x2010
+#define WGL_ACCELERATION_ARB              0x2003
+#define WGL_PIXEL_TYPE_ARB                0x2013
+#define WGL_COLOR_BITS_ARB                0x2014
+#define WGL_DEPTH_BITS_ARB                0x2022
+#define WGL_STENCIL_BITS_ARB              0x2023
+#define WGL_FULL_ACCELERATION_ARB         0x2027
+#define WGL_TYPE_RGBA_ARB                 0x202B
+
 #define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
@@ -33,18 +41,22 @@ void checkBasicFunctions() {
         HGLRC oldRC = wglGetCurrentContext();
 
         PIXELFORMATDESCRIPTOR pfd = {};
+        pfd.nVersion = 1;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = 24;
+        pfd.cDepthBits = 32;
         pfd.nSize = sizeof(pfd);
 
         WNDCLASS wc = {};
         wc.lpfnWndProc = DefWindowProc;
         wc.hInstance = GetModuleHandle(NULL);
-        wc.lpszClassName = L"ojgl";
+        wc.lpszClassName = L"offscreen-jgl";
         RegisterClass(&wc);
 
         // Create dummy window to initialize function
         {
             HWND hwnd = CreateWindow(
-                    L"ojgl", L"",
+                    L"offscreen-jgl", L"",
                     WS_OVERLAPPEDWINDOW,
                     0, 0,
                     100, 100,
@@ -75,7 +87,7 @@ void checkBasicFunctions() {
 
         // Create window with ARB pixel attributes
         HWND hwnd = CreateWindow(
-                L"ojgl", L"",
+                L"offscreen-jgl", L"",
                 WS_OVERLAPPEDWINDOW,
                 0, 0,
                 100, 100,
@@ -88,8 +100,13 @@ void checkBasicFunctions() {
         UINT pixel_formats_count;
 
         int pixel_attributes[] = {
-                WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-                WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
+                WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
+                WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
+                WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
+                WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
+                WGL_COLOR_BITS_ARB,         32,
+                WGL_DEPTH_BITS_ARB,         24,
+                WGL_STENCIL_BITS_ARB,       8,
                 0
         };
         if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
