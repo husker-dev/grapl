@@ -26,7 +26,7 @@ tasks.register('compile') {
         if (os.isLinux()) {
             file('build').mkdirs()
             execute("cmake ..", file("build"))
-            execute("cmake --build ./", file("build"))
+            execute("cmake --build ../", file("build"))
         } else if (os.isWindows()) {
             file('x64').mkdirs()
             file('x86').mkdirs()
