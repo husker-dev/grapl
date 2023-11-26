@@ -17,9 +17,13 @@ HDC dc = nullptr;
 #define WGL_FULL_ACCELERATION_ARB         0x2027
 #define WGL_TYPE_RGBA_ARB                 0x202B
 
-#define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
-#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
-#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB 0x00000002
+#define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
+#define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
+
+#define ERROR_INVALID_VERSION_ARB         0x2095
+#define ERROR_INVALID_PROFILE_ARB         0x2096
+
 typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
 typedef BOOL(WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 
@@ -33,6 +37,26 @@ jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
     jlongArray result = env->NewLongArray(size);
     env->SetLongArrayRegion(result, 0, size, elements);
     return result;
+}
+
+void printError(const char* func, const char* error){
+    std::cout << "WGL error at '" << func << "': " << error << std::endl;
+}
+
+void checkError(const char* func){
+    DWORD code = GetLastError();
+    if(code == ERROR_INVALID_VERSION_ARB) printError(func, "ERROR_INVALID_VERSION_ARB (invalid OpenGL version)");
+    else if(code == ERROR_INVALID_PROFILE_ARB) printError(func, "ERROR_INVALID_PROFILE_ARB (requested OpenGL profile is not supported)");
+    else if(code == ERROR_INVALID_OPERATION) printError(func, "ERROR_INVALID_OPERATION (share context is not a valid context handle or is not compatible)");
+    else if(code == ERROR_DC_NOT_FOUND) printError(func, "ERROR_DC_NOT_FOUND (DC is not a valid device context handle)");
+    else if(code == ERROR_INVALID_PIXEL_FORMAT) printError(func, "ERROR_INVALID_PIXEL_FORMAT (invalid pixel format)");
+    else if(code == ERROR_NO_SYSTEM_RESOURCES) printError(func, "ERROR_NO_SYSTEM_RESOURCES (server does not have enough resources to allocate the new context)");
+    else if(code == ERROR_INVALID_PARAMETER) printError(func, "ERROR_INVALID_PARAMETER (an unrecognized attribute is present in <attribList>)");
+    else {
+        char res[20];
+        sprintf(res, "0x%X (Unknown)", code);
+        printError(func, res);
+    }
 }
 
 void checkBasicFunctions() {
@@ -67,9 +91,9 @@ void checkBasicFunctions() {
 
             int pixel_format;
             if (!(pixel_format = ChoosePixelFormat(dc, &pfd)))
-                std::cout << "Failed to choose pixel format" << std::endl;
+                checkError("ChoosePixelFormat");
             if (!SetPixelFormat(dc, pixel_format, &pfd))
-                std::cout << "Failed to set pixel format" << std::endl;
+                checkError("SetPixelFormat");
 
             HGLRC rc = wglCreateContext(dc);
             wglMakeCurrent(dc, rc);
@@ -110,9 +134,9 @@ void checkBasicFunctions() {
                 0
         };
         if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
-            std::cout << "Failed to choose supported pixel format (WGL)" << std::endl;
+            checkError("wglChoosePixelFormatARB");
         if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
-            std::cout << "Failed to set pixel format (WGL)" << std::endl;
+            checkError("SetPixelFormat (wgl)");
     }
 }
 
@@ -138,7 +162,7 @@ JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCr
 
     HGLRC rc;
     if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
-        std::cout << "Failed to create context (WGL)" << std::endl;
+        checkError("wglCreateContextAttribsARB");
 
     jlong array[2] = { (jlong)rc, (jlong)dc };
     return createLongArray(env, 2, array);
