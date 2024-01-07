@@ -1,43 +1,41 @@
 #define UNICODE
 
+#include "../shared.h"
+#include "shared-gl.h"
+
 #include <windows.h>
-#include <gl/gl.h>
 #include <jni.h>
 #include <iostream>
 
-HDC dc = nullptr;
 
-#define WGL_DRAW_TO_WINDOW_ARB            0x2001
-#define WGL_SUPPORT_OPENGL_ARB            0x2010
-#define WGL_ACCELERATION_ARB              0x2003
-#define WGL_PIXEL_TYPE_ARB                0x2013
-#define WGL_COLOR_BITS_ARB                0x2014
-#define WGL_DEPTH_BITS_ARB                0x2022
-#define WGL_STENCIL_BITS_ARB              0x2023
-#define WGL_FULL_ACCELERATION_ARB         0x2027
-#define WGL_TYPE_RGBA_ARB                 0x202B
+#define WGL_DRAW_TO_WINDOW_ARB                      0x2001
+#define WGL_SUPPORT_OPENGL_ARB                      0x2010
+#define WGL_ACCELERATION_ARB                        0x2003
+#define WGL_PIXEL_TYPE_ARB                          0x2013
+#define WGL_COLOR_BITS_ARB                          0x2014
+#define WGL_DEPTH_BITS_ARB                          0x2022
+#define WGL_STENCIL_BITS_ARB                        0x2023
+#define WGL_FULL_ACCELERATION_ARB                   0x2027
+#define WGL_TYPE_RGBA_ARB                           0x202B
 
 #define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
+#define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB               0x2092
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
 
-#define ERROR_INVALID_VERSION_ARB         0x2095
-#define ERROR_INVALID_PROFILE_ARB         0x2096
+#define ERROR_INVALID_VERSION_ARB                   0x2095
+#define ERROR_INVALID_PROFILE_ARB                   0x2096
 
-typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
-typedef BOOL(WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
+typedef HGLRC(WINAPI* wglCreateContextAttribsARBPtr) (HDC hDC, HGLRC hShareContext, const int* attribList);
+typedef BOOL(WINAPI* wglChoosePixelFormatARBPtr) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 
-PFNWGLCHOOSEPIXELFORMATARBPROC          wglChoosePixelFormatARB;
-PFNWGLCREATECONTEXTATTRIBSARBPROC       wglCreateContextAttribsARB;
+wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
+wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
+glGetIntegervPtr                    glGetIntegerv;
 
+HDC dc = nullptr;
 
-extern "C" {
-
-jlongArray createLongArray(JNIEnv* env, int size, jlong* elements) {
-    jlongArray result = env->NewLongArray(size);
-    env->SetLongArrayRegion(result, 0, size, elements);
-    return result;
-}
 
 void printError(const char* func, const char* error){
     std::cout << "WGL error at '" << func << "': " << error << std::endl;
@@ -54,7 +52,7 @@ void checkError(const char* func){
     else if(code == ERROR_INVALID_PARAMETER) printError(func, "ERROR_INVALID_PARAMETER (an unrecognized attribute is present in <attribList>)");
     else {
         char res[20];
-        sprintf(res, "0x%X (Unknown)", code);
+        sprintf_s(res, "0x%X (Unknown)", code);
         printError(func, res);
     }
 }
@@ -99,8 +97,9 @@ void checkBasicFunctions() {
             wglMakeCurrent(dc, rc);
 
             // Load functions
-            wglChoosePixelFormatARB = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
-            wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+            wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) wglGetProcAddress("wglChoosePixelFormatARB");
+            wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) wglGetProcAddress("wglCreateContextAttribsARB");
+            glGetIntegerv = (glGetIntegervPtr) wglGetProcAddress("glGetIntegerv");
 
             // Destroy dummy context
             wglMakeCurrent(oldDC, oldRC);
@@ -140,23 +139,29 @@ void checkBasicFunctions() {
     }
 }
 
-JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
+winglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     checkBasicFunctions();
 
-    jlong array[2] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC() };
-    return createLongArray(env, 2, array);
+    GLint major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    jlong array[4] = { (jlong)wglGetCurrentContext(), (jlong)wglGetCurrentDC(), (jlong)major, (jlong)minor };
+    return createLongArray(env, 4, array);
 }
 
-JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong dc, jlong rc) {
+winglfun(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong dc, jlong rc) {
     checkBasicFunctions();
     return wglMakeCurrent((HDC)dc, (HGLRC)rc);
 }
 
-JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareRc) {
+winglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion) {
     checkBasicFunctions();
 
     GLint context_attributes[] = {
             WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            WGL_CONTEXT_MAJOR_VERSION_ARB, (majorVersion == -1) ? 1 : majorVersion,
+            WGL_CONTEXT_MINOR_VERSION_ARB, (minorVersion == -1) ? 0 : minorVersion,
             0
     };
 
@@ -164,12 +169,21 @@ JNIEXPORT jlongArray JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nCr
     if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
         checkError("wglCreateContextAttribsARB");
 
-    jlong array[2] = { (jlong)rc, (jlong)dc };
-    return createLongArray(env, 2, array);
+    HGLRC oldRC = wglGetCurrentContext();
+    HDC oldDC = wglGetCurrentDC();
+    GLint major, minor;
+
+    wglMakeCurrent(dc, rc);
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    wglMakeCurrent(oldDC, oldRC);
+
+    jlong array[] = { (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor };
+    return createLongArray(env, 4, array);
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_platforms_WinGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong rc) {
+winglfun(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc) {
     checkBasicFunctions();
     wglDeleteContext((HGLRC)rc);
 }
-}
+

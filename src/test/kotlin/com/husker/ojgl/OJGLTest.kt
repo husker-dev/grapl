@@ -1,6 +1,6 @@
 package com.husker.ojgl
 
-import com.huskerdev.ojgl.GLContext
+import com.huskerdev.ojgl.gl.GLContext
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 

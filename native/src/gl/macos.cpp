@@ -1,9 +1,10 @@
+#include "../shared.h"
+#include "shared-gl.h"
+
 #include <jni.h>
 #include <iostream>
 #include <OpenGL/OpenGL.h>
 
-
-extern "C" {
 
 void printError(const char* error){
     std::cout << "CGLError: " << error << std::endl;
@@ -31,7 +32,7 @@ CGLError checkError(CGLError error){
     return error;
 }
 
-JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nCreateContext(JNIEnv* env, jobject, jboolean isCore, jlong shareWith) {
+macosglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
     CGLContextObj context;
 
     CGLPixelFormatObj pix;
@@ -39,7 +40,10 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nCreateC
     CGLPixelFormatAttribute attributes[4] = {
             kCGLPFAAccelerated,
             kCGLPFAOpenGLProfile,
-            (CGLPixelFormatAttribute) (isCore ? kCGLOGLPVersion_GL4_Core : kCGLOGLPVersion_Legacy),
+            (CGLPixelFormatAttribute) (isCore ?
+                ((majorVersion >= 4 || majorVersion == -1) ? kCGLOGLPVersion_GL4_Core : kCGLOGLPVersion_GL3_Core)
+                : kCGLOGLPVersion_Legacy
+            ),
             (CGLPixelFormatAttribute) 0
     };
 
@@ -47,18 +51,31 @@ JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nCreateC
     checkError(CGLCreateContext(pix, (CGLContextObj)shareWith, &context));
     checkError(CGLDestroyPixelFormat(pix));
 
-    return (jlong)context;
+    CGLContextObj oldContext = CGLGetCurrentContext();
+    GLint major, minor;
+
+    CGLSetCurrentContext(context);
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    CGLSetCurrentContext(oldContext);
+
+    jlong array[] = { (jlong)context, (jlong)major, (jlong)minor };
+    return createLongArray(env, 3, array);
 }
 
-JNIEXPORT jlong JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nGetCurrentContext(JNIEnv* env, jobject) {
-    return (jlong)CGLGetCurrentContext();
+macosglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
+    GLint major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+
+    jlong array[] = { (jlong)CGLGetCurrentContext(), (jlong)major, (jlong)minor };
+    return createLongArray(env, 3, array);
 }
 
-JNIEXPORT jboolean JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nSetCurrentContext(JNIEnv* env, jobject, jlong context) {
+macosglfun(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong context) {
     return checkError(CGLSetCurrentContext((CGLContextObj)context)) == kCGLNoError;
 }
 
-JNIEXPORT void JNICALL Java_com_huskerdev_ojgl_platforms_MacGLPlatform_nDeleteContext(JNIEnv* env, jobject, jlong context) {
+macosglfun(void, nDeleteContext)(JNIEnv* env, jobject, jlong context) {
     checkError(CGLDestroyContext((CGLContextObj)context));
-}
 }

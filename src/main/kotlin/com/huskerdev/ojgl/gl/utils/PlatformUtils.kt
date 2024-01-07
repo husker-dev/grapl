@@ -1,4 +1,4 @@
-package com.huskerdev.ojgl.utils
+package com.huskerdev.ojgl.gl.utils
 
 import java.io.File
 import java.io.FileOutputStream

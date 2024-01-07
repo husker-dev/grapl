@@ -1,7 +1,10 @@
-package com.huskerdev.ojgl
+package com.huskerdev.ojgl.gl
 
-import com.huskerdev.ojgl.platforms.*
-import com.huskerdev.ojgl.utils.*
+import com.huskerdev.ojgl.gl.platforms.LinuxGLPlatform
+import com.huskerdev.ojgl.gl.platforms.MacGLPlatform
+import com.huskerdev.ojgl.gl.platforms.WinGLPlatform
+import com.huskerdev.ojgl.gl.utils.OS
+import com.huskerdev.ojgl.gl.utils.PlatformUtils
 
 abstract class GLPlatform {
 
@@ -26,7 +29,7 @@ abstract class GLPlatform {
         }
     }
 
-    abstract fun createContext(profile: Boolean, shareWith: Long): GLContext
+    abstract fun createContext(profile: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int): GLContext
     abstract fun createFromCurrent(): GLContext
     abstract fun makeCurrent(context: GLContext?): Boolean
     abstract fun delete(context: GLContext)
