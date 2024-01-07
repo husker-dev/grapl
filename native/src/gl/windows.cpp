@@ -3,10 +3,6 @@
 #include "../shared.h"
 #include "shared-gl.h"
 
-#include <windows.h>
-#include <jni.h>
-#include <iostream>
-
 
 #define WGL_DRAW_TO_WINDOW_ARB                      0x2001
 #define WGL_SUPPORT_OPENGL_ARB                      0x2010
@@ -97,9 +93,9 @@ void checkBasicFunctions() {
             wglMakeCurrent(dc, rc);
 
             // Load functions
-            wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) wglGetProcAddress("wglChoosePixelFormatARB");
-            wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) wglGetProcAddress("wglCreateContextAttribsARB");
-            glGetIntegerv = (glGetIntegervPtr) wglGetProcAddress("glGetIntegerv");
+            wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) getProcAddress("wglChoosePixelFormatARB");
+            wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) getProcAddress("wglCreateContextAttribsARB");
+            glGetIntegerv = (glGetIntegervPtr) getProcAddress("glGetIntegerv");
 
             // Destroy dummy context
             wglMakeCurrent(oldDC, oldRC);

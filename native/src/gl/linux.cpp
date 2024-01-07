@@ -1,7 +1,6 @@
 #include "../shared.h"
 #include "shared-gl.h"
 
-#include <jni.h>
 #include <GL/glx.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -11,8 +10,8 @@ typedef GLXContext (*glXCreateContextAttribsARBPtr)(Display*, GLXFBConfig, GLXCo
 
 linuxglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
     Display* display = XOpenDisplay(nullptr);
-    auto glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr) glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
+    auto glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr) getProcAddress("glXCreateContextAttribsARB");
+    auto glGetIntegerv = (glGetIntegervPtr) getProcAddress("glGetIntegerv");
 
     int num_fbc = 0;
     static int visual_attribs[] = { None };
@@ -50,7 +49,7 @@ linuxglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jl
 }
 
 linuxglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
-    auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
+    auto glGetIntegerv = (glGetIntegervPtr) getProcAddress("glGetIntegerv");
     GLint major, minor;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);

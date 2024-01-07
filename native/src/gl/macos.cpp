@@ -1,10 +1,8 @@
 #include "../shared.h"
 #include "shared-gl.h"
 
-#include <jni.h>
-#include <iostream>
 #include <OpenGL/OpenGL.h>
-
+#include <dlfcn.h>
 
 void printError(const char* error){
     std::cout << "CGLError: " << error << std::endl;
@@ -55,6 +53,7 @@ macosglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jl
     GLint major, minor;
 
     CGLSetCurrentContext(context);
+    auto glGetIntegerv = (glGetIntegervPtr) getProcAddress("glGetIntegerv");
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     CGLSetCurrentContext(oldContext);
@@ -65,6 +64,7 @@ macosglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jl
 
 macosglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     GLint major, minor;
+    auto glGetIntegerv = (glGetIntegervPtr) getProcAddress("glGetIntegerv");
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 

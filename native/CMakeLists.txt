@@ -4,6 +4,10 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 project ("offscreen-jgl")
 
+set(JAVA_AWT_LIBRARY NotNeeded)
+set(JAVA_JVM_LIBRARY NotNeeded)
+set(JAVA_INCLUDE_PATH2 /Users/nstengauer/Library/Java/JavaVirtualMachines/corretto-17.0.9/Contents/Home/include/darwin)
+set(JAVA_AWT_INCLUDE_PATH NotNeeded)
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
 

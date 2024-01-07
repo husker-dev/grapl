@@ -12,6 +12,13 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+
+    testImplementation platform("org.lwjgl:lwjgl-bom:3.3.2")
+    testImplementation "org.lwjgl:lwjgl"
+    testImplementation "org.lwjgl:lwjgl-opengl"
+
+    testImplementation "org.lwjgl:lwjgl::natives-macos-arm64"
+    testImplementation "org.lwjgl:lwjgl-opengl::natives-macos-arm64"
 }
 
 test {
