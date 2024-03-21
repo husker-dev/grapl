@@ -1,2 +1,8 @@
-rootProject.name = 'offscreen-jgl'
-include 'native'
+
+
+include 'modules:core'
+
+include 'modules:d3d9'
+
+include 'modules:gl'
+include 'modules:gl:native'

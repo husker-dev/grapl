@@ -1,0 +1,34 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: addon(addons_mavenPublisher)
+apply from: addon(addons_nativeCompilation)
+
+compilation {
+    baseName = "lib"
+    version = ""
+    classpath = "com.huskerdev.grapl.gl.native"
+
+    windows {
+        src = ["src/windows.cpp"]
+        libs = ["opengl32", "user32", "gdi32"]
+    }
+}
+
+dependencies {
+    api parent
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = "$projectName-gl-${project.extensions["shortOS"]}"
+
+            pom {
+                name = "$projectName-gl-${project.extensions["shortOS"]}"
+                description = 'GL native module'
+            }
+        }
+    }
+}

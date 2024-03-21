@@ -1,22 +1,15 @@
-
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.21'
+    id "io.codearte.nexus-staging" version "0.30.0"
 }
 
-repositories {
-    mavenCentral()
-}
 
-dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        exceptionFormat = 'full'
+allprojects {
+    repositories {
+        mavenCentral()
     }
 }
+
+String addon(String name){
+    return "${project.rootDir}/gradle-addons/${name}.gradle"
+}
+
