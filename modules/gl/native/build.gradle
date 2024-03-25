@@ -27,10 +27,10 @@ dependencies {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId = "$projectName-gl-${project.extensions["shortOS"]}"
+            artifactId = "$projectName-gl-${project.ext.shortOS}"
 
             pom {
-                name = "$projectName-gl-${project.extensions["shortOS"]}"
+                name = "$projectName-gl-${project.ext.shortOS}"
                 description = 'GL native module'
             }
         }

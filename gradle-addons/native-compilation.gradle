@@ -317,7 +317,7 @@ enum Compiler {
 }
 
 
-project.extensions["shortOS"] = NativeCompilationPlugin.getPlatform().shortName
+project.ext.shortOS = NativeCompilationPlugin.getPlatform().shortName
 
 
 class NativeCompilationPlugin implements Plugin<Project> {
