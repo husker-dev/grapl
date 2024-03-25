@@ -11,11 +11,11 @@ compilation {
     classpath = "com.huskerdev.grapl.gl.native"
 
     windows {
-        src = ["src/windows.cpp"]
+        src = ["windows.cpp"]
         libs = ["opengl32", "user32", "gdi32"]
     }
     macos {
-        src = ["src/macos.cpp"]
+        src = ["macos.cpp"]
         frameworks = ["OpenGL"]
     }
 }

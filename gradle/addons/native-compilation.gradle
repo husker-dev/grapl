@@ -100,6 +100,8 @@ abstract class AbstractPlatformConfiguration {
 }
 
 abstract class ProjectCompileConfiguration extends AbstractPlatformConfiguration{
+    abstract RegularFileProperty getSrcDir();
+
     abstract Property<String> getBaseName()
     abstract Property<String> getVersion()
     abstract Property<String> getClasspath()
@@ -126,6 +128,9 @@ abstract class ProjectCompileConfiguration extends AbstractPlatformConfiguration
 
 enum Compiler {
     CL((projectConfig, platformConfig, project, platform, type, archs, includeDirs, libDirs, libs, output, sources) -> {
+        def tmpDir = new File(project.layout.buildDirectory.get().asFile, "tmp/native")
+        tmpDir.mkdirs()
+
         def varsDir = platformConfig.varsDir.getOrElse(findVCVarsDir())
         def sdkDir = platformConfig.varsDir.getOrElse(findWinSDKDir())
 
@@ -159,7 +164,7 @@ enum Compiler {
                     """
                     },
                     varsDir,
-                    project.file(".")
+                    tmpDir
             )
         }
     }),
@@ -360,6 +365,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
                 def libFolders = config.libFolders.get() + platformConfig.libFolders.get()
                 def libs = config.libs.get() + platformConfig.libs.get()
                 def src = config.src.get() + platformConfig.src.get()
+                src = src.collect(e -> new File(config.srcDir.getOrElse(project.file("src")), e).absolutePath)
 
                 String outputName = artifactDir.absolutePath + "/" + config.baseName.getOrElse("lib")
 
