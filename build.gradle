@@ -10,6 +10,6 @@ allprojects {
 }
 
 String addon(String name){
-    return "${project.rootDir}/gradle-addons/${name}.gradle"
+    return "${project.rootDir}/gradle/addons/${name}.gradle"
 }
 
