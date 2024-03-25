@@ -1,8 +1,11 @@
 #include "shared.h"
 
+#define GL_SILENCE_DEPRECATION
+
 #include <jni.h>
 #include <iostream>
 #include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
 
 
 void printError(const char* error){

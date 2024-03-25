@@ -14,6 +14,10 @@ compilation {
         src = ["src/windows.cpp"]
         libs = ["opengl32", "user32", "gdi32"]
     }
+    macos {
+        src = ["src/macos.cpp"]
+        frameworks = ["OpenGL"]
+    }
 }
 
 dependencies {
