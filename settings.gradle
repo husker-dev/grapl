@@ -1,8 +1,8 @@
+include(
+    'modules:core',
 
+    'modules:gl',
+    'modules:gl:native',
 
-include 'modules:core'
-
-include 'modules:d3d9'
-
-include 'modules:gl'
-include 'modules:gl:native'
+    'modules:d3d9'
+)

@@ -2,7 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-apply from: addon(addons_mavenPublisher)
+apply from: addon(addons_mavenPublish)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -12,16 +12,7 @@ dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = projectName
-
-            pom {
-                name = projectName
-                description = 'Core module'
-            }
-        }
-    }
+maven {
+    name = artifactId = projectName
+    description = "$projectName core module"
 }

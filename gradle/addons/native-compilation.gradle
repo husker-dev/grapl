@@ -3,6 +3,8 @@ import org.gradle.internal.os.*
 import java.util.function.Function
 import java.util.function.Predicate
 
+apply plugin: 'java-library'
+
 enum Platform {
     WINDOWS(
             "win",
@@ -334,6 +336,14 @@ class NativeCompilationPlugin implements Plugin<Project> {
         this.project = project
         config = project.extensions.create('compilation', ProjectCompileConfiguration)
 
+        project.sourceSets {
+            src {
+                java {
+                    srcDir config.srcDir.getOrElse("src")
+                }
+            }
+        }
+
         project.tasks.register('compileNatives') {
             group "compilation"
 
@@ -408,7 +418,4 @@ class NativeCompilationPlugin implements Plugin<Project> {
         return null
     }
 }
-
-
-
 apply plugin: NativeCompilationPlugin

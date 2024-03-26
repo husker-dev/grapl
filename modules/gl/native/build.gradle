@@ -1,9 +1,7 @@
-plugins {
-    id 'java-library'
-}
 
-apply from: addon(addons_mavenPublisher)
+apply from: addon(addons_mavenPublish)
 apply from: addon(addons_nativeCompilation)
+
 
 compilation {
     baseName = "lib"
@@ -20,19 +18,11 @@ compilation {
     }
 }
 
-dependencies {
-    api parent
+maven {
+    name = artifactId = "$projectName-gl-${project.ext.shortOS}"
+    description = "$projectName gl module (native for $project.ext.shortOS)"
 }
 
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = "$projectName-gl-${project.ext.shortOS}"
-
-            pom {
-                name = "$projectName-gl-${project.ext.shortOS}"
-                description = 'GL native module'
-            }
-        }
-    }
+dependencies {
+    api parent
 }

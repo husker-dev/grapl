@@ -2,7 +2,8 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-apply from: addon(addons_mavenPublisher)
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_testing)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -11,31 +12,12 @@ sourceSets {
 
 dependencies {
     api rootProject.project("modules:core")
+    testImplementation subprojects
 
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-    testImplementation subprojects
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }
 
-test {
-    useJUnitPlatform()
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}
-
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifactId = "$projectName-gl"
-
-            pom {
-                name = "$projectName-gl"
-                description = 'GL module'
-            }
-        }
-    }
+maven {
+    name = artifactId = "$projectName-gl"
+    description = "$projectName gl module"
 }

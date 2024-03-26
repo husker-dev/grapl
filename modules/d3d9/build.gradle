@@ -2,10 +2,7 @@ plugins {
     id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
 }
 
-jar {
-    archivesBaseName = 'd3d9'
-    archiveVersion = "$version"
-}
+apply from: addon(addons_testing)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -14,14 +11,4 @@ sourceSets {
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        exceptionFormat = 'full'
-    }
 }
