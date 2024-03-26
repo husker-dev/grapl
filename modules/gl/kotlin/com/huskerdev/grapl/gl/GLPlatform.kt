@@ -1,7 +1,8 @@
 package com.huskerdev.grapl.gl
 
-import com.huskerdev.offgraph.OS
-import com.huskerdev.offgraph.PlatformUtils
+import com.huskerdev.grapl.GraplProperties
+import com.huskerdev.grapl.OS
+import com.huskerdev.grapl.PlatformUtils
 import com.huskerdev.grapl.gl.platforms.LinuxGLPlatform
 import com.huskerdev.grapl.gl.platforms.MacGLPlatform
 import com.huskerdev.grapl.gl.platforms.WinGLPlatform
@@ -10,13 +11,11 @@ abstract class GLPlatform {
 
     companion object {
         init {
-            val basename = "lib"
-            val fileName = when(PlatformUtils.os) {
-                OS.Windows, OS.Linux    -> "$basename-${PlatformUtils.arch}.${PlatformUtils.dynamicLibExt}"
-                OS.MacOS                -> "$basename.dylib"
-                else -> throw UnsupportedOperationException("Unsupported OS")
-            }
-            PlatformUtils.loadLibraryFromResources("/com/huskerdev/grapl/gl/native/$fileName")
+            PlatformUtils.loadLibraryFromResources(
+                classpath = "com.huskerdev.grapl.gl.native",
+                baseName = "lib",
+                version = GraplProperties.version
+            )
         }
 
         val current by lazy {

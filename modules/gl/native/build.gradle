@@ -5,7 +5,6 @@ apply from: addon(addons_nativeCompilation)
 
 compilation {
     baseName = "lib"
-    version = ""
     classpath = "com.huskerdev.grapl.gl.native"
 
     windows {

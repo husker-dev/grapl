@@ -3,6 +3,7 @@ plugins {
 }
 
 apply from: addon(addons_mavenPublish)
+apply from: addon(addons_propertyClass)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -15,4 +16,11 @@ dependencies {
 maven {
     name = artifactId = projectName
     description = "$projectName core module"
+}
+
+properties {
+    name = "GraplProperties"
+    classpath = "com.huskerdev.grapl"
+
+    field("version", version)
 }

@@ -1,4 +1,4 @@
-package com.huskerdev.offgraph.d3d9
+package com.huskerdev.grapl.d3d9
 
 class D3D9Device(
     val handle: Long
