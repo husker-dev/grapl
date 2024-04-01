@@ -5,7 +5,7 @@ apply from: addon(addons_nativeCompilation)
 
 compilation {
     baseName = "lib"
-    classpath = "com.huskerdev.grapl.gl.native"
+    classpath = "com.huskerdev.grapl.core.native"
 
     windows {
         src = ["win"]
@@ -13,13 +13,12 @@ compilation {
     }
     macos {
         src = ["macos"]
-        frameworks = ["OpenGL"]
     }
 }
 
 maven {
-    name = artifactId = "$projectName-gl-${project.ext.shortOS}"
-    description = "$projectName gl module (native for $project.ext.shortOS)"
+    name = artifactId = "$projectName-${project.ext.shortOS}"
+    description = "$projectName core module (native for $project.ext.shortOS)"
 }
 
 dependencies {

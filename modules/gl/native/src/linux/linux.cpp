@@ -1,4 +1,4 @@
-#include "shared.h"
+#include "../shared.h"
 
 #include <jni.h>
 #include <GL/glx.h>

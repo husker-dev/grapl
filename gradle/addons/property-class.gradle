@@ -42,7 +42,7 @@ class PropertyFilePlugin implements Plugin<Project> {
         for(Map.Entry<String, Object> entry in config.fields.entrySet()){
             def field = ""
 
-            field += "@JvmField val ${entry.key} = "
+            field += "const val ${entry.key} = "
             if(entry.value instanceof Integer || entry.value instanceof Double || entry.value instanceof BigDecimal || entry.value instanceof Boolean)
                 field += entry.value
             else if(entry.value instanceof Float)
@@ -55,7 +55,8 @@ class PropertyFilePlugin implements Plugin<Project> {
 
         file.text =
             """package ${config.classpath.get()}
-
+            |
+            |// Generated with gradle
             |class ${config.name.get()} {
             |    companion object {
             |        ${content.join("\n|        ")}

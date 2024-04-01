@@ -6,12 +6,12 @@ abstract class GLContext(
     val majorVersion: Int,
     val minorVersion: Int
 ) {
-
     companion object {
         @JvmStatic
+        @JvmOverloads
         fun create(
             shareWith: GLContext,
-            coreProfile: Boolean = false,
+            coreProfile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
         ) = create(shareWith.handle, coreProfile, majorVersion, minorVersion)
@@ -20,20 +20,18 @@ abstract class GLContext(
         @JvmOverloads
         fun create(
             shareWith: Long = 0L,
-            coreProfile: Boolean = false,
+            coreProfile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
         ) = GLPlatform.current.createContext(coreProfile, shareWith, majorVersion, minorVersion)
 
         @JvmStatic
-        fun current() = GLPlatform.current.createFromCurrent()
+        fun current() = GLPlatform.current.createFromCurrentContext()
 
         @JvmStatic
-        fun clear() = GLPlatform.current.makeCurrent(null)
-
-        @JvmStatic
-        fun delete(context: GLContext) = GLPlatform.current.delete(context)
+        fun clear() = GLPlatform.current.clearContext()
     }
 
-    fun makeCurrent() = GLPlatform.current.makeCurrent(this)
+    abstract fun makeCurrent(): Boolean
+    abstract fun delete()
 }

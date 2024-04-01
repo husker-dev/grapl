@@ -374,8 +374,18 @@ class NativeCompilationPlugin implements Plugin<Project> {
 
                 def libFolders = config.libFolders.get() + platformConfig.libFolders.get()
                 def libs = config.libs.get() + platformConfig.libs.get()
-                def src = config.src.get() + platformConfig.src.get()
-                src = src.collect(e -> new File(config.srcDir.getOrElse(project.file("src")), e).absolutePath)
+
+                def src = new ArrayList<String>()
+                for(String path in (config.src.get() + platformConfig.src.get())){
+                    def file = new File(config.srcDir.getOrElse(project.file("src")), path)
+                    if(file.directory)
+                        project.fileTree(file).files.each {
+                            if(it.absolutePath.endsWith(".cpp"))
+                                src += it.absolutePath
+                        }
+                    else
+                        src += file.absolutePath
+                }
 
                 String outputName = artifactDir.absolutePath + "/" + config.baseName.getOrElse("lib")
 

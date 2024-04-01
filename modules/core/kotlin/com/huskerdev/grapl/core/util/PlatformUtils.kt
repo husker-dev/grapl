@@ -1,4 +1,4 @@
-package com.huskerdev.grapl
+package com.huskerdev.grapl.core.util
 
 import java.io.File
 import java.io.FileOutputStream
@@ -53,7 +53,9 @@ class PlatformUtils {
                 FileOutputStream(tmpFile).use {
                     this::class.java.getResourceAsStream(path)!!.copyTo(it)
                 }
-            }catch (_: Exception){}
+            }catch (e: Exception){
+                e.printStackTrace()
+            }
             tmpFile.deleteOnExit()
             System.load(tmpFile.absolutePath)
         }
@@ -61,8 +63,8 @@ class PlatformUtils {
         fun loadLibraryFromResources(classpath: String, baseName: String, version: String) {
             val fileName = "$baseName-$version"
             val fullName = when(os) {
-                OS.Windows, OS.Linux    -> "$fileName-$arch.$dynamicLibExt"
-                OS.MacOS                -> "$fileName.$dynamicLibExt"
+                OS.Windows, OS.Linux -> "$fileName-$arch.$dynamicLibExt"
+                OS.MacOS -> "$fileName.$dynamicLibExt"
                 else -> throw UnsupportedOperationException("Unsupported OS")
             }
             loadLibraryFromResources("/${classpath.replace(".", "/")}/$fullName")

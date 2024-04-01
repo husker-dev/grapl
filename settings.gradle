@@ -1,5 +1,6 @@
 include(
     'modules:core',
+    'modules:core:native',
 
     'modules:gl',
     'modules:gl:native',

@@ -4,6 +4,7 @@ plugins {
 
 apply from: addon(addons_mavenPublish)
 apply from: addon(addons_propertyClass)
+apply from: addon(addons_testing)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
@@ -11,6 +12,8 @@ sourceSets {
 
 dependencies {
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    testImplementation subprojects
 }
 
 maven {
@@ -19,8 +22,8 @@ maven {
 }
 
 properties {
-    name = "GraplProperties"
-    classpath = "com.huskerdev.grapl"
+    name = "GraplInfo"
+    classpath = "com.huskerdev.grapl.core"
 
-    field("version", version)
+    field("VERSION", version)
 }

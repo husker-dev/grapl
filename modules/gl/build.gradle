@@ -12,9 +12,21 @@ sourceSets {
 
 dependencies {
     api rootProject.project("modules:core")
-    testImplementation subprojects
-
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    // Testing
+    testImplementation subprojects
+    testImplementation rootProject.project("modules:core:native")
+
+    testImplementation platform("org.lwjgl:lwjgl-bom:3.3.3")
+    for(module in ["", "-opengl"]){
+        for(os in ["windows", "macos", "linux"]){
+            for(arch in ["-arm64", ""]){
+                testImplementation "org.lwjgl:lwjgl${module}"
+                testRuntimeOnly "org.lwjgl:lwjgl${module}::natives-${os}${arch}"
+            }
+        }
+    }
 }
 
 maven {

@@ -1,11 +1,11 @@
 package com.huskerdev.grapl.gl
 
-import com.huskerdev.grapl.GraplProperties
-import com.huskerdev.grapl.OS
-import com.huskerdev.grapl.PlatformUtils
-import com.huskerdev.grapl.gl.platforms.LinuxGLPlatform
-import com.huskerdev.grapl.gl.platforms.MacGLPlatform
-import com.huskerdev.grapl.gl.platforms.WinGLPlatform
+import com.huskerdev.grapl.core.GraplInfo
+import com.huskerdev.grapl.core.util.OS
+import com.huskerdev.grapl.core.util.PlatformUtils
+import com.huskerdev.grapl.gl.platforms.linux.LinuxGLPlatform
+import com.huskerdev.grapl.gl.platforms.macos.MacGLPlatform
+import com.huskerdev.grapl.gl.platforms.win.WinGLPlatform
 
 abstract class GLPlatform {
 
@@ -14,7 +14,7 @@ abstract class GLPlatform {
             PlatformUtils.loadLibraryFromResources(
                 classpath = "com.huskerdev.grapl.gl.native",
                 baseName = "lib",
-                version = GraplProperties.version
+                version = GraplInfo.VERSION
             )
         }
 
@@ -28,8 +28,12 @@ abstract class GLPlatform {
         }
     }
 
-    abstract fun createContext(profile: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int): GLContext
-    abstract fun createFromCurrent(): GLContext
-    abstract fun makeCurrent(context: GLContext?): Boolean
-    abstract fun delete(context: GLContext)
+    abstract fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int): GLContext
+    abstract fun createFromCurrentContext(): GLContext
+    abstract fun clearContext(): Boolean
+
+    abstract fun createWindow(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int): GLWindow
+
+    abstract fun swapBuffers(window: GLWindow)
+    abstract fun setSwapInterval(window: GLWindow, value: Int)
 }
