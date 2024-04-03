@@ -1,37 +1,67 @@
 #define UNICODE
 
 #include "win-shared.h"
+#include <map>
 
-static JNIEnv* env;
-static jclass callbacks = nullptr;
+struct CallbackContainer {
+    JNIEnv* env;
+    jobject object;
+    jmethodID onCloseCallback;
+    jmethodID onResizeCallback;
+    jmethodID onMoveCallback;
+    jmethodID getCursorCallback;
+};
+static std::map<HWND, CallbackContainer*> callbackObjects;
 
-static jmethodID onDestroyCallback;
-static jmethodID onResizeCallback;
-static jmethodID onMoveCallback;
+void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
+    jclass callbackClass = env->GetObjectClass(callbackObject);
+    callbackObjects[hwnd] = new CallbackContainer{
+        env,
+        env->NewGlobalRef(callbackObject),
 
-void checkCallbacks(JNIEnv* newEnv, jclass callbackClass){
-    if(callbacks == nullptr){
-        env = newEnv;
-        callbacks = callbackClass;
+        env->GetMethodID(callbackClass, "onCloseCallback", "()V"),
+        env->GetMethodID(callbackClass, "onResizeCallback", "(II)V"),
+        env->GetMethodID(callbackClass, "onMoveCallback", "(II)V"),
+        env->GetMethodID(callbackClass, "getCursorCallback", "()I")
+    };
+}
 
-        onDestroyCallback = env->GetStaticMethodID(callbacks, "onClose", "(J)V");
-        onResizeCallback = env->GetStaticMethodID(callbacks, "onResize", "(JII)V");
-        onMoveCallback = env->GetStaticMethodID(callbacks, "onMove", "(JII)V");
-    }
+void removeCallbacks(HWND hwnd){
+    CallbackContainer* callbacks = callbackObjects[hwnd];
+
+    callbackObjects.erase(hwnd);
+    callbacks->env->DeleteGlobalRef(callbacks->object);
+    delete callbacks;
 }
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+    if (!callbackObjects.count(hwnd))
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+
+    CallbackContainer* callbacks = callbackObjects[hwnd];
+    JNIEnv* env = callbacks->env;
+    jobject object = callbacks->object;
+
     switch (uMsg){
         case WM_CLOSE: {
-            env->CallStaticVoidMethod(callbacks, onDestroyCallback, (jlong)hwnd);
+            env->CallVoidMethod(object, callbacks->onCloseCallback);
             break;
         }
         case WM_SIZE: {
-            env->CallStaticVoidMethod(callbacks, onResizeCallback, (jlong)hwnd, LOWORD(lParam), HIWORD(lParam));
+            env->CallVoidMethod(object, callbacks->onResizeCallback, LOWORD(lParam), HIWORD(lParam));
             break;
         }
         case WM_MOVE: {
-            env->CallStaticVoidMethod(callbacks, onMoveCallback, (jlong)hwnd, LOWORD(lParam), HIWORD(lParam));
+            env->CallVoidMethod(object, callbacks->onMoveCallback, LOWORD(lParam), HIWORD(lParam));
+            break;
+        }
+        case WM_SETCURSOR: {
+            jint cursor = env->CallIntMethod(object, callbacks->getCursorCallback);
+            SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(cursor)));
+            break;
+        }
+        case WM_DESTROY: {
+            removeCallbacks(hwnd);
             break;
         }
     }
@@ -43,8 +73,8 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     JNI
 */
 
-jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong hwnd, jclass callbackClass) {
-    checkCallbacks(env, callbackClass);
+jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong hwnd, jobject callbackObject) {
+    addCallbacks(env, (HWND)hwnd, callbackObject);
     SetWindowLongPtr((HWND)hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
 }
 

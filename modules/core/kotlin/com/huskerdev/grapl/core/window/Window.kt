@@ -30,6 +30,8 @@ open class Window(
 
     var visible by peer::visible
 
+    var cursor by peer::cursor
+
     fun runEventLoop(loopCallback: () -> Unit = {}) = peer.runEventLoop(loopCallback)
     fun destroy() = peer.destroy()
 

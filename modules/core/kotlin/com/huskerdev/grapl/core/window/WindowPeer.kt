@@ -58,6 +58,8 @@ abstract class WindowPeer {
         _visible = it
     }
 
+    var cursor = Cursor.DEFAULT
+
     abstract fun runEventLoop(loopCallback: () -> Unit)
     abstract fun destroy()
 
