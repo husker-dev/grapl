@@ -1,3 +1,5 @@
+import com.huskerdev.grapl.core.util.MacOSUtils
+import com.huskerdev.grapl.core.window.Cursor
 import com.huskerdev.grapl.core.window.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
@@ -6,22 +8,29 @@ import org.junit.jupiter.api.Test
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
+
+
+
 class OJGLTest {
 
     @Test
     fun createWindow() {
-        val window = GLWindow.create()
-        window.size = 800 x 600
-        window.title = "UTF? Да"
-        window.visible = true
+        MacOSUtils.invokeOnMainThreadSync {
+            val window = GLWindow.create()
+            window.position = 800 x 400
+            window.size = 800 x 600
+            window.title = "UTF? Да"
+            window.cursor = Cursor.TEXT
+            window.visible = true
 
-        window.context.makeCurrent()
-        GL.createCapabilities()
-        glClearColor(1f, 0f, 0f, 1f)
+            window.context.makeCurrent()
+            GL.createCapabilities()
+            glClearColor(1f, 0f, 0f, 1f)
 
-        window.runEventLoop {
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-            window.swapBuffers()
+            window.runEventLoop {
+                glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+                window.swapBuffers()
+            }
         }
     }
 

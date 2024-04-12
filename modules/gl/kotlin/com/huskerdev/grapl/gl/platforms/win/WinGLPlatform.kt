@@ -19,14 +19,12 @@ class WinGLPlatform: GLPlatform() {
         @JvmStatic private external fun nSwapInterval(hwnd: Long, value: Int)
 
         fun createGLWindow(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
-            nCreateGLWindow(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion)
-                .run {
-                    GLWindow(
-                        WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt()),
-                        WinWindowPeer(this[0]),
-                    )
-                }
-
+            nCreateGLWindow(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion).run {
+                GLWindow(
+                    WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt()),
+                    WinWindowPeer(this[0]),
+                )
+            }
     }
 
     override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =

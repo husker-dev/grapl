@@ -3,7 +3,7 @@ package com.huskerdev.grapl.gl.platforms.macos
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLProfile
 
-class CGLContext(
+open class CGLContext(
     context: Long,
     majorVersion: Int,
     minorVersion: Int

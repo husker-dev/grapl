@@ -211,6 +211,7 @@ enum Compiler {
             archModifier += "-arch x86_64 "
         execute(new String[]{"""clang++
                     -Wall -Os -v
+                    -fmodules
                     $typeModifier
                     $archModifier
                     ${platformConfig.frameworks.get().collect { "-framework $it" }.join(" ")}
@@ -380,8 +381,11 @@ class NativeCompilationPlugin implements Plugin<Project> {
                     def file = new File(config.srcDir.getOrElse(project.file("src")), path)
                     if(file.directory)
                         project.fileTree(file).files.each {
-                            if(it.absolutePath.endsWith(".cpp"))
-                                src += it.absolutePath
+                            if(it.absolutePath.endsWith(".c") ||
+                                it.absolutePath.endsWith(".cpp") ||
+                                it.absolutePath.endsWith(".m") ||
+                                it.absolutePath.endsWith(".mm")
+                            ) src += it.absolutePath
                         }
                     else
                         src += file.absolutePath

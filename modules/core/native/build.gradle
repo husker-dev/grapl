@@ -13,6 +13,7 @@ compilation {
     }
     macos {
         src = ["macos"]
+        frameworks = ["Cocoa"]
     }
 }
 

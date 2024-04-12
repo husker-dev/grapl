@@ -8,23 +8,21 @@ open class Window(
     val resizeListeners by peer::resizeListeners
     val visibleListeners by peer::visibleListeners
 
-    var x by peer::x
-    var y by peer::y
-    var position: Pair<Int, Int>
-        get() = Pair(x, y)
-        set(value) {
-            x = value.first
-            y = value.second
-        }
+    var position by peer::position
+    var x: Int
+        set(value) { position = Pair(value, y) }
+        get() = position.first
+    var y: Int
+        set(value) { position = Pair(x, value) }
+        get() = position.second
 
-    var width by peer::width
-    var height by peer::height
-    var size: Pair<Int, Int>
-        get() = Pair(width, height)
-        set(value) {
-            width = value.first
-            height = value.second
-        }
+    var size by peer::size
+    var width: Int
+        set(value) { size = Pair(value, height) }
+        get() = size.first
+    var height: Int
+        set(value) { size = Pair(width, value) }
+        get() = size.second
 
     var title by peer::title
 

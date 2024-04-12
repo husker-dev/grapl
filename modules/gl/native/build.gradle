@@ -13,7 +13,7 @@ compilation {
     }
     macos {
         src = ["macos"]
-        frameworks = ["OpenGL"]
+        frameworks = ["OpenGL", "Cocoa"]
     }
 }
 

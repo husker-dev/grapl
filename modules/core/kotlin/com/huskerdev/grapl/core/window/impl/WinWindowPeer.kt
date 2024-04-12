@@ -1,10 +1,9 @@
 package com.huskerdev.grapl.core.window.impl
 
+import com.huskerdev.grapl.core.util.c_wstr
 import com.huskerdev.grapl.core.window.Cursor
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
-import java.nio.ByteOrder
-import java.nio.charset.StandardCharsets
 
 class WinWindowPeer(
     val hwnd: Long,
@@ -19,14 +18,6 @@ class WinWindowPeer(
         @JvmStatic private external fun nSetPosition(hwnd: Long, x: Int, y: Int)
         @JvmStatic private external fun nSetSize(hwnd: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetTitle(hwnd: Long, title: ByteBuffer)
-
-        private val String.c_wstr: ByteBuffer
-            get() {
-                val bytes = toByteArray(StandardCharsets.UTF_16LE)
-                val cBytes = ByteArray(bytes.size + 2)
-                System.arraycopy(bytes, 0, cBytes, 0, bytes.size)
-                return ByteBuffer.allocateDirect(cBytes.size).order(ByteOrder.nativeOrder()).put(cBytes)
-            }
     }
 
     private var shouldClose = false
@@ -35,14 +26,10 @@ class WinWindowPeer(
         nHookWindow(hwnd, this)
     }
 
-    override fun runEventLoop(loopCallback: () -> Unit) {
-        while (!shouldClose) {
-            loopCallback()
-            nPeekMessage(hwnd)
-        }
-    }
-
     override fun destroy() = nPostQuit(hwnd)
+    override fun peekMessages() = nPeekMessage(hwnd)
+    override fun shouldClose() = shouldClose
+
     override fun setPositionImpl(x: Int, y: Int) = nSetPosition(hwnd, x, y)
     override fun setSizeImpl(width: Int, height: Int) = nSetSize(hwnd, width, height)
     override fun setTitleImpl(title: String) = nSetTitle(hwnd, title.c_wstr)
@@ -54,13 +41,11 @@ class WinWindowPeer(
     }
 
     fun onResizeCallback(width: Int, height: Int){
-        _width = width
-        _height = height
+        _size = Pair(width, height)
     }
 
     fun onMoveCallback(x: Int, y: Int){
-        _x = x
-        _y = y
+        _position = Pair(x, y)
     }
 
     /** https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors */
