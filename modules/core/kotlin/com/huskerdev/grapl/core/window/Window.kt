@@ -38,4 +38,4 @@ open class Window(
     }
 }
 
-infix fun Int.x(exponent: Int): Pair<Int, Int> = Pair(this, exponent)
+infix fun Int.x(second: Int): Pair<Int, Int> = Pair(this, second)

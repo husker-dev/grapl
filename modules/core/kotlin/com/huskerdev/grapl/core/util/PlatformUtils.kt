@@ -44,7 +44,12 @@ class PlatformUtils {
             OS.MacOS -> "dylib"
         }
 
+        private val loadedLibs = hashSetOf<String>()
+
         fun loadLibraryFromResources(path: String) {
+            if(path in loadedLibs)
+                return
+
             var fileName = path.replace("/", "-")
             if(fileName.startsWith("-")) fileName = fileName.substring(1)
 
@@ -58,6 +63,7 @@ class PlatformUtils {
             }
             tmpFile.deleteOnExit()
             System.load(tmpFile.absolutePath)
+            loadedLibs.add(path)
         }
 
         fun loadLibraryFromResources(classpath: String, baseName: String, version: String) {
