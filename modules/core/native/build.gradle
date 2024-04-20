@@ -7,13 +7,14 @@ compilation {
     baseName = "lib"
     classpath = "com.huskerdev.grapl.core.native"
 
+    sharedDir file("shared/all")
+
     windows {
-        src = ["win"]
         libs = ["user32", "gdi32"]
     }
     macos {
-        src = ["macos"]
         frameworks = ["Cocoa"]
+        sharedDir file("shared/macos")
     }
 }
 

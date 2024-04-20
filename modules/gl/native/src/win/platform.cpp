@@ -1,6 +1,6 @@
 #define UNICODE
 
-#include "win-shared.h"
+#include "grapl-gl-win.h"
 
 jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion) {
     checkBasicFunctions();

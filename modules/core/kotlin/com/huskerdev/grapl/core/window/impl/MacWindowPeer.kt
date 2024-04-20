@@ -11,7 +11,7 @@ class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nInitApplication()
         @JvmStatic private external fun nCreateWindow(callbackClass: Any): Long
 
-        @JvmStatic private external fun nPeekMessage(windowPtr: Long)
+        @JvmStatic private external fun nPeekMessage()
         @JvmStatic private external fun nCloseWindow(windowPtr: Long)
         @JvmStatic private external fun nSetVisible(windowPtr: Long, value: Boolean)
         @JvmStatic private external fun nSetTitle(windowPtr: Long, title: ByteBuffer)
@@ -30,7 +30,7 @@ class MacWindowPeer : WindowPeer() {
     private var shouldClose = false
 
     override fun destroy() = nCloseWindow(windowPtr)
-    override fun peekMessages() = nPeekMessage(windowPtr)
+    override fun peekMessages() = nPeekMessage()
     override fun shouldClose() = shouldClose
 
     override fun setPositionImpl(x: Int, y: Int) = nSetPosition(windowPtr, x, y)

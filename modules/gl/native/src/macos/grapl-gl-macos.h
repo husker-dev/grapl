@@ -1,4 +1,4 @@
-#include "../shared.h"
+#include "../grapl-gl.h"
 
 #include <jni.h>
 #include <iostream>
@@ -6,6 +6,12 @@
 
 #include <dlfcn.h>
 static void* libGL;
+
+
+#define jni_macos_context(returnType, fun)   extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_CGLContext_##fun
+#define jni_macos_nscontext(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_NSGLContext_##fun
+#define jni_macos_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_MacGLPlatform_##fun
+
 
 static void printError(const char* error){
     std::cout << "CGLError: " << error << std::endl;

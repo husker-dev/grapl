@@ -1,6 +1,10 @@
-#include "../shared.h"
+#include "../grapl-gl.h"
 
 #include <windows.h>
+
+#define jni_win_context(returnType, fun)     extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLContext_##fun
+#define jni_win_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WinGLPlatform_##fun
+
 
 /*
     WGL constants

@@ -1,6 +1,6 @@
 #define UNICODE
 
-#include "win-shared.h"
+#include "grapl-win.h"
 #include <map>
 
 struct CallbackContainer {

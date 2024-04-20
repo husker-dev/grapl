@@ -1,6 +1,4 @@
-#define GL_SILENCE_DEPRECATION
-
-#include "macos-shared.h"
+#import "grapl-gl-macos.h"
 
 void* a_GetProcAddress(const char* name) {
     if(libGL == NULL){

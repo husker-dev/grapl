@@ -1,6 +1,6 @@
 #define UNICODE
 
-#include "win-shared.h"
+#include "grapl-gl-win.h"
 
 
 jni_win_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {

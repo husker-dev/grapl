@@ -6,14 +6,14 @@ apply from: addon(addons_nativeCompilation)
 compilation {
     baseName = "lib"
     classpath = "com.huskerdev.grapl.gl.native"
+    sharedDir project(":modules:core:native").file("shared/all")
 
     windows {
-        src = ["win"]
         libs = ["user32", "gdi32"]
     }
     macos {
-        src = ["macos"]
         frameworks = ["OpenGL", "Cocoa"]
+        sharedDir project(":modules:core:native").file("shared/macos")
     }
 }
 

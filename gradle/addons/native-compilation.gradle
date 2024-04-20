@@ -3,7 +3,85 @@ import org.gradle.internal.os.*
 import java.util.function.Function
 import java.util.function.Predicate
 
-apply plugin: 'java-library'
+
+
+/* ========================== *\
+          Configuration
+\* ========================== */
+
+abstract class WindowsConfiguration extends AbstractPlatformConfiguration{
+    abstract Property<String> getVarsDir()
+    abstract Property<String> getSdkDir()
+}
+
+abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
+    abstract ListProperty<String> getFrameworks()
+}
+
+abstract class LinuxConfiguration extends AbstractPlatformConfiguration{
+    @Nested abstract BinariesConfiguration getBinaries()
+
+    void binaries(Action<? super BinariesConfiguration> action) {
+        action.execute(getBinaries())
+    }
+}
+
+abstract class BinariesConfiguration {
+    abstract Property<String> getX64()
+    abstract Property<String> getX86()
+    abstract Property<String> getArm64()
+}
+
+abstract class AbstractPlatformConfiguration {
+    abstract RegularFileProperty getJvmInclude()
+    abstract ListProperty<File> getIncludeDirs()
+    abstract ListProperty<File> getSrcDirs()
+    abstract ListProperty<File> getLibDirs()
+    abstract ListProperty<String> getLibs()
+    abstract ListProperty<Arch> getArchitectures()
+
+    void include(File dir) {
+        includeDirs.add(dir)
+    }
+
+    void src(File dir) {
+        srcDirs.add(dir)
+    }
+
+    void sharedDir(File dir){
+        include dir
+        src dir
+    }
+}
+
+abstract class ProjectCompileConfiguration extends AbstractPlatformConfiguration{
+    abstract Property<String> getBaseName()
+    abstract Property<String> getVersion()
+    abstract Property<String> getClasspath()
+
+    abstract Property<OutputType> getType()
+    abstract RegularFileProperty getJdk()
+
+    @Nested abstract WindowsConfiguration getWindows()
+    @Nested abstract LinuxConfiguration getLinux()
+    @Nested abstract MacOSConfiguration getMacos()
+
+    void windows(Action<? super WindowsConfiguration> action) {
+        action.execute(getWindows())
+    }
+
+    void linux(Action<? super LinuxConfiguration> action) {
+        action.execute(getLinux())
+    }
+
+    void macos(Action<? super MacOSConfiguration> action) {
+        action.execute(getMacos())
+    }
+}
+
+/* ========================== *\
+              Enums
+\* ========================== */
 
 enum Platform {
     WINDOWS(
@@ -68,64 +146,6 @@ enum Arch {
     X86,
     X64,
     ARM64
-}
-
-abstract class WindowsConfiguration extends AbstractPlatformConfiguration{
-    abstract Property<String> getVarsDir()
-    abstract Property<String> getSdkDir()
-}
-
-abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
-    abstract ListProperty<String> getFrameworks()
-}
-
-abstract class LinuxConfiguration extends AbstractPlatformConfiguration{
-    @Nested abstract BinariesConfiguration getBinaries()
-
-    void binaries(Action<? super BinariesConfiguration> action) {
-        action.execute(getBinaries())
-    }
-}
-
-abstract class BinariesConfiguration {
-    abstract Property<String> getX64()
-    abstract Property<String> getX86()
-    abstract Property<String> getArm64()
-}
-
-abstract class AbstractPlatformConfiguration {
-    abstract ListProperty<String> getInclude()
-    abstract ListProperty<String> getLibs()
-    abstract ListProperty<String> getLibFolders()
-    abstract ListProperty<String> getSrc()
-    abstract ListProperty<Arch> getArchitectures()
-}
-
-abstract class ProjectCompileConfiguration extends AbstractPlatformConfiguration{
-    abstract RegularFileProperty getSrcDir();
-
-    abstract Property<String> getBaseName()
-    abstract Property<String> getVersion()
-    abstract Property<String> getClasspath()
-
-    abstract Property<OutputType> getType()
-    abstract Property<String> getJdk()
-
-    @Nested abstract WindowsConfiguration getWindows()
-    @Nested abstract LinuxConfiguration getLinux()
-    @Nested abstract MacOSConfiguration getMacos()
-
-    void windows(Action<? super WindowsConfiguration> action) {
-        action.execute(getWindows())
-    }
-
-    void linux(Action<? super LinuxConfiguration> action) {
-        action.execute(getLinux())
-    }
-
-    void macos(Action<? super MacOSConfiguration> action) {
-        action.execute(getMacos())
-    }
 }
 
 enum Compiler {
@@ -238,8 +258,8 @@ enum Compiler {
             OutputType type,
             Arch arch
     ){
-        if(projectConfig.version.getOrElse(project.version) != "")
-            output += "-" + projectConfig.version.getOrElse(project.version)
+        if(projectConfig.version.get() != "")
+            output += "-" + projectConfig.version.get()
         if(arch != null)
             output += "-" + arch.name().toLowerCase()
         Platform platform = NativeCompilationPlugin.platform
@@ -325,6 +345,12 @@ enum Compiler {
 }
 
 
+/* ========================== *\
+             Plugin
+\* ========================== */
+
+apply plugin: 'java-library'
+
 project.ext.shortOS = NativeCompilationPlugin.getPlatform().shortName
 
 
@@ -337,10 +363,29 @@ class NativeCompilationPlugin implements Plugin<Project> {
         this.project = project
         config = project.extensions.create('compilation', ProjectCompileConfiguration)
 
-        project.sourceSets {
-            src {
-                java {
-                    srcDir config.srcDir.getOrElse("src")
+        // Configuration defaults
+        config.baseName = "lib"
+        config.version = project.version
+        config.classpath = ""
+        config.type = OutputType.SHARED
+        config.jdk = new File(ProcessHandle.current().info().command().orElseThrow()).parentFile.parentFile
+        config.jvmInclude = new File(config.jdk.asFile.get(), "include")
+
+        config.windows.srcDirs = [ project.file("src/win") ]
+        config.windows.jvmInclude = new File(config.jdk.asFile.get(), "include/win32")
+
+        config.macos.srcDirs = [ project.file("src/macos") ]
+        config.macos.jvmInclude = new File(config.jdk.asFile.get(), "include/darwin")
+
+        config.linux.srcDirs = [ project.file("src/linux") ]
+        config.linux.jvmInclude = new File(config.jdk.asFile.get(), "include/linux")
+
+        project.afterEvaluate {
+            project.sourceSets {
+                src {
+                    java {
+                        srcDirs = [ project.file("src") ]
+                    }
                 }
             }
         }
@@ -350,12 +395,9 @@ class NativeCompilationPlugin implements Plugin<Project> {
 
             doFirst {
                 buildDir.deleteDir()
-                def artifactDir = new File(buildDir, config.classpath.getOrElse("").replaceAll("\\.", "/"))
+                def artifactDir = new File(buildDir, config.classpath.get().replaceAll("\\.", "/"))
                 artifactDir.mkdirs()
 
-                File jvm = config.jdk.getOrElse(new File(ProcessHandle.current().info().command().orElseThrow()).parentFile.parentFile)
-                File jvmInclude = new File(jvm, "include")
-                File jvmIncludePlatform = jvmInclude.listFiles((FileFilter){ it.isDirectory() })[0]
 
                 // Platform defaults
                 def platform = getPlatform()
@@ -369,16 +411,18 @@ class NativeCompilationPlugin implements Plugin<Project> {
                     architectures = platform.defaultArch
 
                 def include = [
-                        jvmInclude.absolutePath.replace("\\", "/"),
-                        jvmIncludePlatform.absolutePath.replace("\\", "/")
-                ] + config.include.get() + platformConfig.include.get()
+                        config.jvmInclude.asFile.get().absolutePath.replace("\\", "/"),
+                        platformConfig.jvmInclude.asFile.get().absolutePath.replace("\\", "/")
+                ]
+                include += config.includeDirs.get().collect { it.absolutePath }
+                include += platformConfig.includeDirs.get().collect { it.absolutePath }
 
-                def libFolders = config.libFolders.get() + platformConfig.libFolders.get()
+                def libFolders = config.libDirs.get() + platformConfig.libDirs.get()
                 def libs = config.libs.get() + platformConfig.libs.get()
 
                 def src = new ArrayList<String>()
-                for(String path in (config.src.get() + platformConfig.src.get())){
-                    def file = new File(config.srcDir.getOrElse(project.file("src")), path)
+                for(String path in (config.srcDirs.get() + platformConfig.srcDirs.get())){
+                    def file = project.file(path)
                     if(file.directory)
                         project.fileTree(file).files.each {
                             if(it.absolutePath.endsWith(".c") ||
