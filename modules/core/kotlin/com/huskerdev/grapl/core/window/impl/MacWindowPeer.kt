@@ -1,7 +1,7 @@
 package com.huskerdev.grapl.core.window.impl
 
 import com.huskerdev.grapl.core.util.c_str
-import com.huskerdev.grapl.core.window.Cursor
+import com.huskerdev.grapl.core.Cursor
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 

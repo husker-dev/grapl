@@ -34,8 +34,6 @@ open class Window(
     fun destroy() = peer.destroy()
 
     init {
-        size = 800 x 600
+        size = 800 to 600
     }
 }
-
-infix fun Int.x(second: Int): Pair<Int, Int> = Pair(this, second)

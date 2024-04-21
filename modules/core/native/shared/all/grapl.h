@@ -10,4 +10,10 @@ static jlongArray createLongArray(JNIEnv* env, int size, jlong* array){
     return result;
 }
 
+static jintArray createIntArray(JNIEnv* env, int size, jint* array){
+    jintArray result = env->NewIntArray(size);
+    env->SetIntArrayRegion(result, 0, size, array);
+    return result;
+}
+
 #endif

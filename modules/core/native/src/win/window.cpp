@@ -1,5 +1,3 @@
-#define UNICODE
-
 #include "grapl-win.h"
 #include <map>
 

@@ -1,6 +1,6 @@
 package com.huskerdev.grapl.core.util
 
-import com.huskerdev.grapl.core.GraplNatives
+import com.huskerdev.grapl.GraplNatives
 
 class MacOSUtils {
 

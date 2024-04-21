@@ -1,8 +1,8 @@
 package com.huskerdev.grapl.gl
 
-import com.huskerdev.grapl.core.GraplInfo
-import com.huskerdev.grapl.core.util.OS
-import com.huskerdev.grapl.core.util.PlatformUtils
+import com.huskerdev.grapl.GraplInfo
+import com.huskerdev.grapl.core.platform.OS
+import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.gl.platforms.linux.LinuxGLPlatform
 import com.huskerdev.grapl.gl.platforms.macos.MacGLPlatform
 import com.huskerdev.grapl.gl.platforms.win.WinGLPlatform
@@ -11,7 +11,7 @@ abstract class GLPlatform {
 
     companion object {
         init {
-            PlatformUtils.loadLibraryFromResources(
+            Platform.loadLibraryFromResources(
                 classpath = "com.huskerdev.grapl.gl.native",
                 baseName = "lib",
                 version = GraplInfo.VERSION
@@ -19,7 +19,7 @@ abstract class GLPlatform {
         }
 
         val current by lazy {
-            when(PlatformUtils.os) {
+            when(Platform.os) {
                 OS.Windows  -> WinGLPlatform()
                 OS.Linux    -> LinuxGLPlatform()
                 OS.MacOS    -> MacGLPlatform()

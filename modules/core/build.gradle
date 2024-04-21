@@ -23,7 +23,7 @@ maven {
 
 properties {
     name = "GraplInfo"
-    classpath = "com.huskerdev.grapl.core"
+    classpath = "com.huskerdev.grapl"
 
     field("VERSION", version)
 }

@@ -1,12 +1,12 @@
-package com.huskerdev.grapl.core
+package com.huskerdev.grapl
 
-import com.huskerdev.grapl.core.util.PlatformUtils
+import com.huskerdev.grapl.core.platform.Platform
 
 class GraplNatives {
 
     companion object {
         fun load(){
-            PlatformUtils.loadLibraryFromResources(
+            Platform.loadLibraryFromResources(
                 classpath = "com.huskerdev.grapl.core.native",
                 baseName = "lib",
                 version = GraplInfo.VERSION

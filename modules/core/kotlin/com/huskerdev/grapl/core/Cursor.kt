@@ -1,4 +1,4 @@
-package com.huskerdev.grapl.core.window
+package com.huskerdev.grapl.core
 
 enum class Cursor {
     DEFAULT,

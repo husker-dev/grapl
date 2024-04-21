@@ -1,26 +1,14 @@
-package com.huskerdev.grapl.core.util
+package com.huskerdev.grapl.core.platform
 
+import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.platform.impl.LinuxPlatform
+import com.huskerdev.grapl.core.platform.impl.MacPlatform
+import com.huskerdev.grapl.core.platform.impl.WinPlatform
 import java.io.File
 import java.io.FileOutputStream
 
-enum class OS(val displayName: String) {
-    Other("unknown"),
-    Windows("windows"),
-    Linux("linux"),
-    MacOS("macos");
-    override fun toString() = displayName
-}
 
-enum class Architecture(val displayName: String) {
-    ARM64("arm64"),
-    ARM32("arm32"),
-    X64("x64"),
-    X86("x86");
-    override fun toString() = displayName
-}
-
-
-class PlatformUtils {
+abstract class Platform {
     companion object {
 
         val os = System.getProperty("os.name", "generic").lowercase().run {
@@ -37,11 +25,11 @@ class PlatformUtils {
             else Architecture.X86
         }
 
-        val dynamicLibExt = when(os){
-            OS.Other -> throw UnsupportedOperationException("Can not get library extension for unsupported OS")
-            OS.Windows -> "dll"
-            OS.Linux -> "so"
-            OS.MacOS -> "dylib"
+        val current = when(os) {
+            OS.Windows -> WinPlatform()
+            OS.Linux -> LinuxPlatform()
+            OS.MacOS -> MacPlatform()
+            OS.Other -> throw UnsupportedOperationException("Unsupported platform")
         }
 
         private val loadedLibs = hashSetOf<String>()
@@ -51,7 +39,8 @@ class PlatformUtils {
                 return
 
             var fileName = path.replace("/", "-")
-            if(fileName.startsWith("-")) fileName = fileName.substring(1)
+            if(fileName.startsWith("-"))
+                fileName = fileName.substring(1)
 
             val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
             try {
@@ -67,13 +56,17 @@ class PlatformUtils {
         }
 
         fun loadLibraryFromResources(classpath: String, baseName: String, version: String) {
-            val fileName = "$baseName-$version"
-            val fullName = when(os) {
-                OS.Windows, OS.Linux -> "$fileName-$arch.$dynamicLibExt"
-                OS.MacOS -> "$fileName.$dynamicLibExt"
-                else -> throw UnsupportedOperationException("Unsupported OS")
-            }
-            loadLibraryFromResources("/${classpath.replace(".", "/")}/$fullName")
+            val fileName = current.specifyLibName("$baseName-$version")
+            val path = classpath.replace(".", "/")
+            loadLibraryFromResources("/$path/$fileName")
         }
     }
+
+    abstract val dynamicLibExtension: String
+
+    abstract val primaryDisplay: Display
+
+    abstract val displays: Array<Display>
+
+    internal abstract fun specifyLibName(libName: String): String
 }

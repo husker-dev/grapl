@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.core.window
 
-import com.huskerdev.grapl.core.GraplNatives
+import com.huskerdev.grapl.GraplNatives
+import com.huskerdev.grapl.core.Cursor
 import com.huskerdev.grapl.core.util.listenerObserver
 import com.huskerdev.grapl.core.util.observer
 

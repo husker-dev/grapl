@@ -10,7 +10,7 @@ compilation {
     sharedDir file("shared/all")
 
     windows {
-        libs = ["user32", "gdi32"]
+        libs = ["user32", "gdi32", "setupapi", "advapi32"]
     }
     macos {
         frameworks = ["Cocoa"]
