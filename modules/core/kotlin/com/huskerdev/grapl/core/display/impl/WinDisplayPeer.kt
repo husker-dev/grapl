@@ -25,11 +25,11 @@ class WinDisplayPeer(
             get() = nGetAllMonitors().map { WinDisplayPeer(it) }.toTypedArray()
     }
 
-    override val size: Size<Int, Int>
+    override val size: Size
         get() = nGetSize(handle).run { Size(this[0], this[1]) }
-    override val position: Size<Int, Int>
+    override val position: Size
         get() = nGetPosition(handle).run { Size(this[0], this[1]) }
-    override val physicalSize: Size<Int, Int>
+    override val physicalSize: Size
         get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
 
     override val dpi: Double

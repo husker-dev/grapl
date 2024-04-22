@@ -39,6 +39,14 @@ class WinWindowPeer(
 
     override fun setPositionImpl(x: Int, y: Int) = nSetPosition(hwnd, x, y)
     override fun setSizeImpl(width: Int, height: Int) = nSetSize(hwnd, width, height)
+
+    override fun setMinSizeImpl(width: Int, height: Int) {
+        // Used callback instead
+    }
+    override fun setMaxSizeImpl(width: Int, height: Int) {
+        // Used callback instead
+    }
+
     override fun setTitleImpl(title: String) = nSetTitle(hwnd, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(hwnd, visible)
 
@@ -82,4 +90,11 @@ class WinWindowPeer(
         Cursor.SCROLL_BOTTOM_LEFT -> 32661
         Cursor.SCROLL_BOTTOM_RIGHT -> 32662
     }
+
+    fun getMinMaxBounds() = intArrayOf(
+            minSize.width.toInt(),
+            minSize.height.toInt(),
+            maxSize.width.toInt(),
+            maxSize.height.toInt()
+        )
 }

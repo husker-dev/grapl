@@ -12,9 +12,9 @@ abstract class DisplayPeer(
         }
     }
 
-    abstract val size: Size<Int, Int>
-    abstract val position: Size<Int, Int>
-    abstract val physicalSize: Size<Int, Int>
+    abstract val size: Size
+    abstract val position: Size
+    abstract val physicalSize: Size
     abstract val dpi: Double
     abstract val frequency: Int
     abstract val name: String

@@ -2,7 +2,6 @@ package com.huskerdev.grapl.core.display
 
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.platform.Platform
-import com.huskerdev.grapl.core.x
 
 class Display(
     val peer: DisplayPeer
@@ -24,15 +23,15 @@ class Display(
     val physicalWidth by peer.physicalSize::width
     val physicalHeight by peer.physicalSize::height
 
-    val size: Size<Double, Double>
-        get() = width x height
+    val size: Size
+        get() = peer.size / peer.dpi
     val width: Double
         get() = peer.size.width / peer.dpi
     val height: Double
         get() = peer.size.height / peer.dpi
 
-    val position: Size<Double, Double>
-        get() = x x y
+    val position: Size
+        get() = peer.position / peer.dpi
     val x: Double
         get() = peer.position.width / peer.dpi
     val y: Double

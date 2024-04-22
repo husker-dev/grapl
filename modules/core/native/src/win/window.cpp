@@ -8,6 +8,7 @@ struct CallbackContainer {
     jmethodID onResizeCallback;
     jmethodID onMoveCallback;
     jmethodID getCursorCallback;
+    jmethodID getMinMaxBounds;
 };
 static std::map<HWND, CallbackContainer*> callbackObjects;
 
@@ -20,7 +21,8 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
         env->GetMethodID(callbackClass, "onCloseCallback", "()V"),
         env->GetMethodID(callbackClass, "onResizeCallback", "(II)V"),
         env->GetMethodID(callbackClass, "onMoveCallback", "(II)V"),
-        env->GetMethodID(callbackClass, "getCursorCallback", "()I")
+        env->GetMethodID(callbackClass, "getCursorCallback", "()I"),
+        env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I")
     };
 }
 
@@ -56,6 +58,18 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         case WM_SETCURSOR: {
             jint cursor = env->CallIntMethod(object, callbacks->getCursorCallback);
             SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(cursor)));
+            break;
+        }
+        case WM_GETMINMAXINFO: {
+            jobject result = env->CallObjectMethod(object, callbacks->getMinMaxBounds);
+            jintArray* boundsArray = reinterpret_cast<jintArray*>(&result);
+            jint* bounds = env->GetIntArrayElements(*boundsArray, NULL);
+
+            LPMINMAXINFO info = (LPMINMAXINFO)lParam;
+            if(bounds[0] != -1) info->ptMinTrackSize.x = bounds[0];
+            if(bounds[1] != -1) info->ptMinTrackSize.y = bounds[1];
+            if(bounds[2] != -1) info->ptMaxTrackSize.x = bounds[2];
+            if(bounds[3] != -1) info->ptMaxTrackSize.y = bounds[3];
             break;
         }
         case WM_DESTROY: {

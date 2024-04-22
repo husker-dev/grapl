@@ -37,6 +37,14 @@ class MacWindowPeer : WindowPeer() {
 
     override fun setPositionImpl(x: Int, y: Int) = nSetPosition(windowPtr, x, y)
     override fun setSizeImpl(width: Int, height: Int) = nSetSize(windowPtr, width, height)
+    override fun setMinSizeImpl(width: Int, height: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaxSizeImpl(width: Int, height: Int) {
+        TODO("Not yet implemented")
+    }
+
     override fun setTitleImpl(title: String) = nSetTitle(windowPtr, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(windowPtr, visible)
 

@@ -21,15 +21,23 @@ abstract class WindowPeer {
     val visibleListeners = hashSetOf<() -> Unit>()
 
     protected var _position by listenerObserver(Size(0, 0), moveListeners)
-    var position: Size<Int, Int> by observer(_position){
-        setPositionImpl(it.width, it.height)
+    var position: Size by observer(_position){
+        setPositionImpl(it.width.toInt(), it.height.toInt())
         _position = it
     }
 
     protected var _size by listenerObserver(Size(100, 100), moveListeners)
-    var size: Size<Int, Int> by observer(_size){
-        setSizeImpl(it.width, it.height)
+    var size: Size by observer(_size){
+        setSizeImpl(it.width.toInt(), it.height.toInt())
         _size = it
+    }
+
+    var minSize: Size by observer(Size(-1, -1)){
+        setMinSizeImpl(it.width.toInt(), it.height.toInt())
+    }
+
+    var maxSize: Size by observer(Size(-1, -1)){
+        setMaxSizeImpl(it.width.toInt(), it.height.toInt())
     }
 
     protected var _title = ""
@@ -62,6 +70,8 @@ abstract class WindowPeer {
 
     protected abstract fun setPositionImpl(x: Int, y: Int)
     protected abstract fun setSizeImpl(width: Int, height: Int)
+    protected abstract fun setMinSizeImpl(width: Int, height: Int)
+    protected abstract fun setMaxSizeImpl(width: Int, height: Int)
     protected abstract fun setTitleImpl(title: String)
     protected abstract fun setVisibleImpl(visible: Boolean)
 }

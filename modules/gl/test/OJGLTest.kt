@@ -29,7 +29,8 @@ class OJGLTest {
         }
 
         val window = GLWindow.create()
-        window.size = 800.0 x 600.0
+        window.size = 800 x 600
+        window.minSize = 300 x 300
         window.alignToCenter()
         window.title = "UTF? Да"
         window.cursor = Cursor.TEXT
