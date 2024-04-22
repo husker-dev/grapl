@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.core.display.impl
 
+import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.DisplayPeer
 
 class WinDisplayPeer(
@@ -24,12 +25,12 @@ class WinDisplayPeer(
             get() = nGetAllMonitors().map { WinDisplayPeer(it) }.toTypedArray()
     }
 
-    override val size: Pair<Int, Int>
-        get() = nGetSize(handle).run { Pair(this[0], this[1]) }
-    override val position: Pair<Int, Int>
-        get() = nGetPosition(handle).run { Pair(this[0], this[1]) }
-    override val physicalSize: Pair<Int, Int>
-        get() = nGetPhysicalSize(handle).run { Pair(this[0], this[1]) }
+    override val size: Size<Int, Int>
+        get() = nGetSize(handle).run { Size(this[0], this[1]) }
+    override val position: Size<Int, Int>
+        get() = nGetPosition(handle).run { Size(this[0], this[1]) }
+    override val physicalSize: Size<Int, Int>
+        get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
 
     override val dpi: Double
         get() = nGetDpi(handle)

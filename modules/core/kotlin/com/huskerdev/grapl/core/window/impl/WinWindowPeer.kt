@@ -2,6 +2,9 @@ package com.huskerdev.grapl.core.window.impl
 
 import com.huskerdev.grapl.core.util.c_wstr
 import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.Size
+import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
@@ -18,6 +21,7 @@ class WinWindowPeer(
         @JvmStatic private external fun nSetPosition(hwnd: Long, x: Int, y: Int)
         @JvmStatic private external fun nSetSize(hwnd: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetTitle(hwnd: Long, title: ByteBuffer)
+        @JvmStatic private external fun nGetMonitor(hwnd: Long): Long
     }
 
     private var shouldClose = false
@@ -25,6 +29,9 @@ class WinWindowPeer(
     init {
         nHookWindow(hwnd, this)
     }
+
+    override val display: Display
+        get() = Display(WinDisplayPeer(nGetMonitor(hwnd)))
 
     override fun destroy() = nPostQuit(hwnd)
     override fun peekMessages() = nPeekMessage(hwnd)
@@ -41,11 +48,11 @@ class WinWindowPeer(
     }
 
     fun onResizeCallback(width: Int, height: Int){
-        _size = Pair(width, height)
+        _size = Size(width, height)
     }
 
     fun onMoveCallback(x: Int, y: Int){
-        _position = Pair(x, y)
+        _position = Size(x, y)
     }
 
     /** https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors */

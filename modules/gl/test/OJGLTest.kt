@@ -1,5 +1,6 @@
-import com.huskerdev.grapl.core.window.Cursor
-import com.huskerdev.grapl.core.window.x
+import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -8,18 +9,33 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
 
-
-
 class OJGLTest {
 
     @Test
     fun createWindow() {
+        Display.list.forEach { display ->
+            println("""
+                handle: ${display.peer.handle}
+                name: ${display.name} (${display.systemName})
+                frequency: ${display.frequency}
+                x: ${display.x} (${display.absoluteX})
+                y: ${display.y} (${display.absoluteY})
+                width: ${display.width} (${display.absoluteWidth})
+                height: ${display.height} (${display.absoluteHeight})
+                dpi: ${display.dpi}
+                width (mm): ${display.physicalWidth}
+                height (mm): ${display.physicalHeight}
+            """.trimIndent())
+        }
+
         val window = GLWindow.create()
-        window.position = 800 x 400
-        window.size = 800 x 600
+        window.size = 800.0 x 600.0
+        window.alignToCenter()
         window.title = "UTF? Да"
         window.cursor = Cursor.TEXT
         window.visible = true
+
+        println(window.display)
 
         window.context.makeCurrent()
         GL.createCapabilities()

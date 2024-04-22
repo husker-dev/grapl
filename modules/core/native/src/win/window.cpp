@@ -106,3 +106,7 @@ jni_win_window(void, nSetTitle)(JNIEnv* env, jobject, jlong hwnd, jobject _title
     char* title = (char*)env->GetDirectBufferAddress(_title);
     SetWindowTextW((HWND)hwnd, (LPCWSTR)title);
 }
+
+jni_win_window(jlong, nGetMonitor)(JNIEnv* env, jobject, jlong hwnd) {
+    return (jlong)MonitorFromWindow((HWND)hwnd, MONITOR_DEFAULTTONEAREST);
+}

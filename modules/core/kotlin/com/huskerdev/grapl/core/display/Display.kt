@@ -1,6 +1,8 @@
 package com.huskerdev.grapl.core.display
 
+import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.grapl.core.x
 
 class Display(
     val peer: DisplayPeer
@@ -12,29 +14,29 @@ class Display(
     }
 
     val absoluteSize by peer::size
-    val absoluteWidth by peer.size::first
-    val absoluteHeight by peer.size::second
+    val absoluteWidth by peer.size::width
+    val absoluteHeight by peer.size::height
 
     val absolutePosition by peer::position
-    val absoluteX by peer.position::first
-    val absoluteY by peer.position::second
+    val absoluteX by peer.position::width
+    val absoluteY by peer.position::height
 
-    val physicalWidth by peer.physicalSize::first
-    val physicalHeight by peer.physicalSize::second
+    val physicalWidth by peer.physicalSize::width
+    val physicalHeight by peer.physicalSize::height
 
-    val size: Pair<Double, Double>
-        get() = width to height
+    val size: Size<Double, Double>
+        get() = width x height
     val width: Double
-        get() = peer.size.first / peer.dpi
+        get() = peer.size.width / peer.dpi
     val height: Double
-        get() = peer.size.second / peer.dpi
+        get() = peer.size.height / peer.dpi
 
-    val position: Pair<Double, Double>
-        get() = x to y
+    val position: Size<Double, Double>
+        get() = x x y
     val x: Double
-        get() = peer.position.first / peer.dpi
+        get() = peer.position.width / peer.dpi
     val y: Double
-        get() = peer.position.second / peer.dpi
+        get() = peer.position.height / peer.dpi
 
     val dpi by peer::dpi
 

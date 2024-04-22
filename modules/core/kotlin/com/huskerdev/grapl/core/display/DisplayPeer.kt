@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.core.display
 
 import com.huskerdev.grapl.GraplNatives
+import com.huskerdev.grapl.core.Size
 
 abstract class DisplayPeer(
     val handle: Long
@@ -11,9 +12,9 @@ abstract class DisplayPeer(
         }
     }
 
-    abstract val size: Pair<Int, Int>
-    abstract val position: Pair<Int, Int>
-    abstract val physicalSize: Pair<Int, Int>
+    abstract val size: Size<Int, Int>
+    abstract val position: Size<Int, Int>
+    abstract val physicalSize: Size<Int, Int>
     abstract val dpi: Double
     abstract val frequency: Int
     abstract val name: String

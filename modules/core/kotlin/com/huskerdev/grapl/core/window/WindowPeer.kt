@@ -2,6 +2,8 @@ package com.huskerdev.grapl.core.window
 
 import com.huskerdev.grapl.GraplNatives
 import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.Size
+import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.util.listenerObserver
 import com.huskerdev.grapl.core.util.observer
 
@@ -18,15 +20,15 @@ abstract class WindowPeer {
     val resizeListeners = hashSetOf<() -> Unit>()
     val visibleListeners = hashSetOf<() -> Unit>()
 
-    protected var _position by listenerObserver(Pair(0, 0), moveListeners)
-    var position: Pair<Int, Int> by observer(_position){
-        setPositionImpl(it.first, it.second)
+    protected var _position by listenerObserver(Size(0, 0), moveListeners)
+    var position: Size<Int, Int> by observer(_position){
+        setPositionImpl(it.width, it.height)
         _position = it
     }
 
-    protected var _size by listenerObserver(Pair(100, 100), moveListeners)
-    var size: Pair<Int, Int> by observer(_size){
-        setSizeImpl(it.first, it.second)
+    protected var _size by listenerObserver(Size(100, 100), moveListeners)
+    var size: Size<Int, Int> by observer(_size){
+        setSizeImpl(it.width, it.height)
         _size = it
     }
 
@@ -43,6 +45,8 @@ abstract class WindowPeer {
     }
 
     open var cursor = Cursor.DEFAULT
+
+    abstract val display: Display
 
 
     abstract fun destroy()
