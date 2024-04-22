@@ -1,6 +1,6 @@
 #import "grapl-macos.h"
 
-jni_macos_utils(void, nInvokeOnMainThread)(JNIEnv* env, jobject, jobject runnable, jboolean wait) {
+jni_macos_platform(void, nInvokeOnMainThread)(JNIEnv* env, jobject, jobject runnable, jboolean wait) {
     JavaVM* jvm;
     env->GetJavaVM(&jvm);
 

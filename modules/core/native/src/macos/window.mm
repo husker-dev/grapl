@@ -197,6 +197,20 @@ jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jint wi
     );
 }
 
+jni_macos_window(void, nSetMinSize)(JNIEnv* env, jobject, jlong _windowPtr, jint width, jint height) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        [window setMinSize:NSMakeSize(width, height)];
+    );
+}
+
+jni_macos_window(void, nSetMaxSize)(JNIEnv* env, jobject, jlong _windowPtr, jint width, jint height) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        [window setMaxSize:NSMakeSize(width, height)];
+    );
+}
+
 jni_macos_window(void, nSetCursor)(JNIEnv* env, jobject, jlong _windowPtr, jint index) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
@@ -219,3 +233,11 @@ jni_macos_window(void, nSetCursor)(JNIEnv* env, jobject, jlong _windowPtr, jint 
     );
 }
 
+jni_macos_window(jlong, nGetScreen)(JNIEnv* env, jobject, jlong _windowPtr) {
+    __block NSScreen* result;
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        result = [window screen];
+    );
+    return (jlong)result;
+}

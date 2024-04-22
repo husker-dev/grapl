@@ -4,6 +4,7 @@ import com.huskerdev.grapl.core.util.c_str
 import com.huskerdev.grapl.core.Cursor
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.display.impl.MacDisplayPeer
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
@@ -19,7 +20,10 @@ class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nSetTitle(windowPtr: Long, title: ByteBuffer)
         @JvmStatic private external fun nSetPosition(windowPtr: Long, x: Int, y: Int)
         @JvmStatic private external fun nSetSize(windowPtr: Long, width: Int, height: Int)
+        @JvmStatic private external fun nSetMinSize(windowPtr: Long, width: Int, height: Int)
+        @JvmStatic private external fun nSetMaxSize(windowPtr: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetCursor(windowPtr: Long, index: Int)
+        @JvmStatic private external fun nGetScreen(windowPtr: Long): Long
 
         fun create() = MacWindowPeer()
 
@@ -35,16 +39,12 @@ class MacWindowPeer : WindowPeer() {
     override fun peekMessages() = nPeekMessage()
     override fun shouldClose() = shouldClose
 
-    override fun setPositionImpl(x: Int, y: Int) = nSetPosition(windowPtr, x, y)
-    override fun setSizeImpl(width: Int, height: Int) = nSetSize(windowPtr, width, height)
-    override fun setMinSizeImpl(width: Int, height: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaxSizeImpl(width: Int, height: Int) {
-        TODO("Not yet implemented")
-    }
-
+    override fun setPositionImpl(x: Int, y: Int) =
+        nSetPosition(windowPtr, (x / display.dpi).toInt(), (y / display.dpi).toInt())
+    override fun setSizeImpl(width: Int, height: Int) =
+        nSetSize(windowPtr, (width / display.dpi).toInt(), (height / display.dpi).toInt())
+    override fun setMinSizeImpl(width: Int, height: Int) = nSetMinSize(windowPtr, width, height)
+    override fun setMaxSizeImpl(width: Int, height: Int) = nSetMaxSize(windowPtr, width, height)
     override fun setTitleImpl(title: String) = nSetTitle(windowPtr, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(windowPtr, visible)
 
@@ -57,7 +57,7 @@ class MacWindowPeer : WindowPeer() {
         }
 
     override val display: Display
-        get() = TODO("Not yet implemented")
+        get() = Display(MacDisplayPeer(nGetScreen(windowPtr)))
 
     fun onCloseCallback(){
         shouldClose = true

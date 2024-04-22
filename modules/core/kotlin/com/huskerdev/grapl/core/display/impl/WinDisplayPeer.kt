@@ -17,7 +17,6 @@ class WinDisplayPeer(
         @JvmStatic private external fun nGetSystemName(monitor: Long): String
         @JvmStatic private external fun nGetPhysicalSize(monitor: Long): IntArray
 
-
         val primary: DisplayPeer
             get() = WinDisplayPeer(nGetPrimaryMonitor())
 

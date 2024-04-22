@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.core.platform
 
+import com.huskerdev.grapl.GraplNatives
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.platform.impl.LinuxPlatform
 import com.huskerdev.grapl.core.platform.impl.MacPlatform
@@ -59,6 +60,10 @@ abstract class Platform {
             val fileName = current.specifyLibName("$baseName-$version")
             val path = classpath.replace(".", "/")
             loadLibraryFromResources("/$path/$fileName")
+        }
+
+        init {
+            GraplNatives.load()
         }
     }
 
