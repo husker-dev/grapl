@@ -10,8 +10,9 @@ jni_win_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-    jlong array[4] = { (jlong)_wglGetCurrentContext(), (jlong)_wglGetCurrentDC(), (jlong)major, (jlong)minor };
-    return createLongArray(env, 4, array);
+    return createLongArray(env, (jlong[]){
+        (jlong)_wglGetCurrentContext(), (jlong)_wglGetCurrentDC(), (jlong)major, (jlong)minor
+    });
 }
 
 jni_win_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong dc, jlong rc) {
@@ -42,8 +43,9 @@ jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCor
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     _wglMakeCurrent(oldDC, oldRC);
 
-    jlong array[] = { (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor };
-    return createLongArray(env, 4, array);
+    return createLongArray(env, (jlong[]){
+        (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor
+    });
 }
 
 jni_win_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc) {

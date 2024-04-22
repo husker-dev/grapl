@@ -2,6 +2,10 @@
 
 #import <IOKit/graphics/IOGraphicsLib.h>
 
+static CGDirectDisplayID getDisplayID(NSScreen* screen){
+    NSDictionary *description = [screen deviceDescription];
+    return (CGDirectDisplayID)[[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
+}
 
 jni_macos_display(jlong, nGetMainScreen)(JNIEnv* env, jobject) {
     return (jlong)[NSScreen mainScreen];
@@ -9,43 +13,39 @@ jni_macos_display(jlong, nGetMainScreen)(JNIEnv* env, jobject) {
 
 jni_macos_display(jlongArray, nGetScreens)(JNIEnv* env, jobject) {
     NSArray<NSScreen*>* screensArray = [NSScreen screens];
-    int length = [screensArray count];
-    NSScreen** screens = (NSScreen**)malloc(sizeof(NSScreen*) * length);
-    [screensArray getObjects:screens range:NSMakeRange(0, length)];
-    return createLongArray(env, length, (jlong*)screens);
+
+    int count = [screensArray count];
+    NSScreen** screens = new NSScreen*[count];
+    [screensArray getObjects:screens range:NSMakeRange(0, count)];
+    jlongArray result = createLongArray(env, count, (jlong*)screens);
+    delete[] screens;
+    return result;
 }
 
 jni_macos_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-    int result[] = { screen.frame.size.width, screen.frame.size.height };
-    return createIntArray(env, 2, result);
+    return createIntArray(env, (int[]){ screen.frame.size.width, screen.frame.size.height });
 }
 
 jni_macos_display(jintArray, nGetPosition)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-    int result[] = { screen.frame.origin.x, screen.frame.origin.y };
-    return createIntArray(env, 2, result);
+    return createIntArray(env, (int[]){ screen.frame.origin.x, screen.frame.origin.y });
 }
 
 jni_macos_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
+    CGSize displayPhysicalSize = CGDisplayScreenSize(getDisplayID(screen));
 
-    NSDictionary *description = [screen deviceDescription];
-    CGSize displayPhysicalSize = CGDisplayScreenSize([[description objectForKey:@"NSScreenNumber"] unsignedIntValue]);
-
-    int result[] = {
+    return createIntArray(env, (int[]){
         displayPhysicalSize.width,
         displayPhysicalSize.height
-    };
-    return createIntArray(env, 2, result);
+    });
 }
 
 jni_macos_display(jdouble, nGetDpi)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
 
-    NSDictionary *description = [screen deviceDescription];
-    CGDirectDisplayID displayId = (CGDirectDisplayID)[[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
-
+    CGDirectDisplayID displayId = getDisplayID(screen);
     CFArrayRef modes = CGDisplayCopyAllDisplayModes(displayId, nil);
 
     int actualWidth = 0;
@@ -67,8 +67,7 @@ jni_macos_display(jdouble, nGetFrequency)(JNIEnv* env, jobject, jlong _screen) {
 jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
 
-    NSDictionary *description = [screen deviceDescription];
-    CGDirectDisplayID displayId = (CGDirectDisplayID)[[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    CGDirectDisplayID displayId = getDisplayID(screen);
 
     if ([screen respondsToSelector:@selector(localizedName)]){
         NSString* name = [screen valueForKey:@"localizedName"];
@@ -136,7 +135,5 @@ jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
 
 jni_macos_display(jint, nGetIndex)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-
-    NSDictionary *description = [screen deviceDescription];
-    return [[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
+    return (jint)getDisplayID(screen);
 }

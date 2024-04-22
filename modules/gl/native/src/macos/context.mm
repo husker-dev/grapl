@@ -51,8 +51,9 @@ jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isC
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     CGLSetCurrentContext(oldContext);
 
-    jlong array[] = { (jlong)context, (jlong)major, (jlong)minor };
-    return createLongArray(env, 3, array);
+    return createLongArray(env, 3, (jlong[]){
+        (jlong)context, (jlong)major, (jlong)minor
+    });
 }
 
 jni_macos_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
@@ -61,8 +62,9 @@ jni_macos_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-    jlong array[] = { (jlong)CGLGetCurrentContext(), (jlong)major, (jlong)minor };
-    return createLongArray(env, 3, array);
+    return createLongArray(env, 3, (jlong[]){
+        (jlong)CGLGetCurrentContext(), (jlong)major, (jlong)minor
+    });
 }
 
 jni_macos_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong context) {

@@ -36,8 +36,6 @@ class OJGLTest {
         window.cursor = Cursor.TEXT
         window.visible = true
 
-        println(window.display)
-
         window.context.makeCurrent()
         GL.createCapabilities()
         glClearColor(1f, 0f, 0f, 1f)
