@@ -26,7 +26,7 @@ jni_win_display(jlong, nGetPrimaryMonitor)(JNIEnv* env, jobject) {
 
 jni_win_display(jlongArray, nGetAllMonitors)(JNIEnv* env, jobject) {
     MonitorEnum monitorEnum;
-    return createLongArray(env, monitorEnum.handles.size(), monitorEnum.handles.data());
+    return createLongArray(env, monitorEnum.handles);
 }
 
 jni_win_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong monitor) {
@@ -35,7 +35,7 @@ jni_win_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong monitor) {
 
     GetMonitorInfo((HMONITOR)monitor, &info);
 
-    return createIntArray(env, (jint[]){
+    return createIntArray(env, {
         info.rcMonitor.right - info.rcMonitor.left,
         info.rcMonitor.bottom - info.rcMonitor.top
     });
@@ -47,7 +47,7 @@ jni_win_display(jintArray, nGetPosition)(JNIEnv* env, jobject, jlong monitor) {
 
     GetMonitorInfo((HMONITOR)monitor, &info);
 
-    return createIntArray(env, (jint[]){
+    return createIntArray(env, {
         info.rcMonitor.left,
         info.rcMonitor.top
     });
@@ -198,10 +198,10 @@ jni_win_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong monitor
             int width = ((dataEDID[68] & 0xF0) << 4) + dataEDID[66];
             int height = ((dataEDID[68] & 0x0F) << 8) + dataEDID[67];
 
-            return createIntArray(env, (jint[]) { width, height });
+            return createIntArray(env, { width, height });
         }
         RegCloseKey(hEDIDRegKey);
     }
 
-    return createIntArray(env, (jint[]){ 0, 0 });
+    return createIntArray(env, { 0, 0 });
 }

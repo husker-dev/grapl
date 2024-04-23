@@ -10,7 +10,7 @@ jni_win_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-    return createLongArray(env, (jlong[]){
+    return createLongArray(env, {
         (jlong)_wglGetCurrentContext(), (jlong)_wglGetCurrentDC(), (jlong)major, (jlong)minor
     });
 }
@@ -43,7 +43,7 @@ jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCor
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     _wglMakeCurrent(oldDC, oldRC);
 
-    return createLongArray(env, (jlong[]){
+    return createLongArray(env, {
         (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor
     });
 }

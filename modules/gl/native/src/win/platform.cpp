@@ -45,7 +45,7 @@ jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isC
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     _wglMakeCurrent(oldDC, oldRC);
 
-    return createLongArray(env, (jlong[]) {
+    return createLongArray(env, {
         (jlong)hwnd, (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor
     });
 }
