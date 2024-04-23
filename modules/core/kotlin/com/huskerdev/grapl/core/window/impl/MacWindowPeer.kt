@@ -18,8 +18,8 @@ class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nCloseWindow(windowPtr: Long)
         @JvmStatic private external fun nSetVisible(windowPtr: Long, value: Boolean)
         @JvmStatic private external fun nSetTitle(windowPtr: Long, title: ByteBuffer)
-        @JvmStatic private external fun nSetPosition(windowPtr: Long, x: Int, y: Int)
-        @JvmStatic private external fun nSetSize(windowPtr: Long, width: Int, height: Int)
+        @JvmStatic private external fun nSetPosition(windowPtr: Long, x: Double, y: Double)
+        @JvmStatic private external fun nSetSize(windowPtr: Long, width: Double, height: Double)
         @JvmStatic private external fun nSetMinSize(windowPtr: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetMaxSize(windowPtr: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetCursor(windowPtr: Long, index: Int)
@@ -40,9 +40,9 @@ class MacWindowPeer : WindowPeer() {
     override fun shouldClose() = shouldClose
 
     override fun setPositionImpl(x: Int, y: Int) =
-        nSetPosition(windowPtr, (x / display.dpi).toInt(), (y / display.dpi).toInt())
+        nSetPosition(windowPtr, x / display.dpi, y / display.dpi)
     override fun setSizeImpl(width: Int, height: Int) =
-        nSetSize(windowPtr, (width / display.dpi).toInt(), (height / display.dpi).toInt())
+        nSetSize(windowPtr, width / display.dpi, height / display.dpi)
     override fun setMinSizeImpl(width: Int, height: Int) = nSetMinSize(windowPtr, width, height)
     override fun setMaxSizeImpl(width: Int, height: Int) = nSetMaxSize(windowPtr, width, height)
     override fun setTitleImpl(title: String) = nSetTitle(windowPtr, title.c_str)

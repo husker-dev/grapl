@@ -231,6 +231,7 @@ enum Compiler {
             archModifier += "-arch x86_64 "
         execute(new String[]{"""clang++
                     -Wall -Os -v
+                    -std=c++0x
                     -fmodules
                     $typeModifier
                     $archModifier

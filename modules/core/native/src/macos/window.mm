@@ -181,7 +181,7 @@ jni_macos_window(void, nSetTitle)(JNIEnv* env, jobject, jlong _windowPtr, jobjec
     );
 }
 
-jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jint x, jint y) {
+jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jdouble x, jdouble y) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
         NSPoint origin = { x, y };
@@ -189,7 +189,7 @@ jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jin
     );
 }
 
-jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jint width, jint height) {
+jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jdouble width, jdouble height) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
         NSPoint location = window.frame.origin;

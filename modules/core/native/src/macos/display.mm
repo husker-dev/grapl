@@ -22,21 +22,27 @@ jni_macos_display(jlongArray, nGetScreens)(JNIEnv* env, jobject) {
     return result;
 }
 
-jni_macos_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong _screen) {
+jni_macos_display(jdoubleArray, nGetSize)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-    return createIntArray(env, (int[]){ screen.frame.size.width, screen.frame.size.height });
+    return createDoubleArray(env, {
+        screen.frame.size.width,
+        screen.frame.size.height
+    });
 }
 
-jni_macos_display(jintArray, nGetPosition)(JNIEnv* env, jobject, jlong _screen) {
+jni_macos_display(jdoubleArray, nGetPosition)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-    return createIntArray(env, (int[]){ screen.frame.origin.x, screen.frame.origin.y });
+    return createDoubleArray(env, {
+        screen.frame.origin.x,
+        screen.frame.origin.y
+    });
 }
 
-jni_macos_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _screen) {
+jni_macos_display(jdoubleArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
     CGSize displayPhysicalSize = CGDisplayScreenSize(getDisplayID(screen));
 
-    return createIntArray(env, (int[]){
+    return createDoubleArray(env, {
         displayPhysicalSize.width,
         displayPhysicalSize.height
     });
