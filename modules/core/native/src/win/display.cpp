@@ -205,3 +205,35 @@ jni_win_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong monitor
 
     return createIntArray(env, { 0, 0 });
 }
+
+jni_win_display(jintArray, nGetDisplayModes)(JNIEnv* env, jobject, jlong monitor) {
+    MONITORINFOEXW info;
+    info.cbSize = sizeof(info);
+    GetMonitorInfoW((HMONITOR)monitor, &info);
+
+    std::vector<jint> result;
+    DEVMODE dm;
+    DWORD iModeNum = 0;
+    while (EnumDisplaySettings(info.szDevice, iModeNum++, &dm)){
+        result.push_back(dm.dmPelsWidth);
+        result.push_back(dm.dmPelsHeight);
+        result.push_back(dm.dmBitsPerPel);
+        result.push_back(dm.dmDisplayFrequency);
+    }
+    return createIntArray(env, result);
+}
+
+jni_win_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong monitor) {
+    MONITORINFOEXW info;
+    info.cbSize = sizeof(info);
+    GetMonitorInfoW((HMONITOR)monitor, &info);
+
+    DEVMODE dm;
+    EnumDisplaySettings(info.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+    return createIntArray(env, {
+        (jint) dm.dmPelsWidth,
+        (jint) dm.dmPelsHeight,
+        (jint) dm.dmBitsPerPel,
+        (jint) dm.dmDisplayFrequency
+    });
+}

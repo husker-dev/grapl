@@ -2,76 +2,117 @@ package com.huskerdev.grapl.core.window
 
 import com.huskerdev.grapl.GraplNatives
 import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
-import com.huskerdev.grapl.core.util.listenerObserver
-import com.huskerdev.grapl.core.util.observer
+import com.huskerdev.grapl.core.display.DisplayMode
+import com.huskerdev.grapl.core.util.Property
+import com.huskerdev.grapl.core.util.LinkedProperty
+import com.huskerdev.grapl.core.util.ReadOnlyProperty
 
 
-abstract class WindowPeer {
-
+abstract class WindowPeer(handle: Long) {
     companion object {
         init {
             GraplNatives.load()
         }
     }
 
-    val moveListeners = hashSetOf<() -> Unit>()
-    val resizeListeners = hashSetOf<() -> Unit>()
-    val visibleListeners = hashSetOf<() -> Unit>()
-
-    protected var _position by listenerObserver(Size(0, 0), moveListeners)
-    var position: Size by observer(_position){
-        setPositionImpl(it.width.toInt(), it.height.toInt())
-        _position = it
-    }
-
-    protected var _size by listenerObserver(Size(100, 100), moveListeners)
-    var size: Size by observer(_size){
-        setSizeImpl(it.width.toInt(), it.height.toInt())
-        _size = it
-    }
-
-    var minSize: Size by observer(Size(-1, -1)){
-        setMinSizeImpl(it.width.toInt(), it.height.toInt())
-    }
-
-    var maxSize: Size by observer(Size(-1, -1)){
-        setMaxSizeImpl(it.width.toInt(), it.height.toInt())
-    }
-
-    protected var _title = ""
-    var title: String by observer(_title){
-        setTitleImpl(title)
-        _title = it
-    }
-
-    protected var _visible by listenerObserver(false, visibleListeners)
-    var visible: Boolean by observer(_visible){
-        setVisibleImpl(visible)
-        _visible = it
-    }
-
-    open var cursor = Cursor.DEFAULT
+    var handle: Long = handle
+        protected set
 
     abstract val display: Display
 
+    val displayStateProperty = Property<WindowDisplayState>(WindowDisplayState.Windowed()) {
+        setDisplayStateImpl(it)
+        if(it !is WindowDisplayState.Fullscreen){
+            setSizeImpl(it.size)
+            setPositionImpl(it.position)
+            setMaxSizeImpl(it.maxSize)
+            setMinSizeImpl(it.minSize)
+        }
+    }
 
-    abstract fun destroy()
-    abstract fun peekMessages()
-    abstract fun shouldClose(): Boolean
+    val positionProperty = LinkedProperty(displayStateProperty.value::position) {
+        if(!isFullscreen())
+            setPositionImpl(it)
+    }
+
+    val sizeProperty = LinkedProperty(displayStateProperty.value::size){
+        if(!isFullscreen())
+            setSizeImpl(it)
+    }
+
+    val minSizeProperty = LinkedProperty(displayStateProperty.value::minSize){
+        if(!isFullscreen())
+            setMinSizeImpl(it)
+    }
+
+    val maxSizeProperty = LinkedProperty(displayStateProperty.value::maxSize){
+        if(!isFullscreen())
+            setMaxSizeImpl(it)
+    }
+
+    val titleProperty = Property("", ::setTitleImpl)
+
+    val visibleProperty = Property(false, ::setVisibleImpl)
+
+    val focusedProperty = ReadOnlyProperty(false)
+
+    val viewportProperty = ReadOnlyProperty(Size.UNDEFINED)
+
+    open var cursor = Cursor.DEFAULT
+
+    protected var shouldClose = false
+
 
     fun runEventLoop(loopCallback: () -> Unit) {
-        while (!shouldClose()) {
+        while (!shouldClose) {
             loopCallback()
             peekMessages()
         }
     }
 
-    protected abstract fun setPositionImpl(x: Int, y: Int)
-    protected abstract fun setSizeImpl(width: Int, height: Int)
-    protected abstract fun setMinSizeImpl(width: Int, height: Int)
-    protected abstract fun setMaxSizeImpl(width: Int, height: Int)
+    protected fun isFullscreen() = displayStateProperty.value is WindowDisplayState.Fullscreen
+
+    abstract fun destroy()
+    abstract fun peekMessages()
+
     protected abstract fun setTitleImpl(title: String)
     protected abstract fun setVisibleImpl(visible: Boolean)
+
+    protected abstract fun setSizeImpl(size: Size)
+    protected abstract fun setMinSizeImpl(size: Size)
+    protected abstract fun setMaxSizeImpl(size: Size)
+    protected abstract fun setPositionImpl(position: Position)
+    protected abstract fun setDisplayStateImpl(state: WindowDisplayState)
+
+    open inner class DefaultWindowCallback {
+        fun onCloseCallback(){
+            shouldClose = true
+        }
+
+        fun onResizeCallback(width: Int, height: Int){
+            sizeProperty.internalValue = Size(width, height)
+            viewportProperty.internalValue = if(isFullscreen()) displayStateProperty.value.size else sizeProperty.value
+        }
+
+        fun onMoveCallback(x: Int, y: Int){
+            positionProperty.internalValue = Position(x, y)
+        }
+
+        fun onFocusCallback(focused: Boolean){
+            focusedProperty.internalValue = focused
+        }
+    }
+
+    class DisplayModeChangingException(
+        displayMode: DisplayMode?,
+        errorText: String
+    ): UnsupportedOperationException(
+        "Unable to set display mode " +
+                "${displayMode?.size?.width?.toInt()}x${displayMode?.size?.height?.toInt()}x${displayMode?.bits} " +
+                "@${displayMode?.frequency} - " +
+                errorText
+    )
 }

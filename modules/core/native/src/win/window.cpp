@@ -9,6 +9,7 @@ struct CallbackContainer {
     jmethodID onMoveCallback;
     jmethodID getCursorCallback;
     jmethodID getMinMaxBounds;
+    jmethodID onFocusCallback;
 };
 static std::map<HWND, CallbackContainer*> callbackObjects;
 
@@ -22,7 +23,8 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
         env->GetMethodID(callbackClass, "onResizeCallback", "(II)V"),
         env->GetMethodID(callbackClass, "onMoveCallback", "(II)V"),
         env->GetMethodID(callbackClass, "getCursorCallback", "()I"),
-        env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I")
+        env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I"),
+        env->GetMethodID(callbackClass, "onFocusCallback", "(Z)V")
     };
 }
 
@@ -62,7 +64,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         }
         case WM_GETMINMAXINFO: {
             jobject result = env->CallObjectMethod(object, callbacks->getMinMaxBounds);
-            jintArray* boundsArray = reinterpret_cast<jintArray*>(&result);
+            jintArray* boundsArray = (jintArray*)&result;
             jint* bounds = env->GetIntArrayElements(*boundsArray, NULL);
 
             LPMINMAXINFO info = (LPMINMAXINFO)lParam;
@@ -70,6 +72,14 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             if(bounds[1] != -1) info->ptMinTrackSize.y = bounds[1];
             if(bounds[2] != -1) info->ptMaxTrackSize.x = bounds[2];
             if(bounds[3] != -1) info->ptMaxTrackSize.y = bounds[3];
+            break;
+        }
+        case WM_SETFOCUS: {
+            env->CallVoidMethod(object, callbacks->onFocusCallback, true);
+            break;
+        }
+        case WM_KILLFOCUS: {
+            env->CallVoidMethod(object, callbacks->onFocusCallback, false);
             break;
         }
         case WM_DESTROY: {
@@ -124,3 +134,64 @@ jni_win_window(void, nSetTitle)(JNIEnv* env, jobject, jlong hwnd, jobject _title
 jni_win_window(jlong, nGetMonitor)(JNIEnv* env, jobject, jlong hwnd) {
     return (jlong)MonitorFromWindow((HWND)hwnd, MONITOR_DEFAULTTONEAREST);
 }
+
+jni_win_window(jint, nUpdateDisplayState)(JNIEnv* env, jobject, jlong hwnd, jboolean isFullscreen, jlong monitor, jint width, jint height, jint bits, jint frequency) {
+    if(isFullscreen){
+        MONITORINFOEXW info;
+        info.cbSize = sizeof(info);
+        GetMonitorInfoW((HMONITOR)monitor, &info);
+
+        DEVMODE dm = {};
+        DWORD iModeNum = 0;
+        while (EnumDisplaySettings(info.szDevice, iModeNum++, &dm)){
+            if(dm.dmPelsWidth == width &&
+                dm.dmPelsHeight == height &&
+                dm.dmBitsPerPel == bits &&
+                dm.dmDisplayFrequency == frequency
+            ) break;
+        }
+
+        if(dm.dmPelsWidth != width ||
+            dm.dmPelsHeight != height ||
+            dm.dmBitsPerPel != bits ||
+            dm.dmDisplayFrequency != frequency
+        ){
+            dm = {};
+            dm.dmSize = sizeof(dm);
+            dm.dmPelsWidth = width;
+            dm.dmPelsHeight = height;
+            dm.dmBitsPerPel = bits;
+            dm.dmDisplayFrequency = frequency;
+            dm.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+        }
+
+        switch(ChangeDisplaySettings(&dm, CDS_FULLSCREEN)){
+            case DISP_CHANGE_BADDUALVIEW: return 1;
+            case DISP_CHANGE_BADFLAGS: return 2;
+            case DISP_CHANGE_BADMODE: return 3;
+            case DISP_CHANGE_BADPARAM: return 4;
+            case DISP_CHANGE_FAILED: return 5;
+            case DISP_CHANGE_NOTUPDATED: return 6;
+            case DISP_CHANGE_RESTART: return 7;
+        }
+
+        DWORD dwExStyle = WS_EX_APPWINDOW;
+        DWORD dwStyle = WS_POPUP;
+
+        RECT rect = { 0, 0, width, height };
+        AdjustWindowRectEx(&rect, dwStyle, FALSE, dwExStyle);
+
+        SetWindowLongPtr((HWND)hwnd, GWL_STYLE, dwStyle);
+        SetWindowLongPtr((HWND)hwnd, GWL_EXSTYLE, dwExStyle);
+
+        SetWindowPos((HWND)hwnd, 0,
+            rect.left,
+            rect.top,
+            rect.right - rect.left,
+            rect.bottom - rect.top,
+            SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        return 0;
+    }
+
+}
+

@@ -39,6 +39,6 @@ class WinGLPlatform: GLPlatform() {
     override fun createWindow(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
         createGLWindow(profile, shareWith, majorVersion, minorVersion)
 
-    override fun swapBuffers(window: GLWindow) = nSwapBuffers((window.peer as WinWindowPeer).hwnd)
-    override fun setSwapInterval(window: GLWindow, value: Int) = nSwapInterval((window.peer as WinWindowPeer).hwnd, value)
+    override fun swapBuffers(window: GLWindow) = nSwapBuffers(window.peer.handle)
+    override fun setSwapInterval(window: GLWindow, value: Int) = nSwapInterval(window.peer.handle, value)
 }

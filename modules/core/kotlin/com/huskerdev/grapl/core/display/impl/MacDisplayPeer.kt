@@ -1,6 +1,8 @@
 package com.huskerdev.grapl.core.display.impl
 
+import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
+import com.huskerdev.grapl.core.display.DisplayMode
 import com.huskerdev.grapl.core.display.DisplayPeer
 
 class MacDisplayPeer(
@@ -28,8 +30,8 @@ class MacDisplayPeer(
 
     override val size: Size
         get() = nGetSize(handle).run { scaledSize(this[0], this[1]) }
-    override val position: Size
-        get() = nGetPosition(handle).run { scaledSize(this[0], this[1]) }
+    override val position: Position
+        get() = nGetPosition(handle).run { scaledPosition(this[0], this[1]) }
     override val physicalSize: Size
         get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
     override val dpi: Double
@@ -38,10 +40,18 @@ class MacDisplayPeer(
         get() = nGetFrequency(handle)
     override val name = nGetName(handle)
     override val systemName = "Screen ${nGetIndex(handle)}"
+    override val modes: Array<DisplayMode>
+        get() = TODO("Not yet implemented")
+    override val mode: DisplayMode
+        get() = TODO("Not yet implemented")
 
     private fun scaledSize(width: Double, height: Double): Size {
         val dpi = dpi
         return Size((width * dpi).toInt(), (height * dpi).toInt())
     }
 
+    private fun scaledPosition(width: Double, height: Double): Position {
+        val dpi = dpi
+        return Position((width * dpi).toInt(), (height * dpi).toInt())
+    }
 }

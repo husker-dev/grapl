@@ -2,13 +2,15 @@ package com.huskerdev.grapl.core.window.impl
 
 import com.huskerdev.grapl.core.util.c_str
 import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.MacDisplayPeer
+import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
-class MacWindowPeer : WindowPeer() {
+class MacWindowPeer : WindowPeer(0L) {
 
     companion object {
         @JvmStatic private external fun nInitApplication()
@@ -32,42 +34,32 @@ class MacWindowPeer : WindowPeer() {
         }
     }
 
-    val windowPtr = nCreateWindow(this)
-    private var shouldClose = false
+    init {
+        handle = nCreateWindow(DefaultWindowCallback())
+    }
 
-    override fun destroy() = nCloseWindow(windowPtr)
+    override fun destroy() = nCloseWindow(handle)
     override fun peekMessages() = nPeekMessage()
-    override fun shouldClose() = shouldClose
 
-    override fun setPositionImpl(x: Int, y: Int) =
-        nSetPosition(windowPtr, x / display.dpi, y / display.dpi)
-    override fun setSizeImpl(width: Int, height: Int) =
-        nSetSize(windowPtr, width / display.dpi, height / display.dpi)
-    override fun setMinSizeImpl(width: Int, height: Int) = nSetMinSize(windowPtr, width, height)
-    override fun setMaxSizeImpl(width: Int, height: Int) = nSetMaxSize(windowPtr, width, height)
-    override fun setTitleImpl(title: String) = nSetTitle(windowPtr, title.c_str)
-    override fun setVisibleImpl(visible: Boolean) = nSetVisible(windowPtr, visible)
+    override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_str)
+    override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
+    override fun setSizeImpl(size: Size) = nSetSize(handle, size.width / display.dpi, size.height / display.dpi)
+    override fun setMinSizeImpl(size: Size) = nSetMinSize(handle, size.width.toInt(), size.height.toInt())
+    override fun setMaxSizeImpl(size: Size) = nSetMaxSize(handle, size.width.toInt(), size.height.toInt())
+    override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x / display.dpi, position.y / display.dpi)
+
+    override fun setDisplayStateImpl(state: WindowDisplayState) {
+        TODO("Not yet implemented")
+    }
 
     override var cursor: Cursor
         get() = super.cursor
         set(value) {
             super.cursor = value
             // Mapped with nSetCursor in window.mm
-            nSetCursor(windowPtr, value.ordinal)
+            nSetCursor(handle, value.ordinal)
         }
 
     override val display: Display
-        get() = Display(MacDisplayPeer(nGetScreen(windowPtr)))
-
-    fun onCloseCallback(){
-        shouldClose = true
-    }
-
-    fun onResizeCallback(width: Double, height: Double){
-        _size = Size(width.toInt(), height.toInt())
-    }
-
-    fun onMoveCallback(x: Double, y: Double){
-        _position = Size(x.toInt(), y.toInt())
-    }
+        get() = Display(MacDisplayPeer(nGetScreen(handle)))
 }

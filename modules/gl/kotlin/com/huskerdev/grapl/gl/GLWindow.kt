@@ -9,6 +9,8 @@ class GLWindow(
     peer: WindowPeer
 ): Window(peer) {
 
+    // TODO: Implement ScaledFullscreen via shader
+
     companion object {
         @JvmOverloads
         @JvmStatic

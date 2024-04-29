@@ -17,7 +17,7 @@ class NSGLContext(
 
         fun createAttached(peer: MacWindowPeer, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
             create(profile, shareWith, majorVersion, minorVersion).run {
-                NSGLContext(nAttachToWindow(peer.windowPtr, this.handle), this)
+                NSGLContext(nAttachToWindow(peer.handle, this.handle), this)
             }
 
     }

@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.core.display
 
+import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.platform.Platform
 
@@ -17,25 +18,25 @@ class Display(
     val absoluteHeight by peer.size::height
 
     val absolutePosition by peer::position
-    val absoluteX by peer.position::width
-    val absoluteY by peer.position::height
+    val absoluteX by peer.position::x
+    val absoluteY by peer.position::y
 
     val physicalWidth by peer.physicalSize::width
     val physicalHeight by peer.physicalSize::height
 
     val size: Size
-        get() = peer.size / peer.dpi
+        get() = absoluteSize / peer.dpi
     val width: Double
-        get() = peer.size.width / peer.dpi
+        get() = absoluteWidth / peer.dpi
     val height: Double
-        get() = peer.size.height / peer.dpi
+        get() = absoluteHeight / peer.dpi
 
-    val position: Size
-        get() = peer.position / peer.dpi
+    val position: Position
+        get() = absolutePosition / peer.dpi
     val x: Double
-        get() = peer.position.width / peer.dpi
+        get() = absoluteX / peer.dpi
     val y: Double
-        get() = peer.position.height / peer.dpi
+        get() = absoluteY / peer.dpi
 
     val dpi by peer::dpi
 
@@ -45,6 +46,9 @@ class Display(
 
     val systemName by peer::systemName
 
+    val modes by peer::modes
+
+    val mode by peer::mode
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

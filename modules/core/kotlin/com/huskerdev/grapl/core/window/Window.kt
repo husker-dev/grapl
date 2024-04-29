@@ -1,103 +1,112 @@
 package com.huskerdev.grapl.core.window
 
+import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 
 import com.huskerdev.grapl.core.x
 
 
-open class Window(
+abstract class Window(
     val peer: WindowPeer
 ) {
-    val moveListeners by peer::moveListeners
-    val resizeListeners by peer::resizeListeners
-    val visibleListeners by peer::visibleListeners
+    val moveListeners by peer.positionProperty::listeners
+    val resizeListeners by peer.sizeProperty::listeners
+    val visibleListeners by peer.visibleProperty::listeners
+    val displayStateListeners by peer.displayStateProperty::listeners
+    val focusedListener by peer.focusedProperty::listeners
 
 
-    var absoluteSize by peer::size
+    var absoluteSize by peer.sizeProperty::value
     var absoluteWidth: Int
-        set(value) { peer.size = Size(value, peer.size.height) }
-        get() = peer.size.width.toInt()
+        set(value) { absoluteSize = absoluteSize.withWidth(value) }
+        get() = absoluteSize.width.toInt()
     var absoluteHeight: Int
-        set(value) { peer.size = Size(peer.size.width, value) }
-        get() = peer.size.height.toInt()
+        set(value) { absoluteSize = absoluteSize.withHeight(value) }
+        get() = absoluteSize.height.toInt()
 
-    var absoluteMinSize by peer::minSize
+    var absoluteMinSize by peer.minSizeProperty::value
     var absoluteMinWidth: Int
-        set(value) { peer.minSize = Size(value, peer.minSize.height) }
-        get() = peer.minSize.width.toInt()
+        set(value) { absoluteMinSize = absoluteMinSize.withWidth(value) }
+        get() = absoluteMinSize.width.toInt()
     var absoluteMinHeight: Int
-        set(value) { peer.minSize = Size(peer.minSize.width, value) }
-        get() = peer.minSize.height.toInt()
+        set(value) { absoluteMinSize = absoluteMinSize.withHeight(value) }
+        get() = absoluteMinSize.height.toInt()
 
-    var absoluteMaxSize by peer::maxSize
+    var absoluteMaxSize by peer.maxSizeProperty::value
     var absoluteMaxWidth: Int
-        set(value) { peer.maxSize = Size(value, peer.maxSize.height) }
-        get() = peer.maxSize.width.toInt()
+        set(value) { absoluteMaxSize = absoluteMaxSize.withWidth(value) }
+        get() = absoluteMaxSize.width.toInt()
     var absoluteMaxHeight: Int
-        set(value) { peer.maxSize = Size(peer.maxSize.width, value) }
-        get() = peer.maxSize.height.toInt()
+        set(value) { absoluteMaxSize = absoluteMaxSize.withHeight(value) }
+        get() = absoluteMaxSize.height.toInt()
 
-    var absolutePosition by peer::position
+    var absolutePosition by peer.positionProperty::value
     var absoluteX: Int
-        set(value) { peer.position = Size(value, peer.position.height) }
-        get() = peer.position.width.toInt()
+        set(value) { absolutePosition = absolutePosition.withX(value) }
+        get() = absolutePosition.x.toInt()
     var absoluteY: Int
-        set(value) { peer.position = Size(peer.position.width, value) }
-        get() = peer.position.height.toInt()
+        set(value) { absolutePosition = absolutePosition.withY(value) }
+        get() = absolutePosition.y.toInt()
 
 
     var size: Size
-        set(value) { peer.size = value * display.dpi }
-        get() = peer.size / display.dpi
+        set(value) {
+            absoluteSize = value * display.dpi
+        }
+        get() = absoluteSize / display.dpi
     var width: Double
-        set(value) { peer.size = Size(value * display.dpi, peer.size.height) }
-        get() = peer.size.width / display.dpi
+        set(value) { absoluteWidth = (value * display.dpi).toInt() }
+        get() = absoluteWidth / display.dpi
     var height: Double
-        set(value) { peer.size = Size(peer.size.width, value * display.dpi) }
-        get() = peer.size.height / display.dpi
+        set(value) { absoluteHeight = (value * display.dpi).toInt() }
+        get() = absoluteHeight / display.dpi
 
     var minSize: Size
-        set(value) { peer.minSize = value * display.dpi }
-        get() = peer.minSize / display.dpi
+        set(value) { absoluteMinSize = value * display.dpi }
+        get() = absoluteMinSize / display.dpi
     var minWidth: Double
-        set(value) { peer.minSize = Size(value * display.dpi, peer.minSize.height) }
-        get() = peer.minSize.width / display.dpi
+        set(value) { absoluteMinWidth = (value * display.dpi).toInt() }
+        get() = absoluteMinWidth / display.dpi
     var minHeight: Double
-        set(value) { peer.minSize = Size(peer.minSize.width, value * display.dpi) }
-        get() = peer.minSize.height / display.dpi
+        set(value) { absoluteMinHeight = (value * display.dpi).toInt() }
+        get() = absoluteMinHeight / display.dpi
 
     var maxSize: Size
-        set(value) { peer.maxSize = value * display.dpi }
-        get() = peer.maxSize / display.dpi
+        set(value) { absoluteMaxSize = value * display.dpi }
+        get() = absoluteMaxSize / display.dpi
     var maxWidth: Double
-        set(value) { peer.maxSize = Size(value * display.dpi, peer.maxSize.height) }
-        get() = peer.maxSize.width / display.dpi
+        set(value) { absoluteMaxWidth = (value * display.dpi).toInt() }
+        get() = absoluteMaxWidth / display.dpi
     var maxHeight: Double
-        set(value) { peer.maxSize = Size(peer.maxSize.width, value * display.dpi) }
-        get() = peer.maxSize.height / display.dpi
+        set(value) { absoluteMaxHeight = (value * display.dpi).toInt() }
+        get() = absoluteMaxHeight / display.dpi
 
-    var position: Size
-        set(value) { peer.position = value * display.dpi }
-        get() = peer.position / display.dpi
+    var position: Position
+        set(value) { absolutePosition = value * display.dpi }
+        get() = absolutePosition / display.dpi
     var x: Double
-        set(value) { peer.position = Size(value * display.dpi, peer.position.height) }
-        get() = peer.position.width / display.dpi
+        set(value) { absoluteX = (value * display.dpi).toInt() }
+        get() = absoluteX / display.dpi
     var y: Double
-        set(value) { peer.position = Size(peer.position.width, value * display.dpi) }
-        get() = peer.position.height / display.dpi
+        set(value) { absoluteY = (value * display.dpi).toInt() }
+        get() = absoluteY / display.dpi
 
-    var title by peer::title
+    open var displayState by peer.displayStateProperty::value
 
-    var visible by peer::visible
+    var title by peer.titleProperty::value
+
+    var visible by peer.visibleProperty::value
 
     var cursor by peer::cursor
 
     val display by peer::display
 
+    val focused by peer.focusedProperty::value
+
     fun alignToCenter(){
-        val displaySize = Display.primary.size
-        position = (displaySize.width - width) / 2.0 x (displaySize.height - height) / 2.0
+        val displaySize = Display.primary.absoluteSize
+        absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)
     }
 
     fun runEventLoop(loopCallback: () -> Unit = {}) = peer.runEventLoop(loopCallback)

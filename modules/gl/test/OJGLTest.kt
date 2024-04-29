@@ -1,6 +1,4 @@
 import com.huskerdev.grapl.core.Cursor
-import com.huskerdev.grapl.core.display.Display
-import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -13,8 +11,10 @@ class OJGLTest {
 
     @Test
     fun createWindow() {
+        /*
         Display.list.forEach { display ->
             println("""
+                ===========
                 handle: ${display.peer.handle}
                 name: ${display.name} (${display.systemName})
                 frequency: ${display.frequency}
@@ -26,14 +26,36 @@ class OJGLTest {
                 width (mm): ${display.physicalWidth}
                 height (mm): ${display.physicalHeight}
             """.trimIndent())
+            println("""
+                --- Current ----
+                    width: ${display.mode.size.width}
+                    height: ${display.mode.size.height}
+                    frequency: ${display.mode.frequency}
+            """.trimIndent())
         }
 
+        Display.primary.modes.forEach {
+            println("""
+                ------------
+                size: ${it.size.width} x ${it.size.height}
+                frequency: ${it.frequency}
+                bits: ${it.bits}
+            """.trimIndent())
+        }
+
+         */
+
+
         val window = GLWindow.create()
-        window.size = 800 x 600
-        window.minSize = 300 x 300
-        window.alignToCenter()
+        //window.displayState = WindowDisplayState.ScaledFullscreen(DisplayMode(Display.primary, 800 x 600, 32, 60))
+        //window.size = 800 x 600
+        window.focusedListener += {
+            println("focused: ${window.focused}")
+        }
+        //window.minSize = 300 x 300
+        //window.alignToCenter()
         window.title = "UTF? Да"
-        window.cursor = Cursor.TEXT
+        window.cursor = Cursor.HAND
         window.visible = true
 
         window.context.makeCurrent()
