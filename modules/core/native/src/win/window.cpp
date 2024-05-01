@@ -10,6 +10,12 @@ struct CallbackContainer {
     jmethodID getCursorCallback;
     jmethodID getMinMaxBounds;
     jmethodID onFocusCallback;
+
+    jmethodID onPointerMoveCallback;
+    jmethodID onPointerDownCallback;
+    jmethodID onPointerUpCallback;
+    jmethodID onPointerEnterCallback;
+    jmethodID onPointerLeaveCallback;
 };
 static std::map<HWND, CallbackContainer*> callbackObjects;
 
@@ -24,7 +30,13 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
         env->GetMethodID(callbackClass, "onMoveCallback", "(II)V"),
         env->GetMethodID(callbackClass, "getCursorCallback", "()I"),
         env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I"),
-        env->GetMethodID(callbackClass, "onFocusCallback", "(Z)V")
+        env->GetMethodID(callbackClass, "onFocusCallback", "(Z)V"),
+
+        env->GetMethodID(callbackClass, "onPointerMoveCallback", "(III)V"),
+        env->GetMethodID(callbackClass, "onPointerDownCallback", "(IIII)V"),
+        env->GetMethodID(callbackClass, "onPointerUpCallback", "(IIII)V"),
+        env->GetMethodID(callbackClass, "onPointerEnterCallback", "(III)V"),
+        env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(III)V")
     };
 }
 
@@ -36,15 +48,36 @@ void removeCallbacks(HWND hwnd){
     delete callbacks;
 }
 
-LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam){
+void performMouseEvent(CallbackContainer* callbacks, jmethodID callback, LPARAM lParam){
+    callbacks->env->CallVoidMethod(
+        callbacks->object,
+        callback,
+        GetMessageExtraInfo() & 0x7F,
+        GET_X_LPARAM(lParam),
+        GET_Y_LPARAM(lParam)
+    );
+}
+
+void performMouseButtonEvent(CallbackContainer* callbacks, jmethodID callback, LPARAM lParam, jint button){
+    callbacks->env->CallVoidMethod(
+        callbacks->object,
+        callback,
+        GetMessageExtraInfo() & 0x7F,
+        GET_X_LPARAM(lParam),
+        GET_Y_LPARAM(lParam),
+        button
+    );
+}
+
+LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
     if (!callbackObjects.count(hwnd))
-        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+        return DefWindowProc(hwnd, msg, wParam, lParam);
 
     CallbackContainer* callbacks = callbackObjects[hwnd];
     JNIEnv* env = callbacks->env;
     jobject object = callbacks->object;
 
-    switch (uMsg){
+    switch (msg){
         case WM_CLOSE: {
             env->CallVoidMethod(object, callbacks->onCloseCallback);
             break;
@@ -86,8 +119,50 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             removeCallbacks(hwnd);
             break;
         }
+        case WM_MOUSELEAVE:
+        case WM_MOUSEMOVE: {
+            UINT pointerId = GetMessageExtraInfo() & 0x7F;
+            jmethodID callback = msg == WM_MOUSELEAVE ?
+                callbacks->onPointerLeaveCallback :
+                callbacks->onPointerMoveCallback;
+
+            env->CallVoidMethod(object, callback, pointerId, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            break;
+        }
+        case WM_LBUTTONDOWN:
+        case WM_LBUTTONUP:
+        case WM_MBUTTONDOWN:
+        case WM_MBUTTONUP:
+        case WM_RBUTTONDOWN:
+        case WM_RBUTTONUP:
+        case WM_XBUTTONDOWN:
+        case WM_XBUTTONUP: {
+            UINT button;
+            if(msg == WM_LBUTTONDOWN || msg == WM_LBUTTONUP)        button = 1;
+            else if(msg == WM_MBUTTONDOWN || msg == WM_MBUTTONUP)   button = 2;
+            else if(msg == WM_RBUTTONDOWN || msg == WM_RBUTTONUP)   button = 3;
+            else                                                    button = 3 + HIWORD(wParam);
+
+            UINT pointerId = GetMessageExtraInfo() & 0x7F;
+            BOOL down = msg == WM_LBUTTONDOWN ||
+                        msg == WM_MBUTTONDOWN ||
+                        msg == WM_RBUTTONDOWN ||
+                        msg == WM_XBUTTONDOWN;
+
+            jmethodID callback;
+            if(down){
+                SetCapture(hwnd);
+                callback = callbacks->onPointerDownCallback;
+            }else {
+                ReleaseCapture();
+                callback = callbacks->onPointerUpCallback;
+            }
+
+            env->CallVoidMethod(object, callback, pointerId, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), button);
+            break;
+        }
     }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
 
@@ -95,9 +170,10 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPara
     JNI
 */
 
-jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong hwnd, jobject callbackObject) {
-    addCallbacks(env, (HWND)hwnd, callbackObject);
-    SetWindowLongPtr((HWND)hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
+jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _hwnd, jobject callbackObject) {
+    HWND hwnd = (HWND)_hwnd;
+    addCallbacks(env, hwnd, callbackObject);
+    SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
 }
 
 jni_win_window(void, nPeekMessage)(JNIEnv* env, jobject, jlong hwnd) {
@@ -192,6 +268,13 @@ jni_win_window(jint, nUpdateDisplayState)(JNIEnv* env, jobject, jlong hwnd, jboo
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         return 0;
     }
+}
 
+jni_win_window(void, nTrackMouseEvent)(JNIEnv* env, jobject, jlong hwnd) {
+    TRACKMOUSEEVENT tme = {};
+    tme.cbSize = sizeof(tme);
+    tme.dwFlags = TME_LEAVE;
+    tme.hwndTrack = (HWND)hwnd;
+    TrackMouseEvent(&tme);
 }
 

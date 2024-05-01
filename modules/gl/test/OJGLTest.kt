@@ -49,8 +49,20 @@ class OJGLTest {
         val window = GLWindow.create()
         //window.displayState = WindowDisplayState.ScaledFullscreen(DisplayMode(Display.primary, 800 x 600, 32, 60))
         //window.size = 800 x 600
-        window.focusedListener += {
-            println("focused: ${window.focused}")
+        window.pointerMoveListeners += {
+            println("moved: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY}")
+        }
+        window.pointerDragListeners += {
+            println("drag: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY} by ${it.pointer.button.name}")
+        }
+        window.pointerClickListeners += {
+            println("clicked: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.button.name} ${it.clicks} times")
+        }
+        window.pointerDownListeners += {
+            println("down: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.button.name}")
+        }
+        window.pointerUpListeners += {
+            println("up: at ${it.pointer.x}x${it.pointer.y}")
         }
         //window.minSize = 300 x 300
         //window.alignToCenter()

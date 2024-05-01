@@ -16,6 +16,12 @@ abstract class Window(
     val displayStateListeners by peer.displayStateProperty::listeners
     val focusedListener by peer.focusedProperty::listeners
 
+    val pointerMoveListeners by peer::pointerMoveListeners
+    val pointerDragListeners by peer::pointerDragListeners
+    val pointerDownListeners by peer::pointerPressListeners
+    val pointerUpListeners by peer::pointerReleaseListeners
+    val pointerClickListeners by peer::pointerClickListeners
+
 
     var absoluteSize by peer.sizeProperty::value
     var absoluteWidth: Int
@@ -98,7 +104,7 @@ abstract class Window(
 
     var visible by peer.visibleProperty::value
 
-    var cursor by peer::cursor
+    var cursor by peer.cursor::value
 
     val display by peer::display
 

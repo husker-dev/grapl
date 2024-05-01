@@ -10,7 +10,7 @@ import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
-class MacWindowPeer : WindowPeer(0L) {
+class MacWindowPeer : WindowPeer() {
 
     companion object {
         @JvmStatic private external fun nInitApplication()
@@ -43,6 +43,7 @@ class MacWindowPeer : WindowPeer(0L) {
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
+    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.ordinal) // Mapped with nSetCursor in window.mm
     override fun setSizeImpl(size: Size) = nSetSize(handle, size.width / display.dpi, size.height / display.dpi)
     override fun setMinSizeImpl(size: Size) = nSetMinSize(handle, size.width.toInt(), size.height.toInt())
     override fun setMaxSizeImpl(size: Size) = nSetMaxSize(handle, size.width.toInt(), size.height.toInt())
@@ -52,13 +53,6 @@ class MacWindowPeer : WindowPeer(0L) {
         TODO("Not yet implemented")
     }
 
-    override var cursor: Cursor
-        get() = super.cursor
-        set(value) {
-            super.cursor = value
-            // Mapped with nSetCursor in window.mm
-            nSetCursor(handle, value.ordinal)
-        }
 
     override val display: Display
         get() = Display(MacDisplayPeer(nGetScreen(handle)))

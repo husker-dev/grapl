@@ -24,6 +24,7 @@ class WinWindowPeer(
         @JvmStatic private external fun nSetTitle(hwnd: Long, title: ByteBuffer)
         @JvmStatic private external fun nGetMonitor(hwnd: Long): Long
         @JvmStatic private external fun nUpdateDisplayState(hwnd: Long, fullscreen: Boolean, monitor: Long, width: Int, height: Int, bits: Int, frequency: Int): Int
+        @JvmStatic private external fun nTrackMouseEvent(hwnd: Long)
     }
 
     init {
@@ -38,6 +39,7 @@ class WinWindowPeer(
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
+    override fun setCursorImpl(cursor: Cursor) = Unit // Updates from callback
     override fun setSizeImpl(size: Size) = nSetSize(handle, size.width.toInt(), size.height.toInt())
     override fun setMinSizeImpl(size: Size) = Unit // Updates from callback
     override fun setMaxSizeImpl(size: Size) = Unit // Updates from callback
@@ -76,9 +78,25 @@ class WinWindowPeer(
 
     inner class WinWindowCallback: DefaultWindowCallback(){
 
+        var mouseEntered = false
+
+        override fun onPointerMoveCallback(pointerId: Int, x: Int, y: Int) {
+            if(!mouseEntered){
+                mouseEntered = true
+                nTrackMouseEvent(handle)
+                onPointerEnterCallback(pointerId, x, y)
+            }
+            super.onPointerMoveCallback(pointerId, x, y)
+        }
+
+        override fun onPointerLeaveCallback(pointerId: Int, x: Int, y: Int) {
+            mouseEntered = false
+            super.onPointerLeaveCallback(pointerId, x, y)
+        }
+
         /** Mapped from
          * [learn.microsoft.com](https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors) */
-        fun getCursorCallback() = when(cursor){
+        fun getCursorCallback() = when(cursor.value){
             Cursor.DEFAULT -> 32512         // IDC_ARROW
             Cursor.HAND -> 32649            // IDC_HAND
             Cursor.TEXT -> 32513            // IDC_IBEAM
