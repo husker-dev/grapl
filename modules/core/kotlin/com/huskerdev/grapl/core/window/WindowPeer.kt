@@ -33,6 +33,8 @@ abstract class WindowPeer() {
 
     abstract val display: Display
 
+    val dpi by display::dpi
+
     val pointerMoveListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
     val pointerDragListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
 
@@ -112,6 +114,7 @@ abstract class WindowPeer() {
 
         inner class WrappedPointer(id: Int): Pointer(id) {
             var lastReleaseTime = 0L
+            var lastButton: Button? = null
             var lastButtonX = 0
             var lastButtonY = 0
             var clicks = 0
@@ -128,8 +131,8 @@ abstract class WindowPeer() {
             var _y: Double = 0.0
             override var y by ::_y
 
-            var _button: Button = Button.NONE
-            override var button by ::_button
+            var _buttons: Set<Button> = hashSetOf()
+            override var buttons by ::_buttons
         }
 
         open fun onCloseCallback(){
@@ -150,6 +153,13 @@ abstract class WindowPeer() {
         }
 
         open fun onPointerMoveCallback(pointerId: Int, x: Int, y: Int){
+            if(pointerId !in pointers) {
+                if(x < 0 || y < 0 || x > sizeProperty.value.width || y > sizeProperty.value.height)
+                    return
+                else
+                    onPointerEnterCallback(pointerId, x, y)
+            }
+
             val pointer = pointers[pointerId] as WrappedPointer
             if(x == pointer.absoluteX && y == pointer.absoluteY)
                 return
@@ -166,29 +176,33 @@ abstract class WindowPeer() {
             }
 
             val event = Pointer.MoveEvent(pointer, oldX / dpi, oldY / dpi, oldX, oldY)
-            if(pointer.button == Pointer.Button.NONE)
-                pointerMoveListeners.forEach { it(event) }
-            else
+            if(pointer.buttons.isNotEmpty())
                 pointerDragListeners.forEach { it(event) }
+            else
+                pointerMoveListeners.forEach { it(event) }
         }
 
         open fun onPointerDownCallback(pointerId: Int, x: Int, y: Int, button: Int){
+            if(pointerId !in pointers)
+                onPointerEnterCallback(pointerId, x, y)
             val pointer = pointers[pointerId] as WrappedPointer
 
             val dpi = display.dpi
             val currentTime = System.currentTimeMillis()
-            val isClick = currentTime - pointer.lastReleaseTime <= DOUBLE_CLICK_DELAY &&
+            val isClick = (pointer.lastButton == Pointer.Button.of(button)) &&
+                    (currentTime - pointer.lastReleaseTime <= DOUBLE_CLICK_DELAY) &&
                     hypot(
                         x - pointer.lastButtonX.toDouble(),
                         y - pointer.lastButtonY.toDouble()
                     ) <= DOUBLE_CLICK_RADIUS
 
             pointer.apply {
-                this.button = Pointer.Button.of(button)
+                this.buttons += Pointer.Button.of(button)
                 this.absoluteX = x
                 this.absoluteY = y
                 this.x = x / dpi
                 this.y = y / dpi
+                lastButton = Pointer.Button.of(button)
                 lastButtonX = x
                 lastButtonY = y
                 clicks = if(isClick) clicks + 1 else 1
@@ -201,10 +215,13 @@ abstract class WindowPeer() {
         }
 
         open fun onPointerUpCallback(pointerId: Int, x: Int, y: Int, button: Int){
+            if(pointerId !in pointers)
+                onPointerEnterCallback(pointerId, x, y)
             val pointer = pointers[pointerId] as WrappedPointer
 
             val dpi = display.dpi
-            val isClick = pointer.clicks == 1 &&
+            val isClick = (pointer.lastButton == Pointer.Button.of(button)) &&
+                    (pointer.clicks == 1) &&
                     hypot(
                         x - pointer.lastButtonX.toDouble(),
                         y - pointer.lastButtonY.toDouble()
@@ -215,6 +232,7 @@ abstract class WindowPeer() {
                 this.absoluteY = y
                 this.x = x / dpi
                 this.y = y / dpi
+                lastButton = Pointer.Button.of(button)
                 lastButtonX = x
                 lastButtonY = y
                 lastReleaseTime = System.currentTimeMillis()
@@ -224,10 +242,16 @@ abstract class WindowPeer() {
 
             if(isClick)
                 Pointer.ClickEvent(pointer, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
-            pointer.button = Pointer.Button.NONE
+
+            pointer.buttons -= Pointer.Button.of(button)
+
+            if(x < 0 || y < 0 || x > sizeProperty.value.width || y > sizeProperty.value.height)
+                onPointerLeaveCallback(pointerId, x, y)
         }
 
         open fun onPointerEnterCallback(pointerId: Int, x: Int, y: Int){
+            if(pointerId in pointers)
+                return
             val dpi = display.dpi
             val pointer = WrappedPointer(pointerId).apply {
                 this.absoluteX = x
@@ -241,10 +265,12 @@ abstract class WindowPeer() {
         }
 
         open fun onPointerLeaveCallback(pointerId: Int, x: Int, y: Int){
-            val pointer = pointers[pointerId]
+            val pointer = pointers[pointerId]!!
+            if(pointer.buttons.isNotEmpty())
+                return
             pointers.remove(pointerId)
 
-            Pointer.Event(pointer!!).apply { pointerLeaveListeners.forEach { it(this) } }
+            Pointer.Event(pointer).apply { pointerLeaveListeners.forEach { it(this) } }
         }
     }
 

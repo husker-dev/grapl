@@ -10,6 +10,12 @@ static JNIEnv* env;
     jmethodID onResizeCallback;
     jmethodID onMoveCallback;
 
+    jmethodID onPointerMoveCallback;
+    jmethodID onPointerDownCallback;
+    jmethodID onPointerUpCallback;
+    jmethodID onPointerEnterCallback;
+    jmethodID onPointerLeaveCallback;
+
     @public
     NSCursor* cursor;
     NSTrackingArea* trackingArea;
@@ -23,57 +29,130 @@ static JNIEnv* env;
     jclass callbackClass = env->GetObjectClass(_callbackObject);
 
     onCloseCallback = env->GetMethodID(callbackClass, "onCloseCallback", "()V");
-    onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(II)V");
-    onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(II)V");
+    onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(DD)V");
+    onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(DD)V");
+
+    onPointerMoveCallback = env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IDD)V");
+    onPointerDownCallback = env->GetMethodID(callbackClass, "onPointerDownCallback", "(IDDI)V");
+    onPointerUpCallback = env->GetMethodID(callbackClass, "onPointerUpCallback", "(IDDI)V");
+    onPointerEnterCallback = env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IDD)V");
+    onPointerLeaveCallback = env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IDD)V");
 }
-- (void) dealloc {
+-(void) dealloc {
     [super dealloc];
     // Cause crash for some reason...
 	//env->DeleteGlobalRef(object);
 }
 
 /* ====================
-          Events
+      Window events
    ==================== */
 
 -(void) windowWillClose:(NSNotification*)notification {
     env->CallVoidMethod(object, onCloseCallback);
 }
 
-- (void) windowDidResize:(NSNotification*)notification {
+-(void) windowDidResize:(NSNotification*)notification {
     NSSize size = [self window].frame.size;
 	env->CallVoidMethod(object, onResizeCallback, size.width, size.height);
 }
 
-- (void) windowDidMove:(NSNotification*)notification {
+-(void) windowDidMove:(NSNotification*)notification {
     NSPoint origin = [self window].frame.origin;
 	env->CallVoidMethod(object, onMoveCallback, origin.x, origin.y);
+}
+
+/* ====================
+       Mouse events
+   ==================== */
+
+-(void) sendMouseEvent:(NSEvent*)event callback:(jmethodID)callback pointerId:(int)pointerId {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+    env->CallVoidMethod(object, callback, pointerId, pos.x, size.height - pos.y);
+}
+
+-(void) sendMouseButtonEvent:(NSEvent*)event callback:(jmethodID)callback pointerId:(int)pointerId button:(int)button {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+    env->CallVoidMethod(object, callback, pointerId, pos.x, size.height - pos.y, button);
+}
+
+-(void) mouseEntered:(NSEvent*)event {
+    [self sendMouseEvent:event callback:onPointerEnterCallback pointerId:0];
+}
+
+-(void) mouseMoved:(NSEvent*)event {
+    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+}
+
+-(void) mouseExited:(NSEvent*)event {
+    env->CallVoidMethod(object, onPointerLeaveCallback, 0, 0, 0);
+}
+
+// Left button
+-(void) mouseDown:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:1];
+}
+
+-(void) mouseDragged:(NSEvent*)event{
+    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+}
+
+-(void) mouseUp:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:1];
+}
+
+// Right button
+-(void) rightMouseDown:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:3];
+}
+
+-(void) rightMouseDragged:(NSEvent*)event{
+    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+}
+
+-(void) rightMouseUp:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:3];
+}
+
+// Other button
+-(void) otherMouseDown:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:(int)[event buttonNumber]+1];
+}
+
+-(void) otherMouseDragged:(NSEvent*)event{
+    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+}
+
+-(void) otherMouseUp:(NSEvent*)event{
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:(int)[event buttonNumber]+1];
 }
 
 /* ====================
           Cursor
    ==================== */
 
-- (BOOL) acceptsFirstResponder{
+-(BOOL) acceptsFirstResponder{
     return YES;
 }
 
-- (BOOL) wantsUpdateLayer{
+-(BOOL) wantsUpdateLayer{
     return YES;
 }
 
-- (BOOL) acceptsFirstMouse:(NSEvent*)event{
+-(BOOL) acceptsFirstMouse:(NSEvent*)event{
     return YES;
 }
 
-- (void) cursorUpdate:(NSEvent*)event{
+-(void) cursorUpdate:(NSEvent*)event{
     if(cursor != nil)
         [cursor set];
     else
         [[NSCursor arrowCursor] set];
 }
 
-- (void) updateTrackingAreas{
+-(void) updateTrackingAreas{
     if (trackingArea != nil) {
         [self removeTrackingArea:trackingArea];
         [trackingArea release];
@@ -192,8 +271,12 @@ jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jdo
 jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jdouble width, jdouble height) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
-        NSPoint location = window.frame.origin;
-        [window setFrame:NSMakeRect(location.x, location.y, width, height) display:YES animate:YES];
+
+        NSRect contentRect = [window contentRectForFrameRect:[window frame]];
+        contentRect.origin.y += contentRect.size.height - height;
+        contentRect.size = NSMakeSize(width, height);
+
+        [window setFrame:[window frameRectForContentRect:contentRect] display:YES animate:YES];
     );
 }
 

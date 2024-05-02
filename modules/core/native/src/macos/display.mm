@@ -102,8 +102,6 @@ jni_macos_display(jdouble, nGetFrequency)(JNIEnv* env, jobject, jlong _screen) {
 jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
 
-    CGDirectDisplayID displayId = getDisplayID(screen);
-
     if ([screen respondsToSelector:@selector(localizedName)]){
         NSString* name = [screen valueForKey:@"localizedName"];
         if (name)
@@ -111,6 +109,8 @@ jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
     }
 
 #ifndef TARGET_CPU_ARM64
+
+    CGDirectDisplayID displayId = getDisplayID(screen);
 
     io_iterator_t it;
     io_service_t service;

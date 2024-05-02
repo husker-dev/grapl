@@ -12,7 +12,7 @@ abstract class Pointer(
     abstract val absoluteY: Int
     abstract val x: Double
     abstract val y: Double
-    abstract val button: Button
+    abstract val buttons: Set<Button>
 
     enum class Button {
         NONE,
