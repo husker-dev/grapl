@@ -7,6 +7,35 @@ static CGDirectDisplayID getDisplayID(NSScreen* screen){
     return (CGDirectDisplayID)[[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
 }
 
+static CFArrayRef getDisplayModes(CGDirectDisplayID displayId){
+    CFStringRef keys[1]{
+        kCGDisplayShowDuplicateLowResolutionModes
+    };
+    CFBooleanRef values[1]{
+        kCFBooleanTrue
+    };
+    CFDictionaryRef dictionary = CFDictionaryCreate(
+        kCFAllocatorDefault, (const void **) keys, (const void **) values, 1,
+        &kCFCopyStringDictionaryKeyCallBacks,
+        &kCFTypeDictionaryValueCallBacks);
+
+    CFArrayRef modes = CGDisplayCopyAllDisplayModes(displayId, dictionary);
+    CFRelease(dictionary);
+    return modes;
+}
+
+static int getDisplayBitsPerPixel(CGDisplayModeRef mode){
+    int result = 32;
+#if MAC_OS_X_VERSION_MAX_ALLOWED == 101100
+    CFStringRef format = CGDisplayModeCopyPixelEncoding(mode);
+    if (CFStringCompare(format, CFSTR(IO16BitDirectPixels), 0) == 0)
+        result = 16;
+    CFRelease(format);
+#endif
+    return result;
+}
+
+
 jni_macos_display(jlong, nGetMainScreen)(JNIEnv* env, jobject) {
     return (jlong)[NSScreen mainScreen];
 }
@@ -50,9 +79,9 @@ jni_macos_display(jdoubleArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _s
 
 jni_macos_display(jdouble, nGetDpi)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-
     CGDirectDisplayID displayId = getDisplayID(screen);
-    CFArrayRef modes = CGDisplayCopyAllDisplayModes(displayId, nil);
+
+    CFArrayRef modes = getDisplayModes(displayId);
 
     int actualWidth = 0;
     for(int i = 0; i < CFArrayGetCount(modes); i++){
@@ -142,4 +171,34 @@ jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
 jni_macos_display(jint, nGetIndex)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
     return (jint)getDisplayID(screen);
+}
+
+jni_macos_display(jintArray, nGetDisplayModes)(JNIEnv* env, jobject, jlong _screen) {
+    NSScreen* screen = (NSScreen*)_screen;
+
+    CGDirectDisplayID displayId = getDisplayID(screen);
+    CFArrayRef modes = getDisplayModes(displayId);
+
+    const int fields = 4;
+    jint* result = new jint[CFArrayGetCount(modes) * fields];
+    for(int i = 0; i < CFArrayGetCount(modes); i++){
+        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
+        result[fields*i  ] = CGDisplayModeGetWidth(mode);
+        result[fields*i+1] = CGDisplayModeGetHeight(mode);
+        result[fields*i+2] = getDisplayBitsPerPixel(mode);
+        result[fields*i+3] = CGDisplayModeGetRefreshRate(mode);
+    }
+    return createIntArray(env, CFArrayGetCount(modes) * fields, result);
+}
+
+jni_macos_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong _screen) {
+    NSScreen* screen = (NSScreen*)_screen;
+    CGDisplayModeRef mode = CGDisplayCopyDisplayMode(getDisplayID(screen));
+
+    return createIntArray(env, {
+        (jint) CGDisplayModeGetWidth(mode),
+        (jint) CGDisplayModeGetHeight(mode),
+        (jint) getDisplayBitsPerPixel(mode),
+        (jint) CGDisplayModeGetRefreshRate(mode)
+    });
 }

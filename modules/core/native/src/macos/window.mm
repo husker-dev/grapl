@@ -23,8 +23,8 @@ static JNIEnv* env;
     jclass callbackClass = env->GetObjectClass(_callbackObject);
 
     onCloseCallback = env->GetMethodID(callbackClass, "onCloseCallback", "()V");
-    onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(DD)V");
-    onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(DD)V");
+    onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(II)V");
+    onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(II)V");
 }
 - (void) dealloc {
     [super dealloc];

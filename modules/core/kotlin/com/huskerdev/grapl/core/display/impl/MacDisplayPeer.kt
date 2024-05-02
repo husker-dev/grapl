@@ -2,6 +2,7 @@ package com.huskerdev.grapl.core.display.impl
 
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
+import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.DisplayMode
 import com.huskerdev.grapl.core.display.DisplayPeer
 
@@ -20,6 +21,8 @@ class MacDisplayPeer(
         @JvmStatic private external fun nGetFrequency(screen: Long): Int
         @JvmStatic private external fun nGetName(screen: Long): String
         @JvmStatic private external fun nGetIndex(screen: Long): Int
+        @JvmStatic private external fun nGetDisplayModes(screen: Long): IntArray
+        @JvmStatic private external fun nGetCurrentDisplayMode(screen: Long): IntArray
 
         val primary: DisplayPeer
             get() = MacDisplayPeer(nGetMainScreen())
@@ -34,16 +37,37 @@ class MacDisplayPeer(
         get() = nGetPosition(handle).run { scaledPosition(this[0], this[1]) }
     override val physicalSize: Size
         get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
+
     override val dpi: Double
         get() = nGetDpi(handle)
+
     override val frequency: Int
         get() = nGetFrequency(handle)
+
     override val name = nGetName(handle)
     override val systemName = "Screen ${nGetIndex(handle)}"
+
     override val modes: Array<DisplayMode>
-        get() = TODO("Not yet implemented")
+        get() = nGetDisplayModes(handle).asList()
+            .windowed(4, 4)
+            .map {
+                DisplayMode(
+                    Display(this),
+                    Size(it[0], it[1]),
+                    it[2],
+                    it[3]
+                )
+            }.sorted().toTypedArray()
+
     override val mode: DisplayMode
-        get() = TODO("Not yet implemented")
+        get() = nGetCurrentDisplayMode(handle).run {
+            DisplayMode(
+                Display(this@MacDisplayPeer),
+                Size(this[0], this[1]),
+                this[2],
+                this[3]
+            )
+        }
 
     private fun scaledSize(width: Double, height: Double): Size {
         val dpi = dpi

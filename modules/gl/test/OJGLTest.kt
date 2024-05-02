@@ -1,4 +1,5 @@
 import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -33,7 +34,7 @@ class OJGLTest {
                     frequency: ${display.mode.frequency}
             """.trimIndent())
         }
-
+        */
         Display.primary.modes.forEach {
             println("""
                 ------------
@@ -42,8 +43,14 @@ class OJGLTest {
                 bits: ${it.bits}
             """.trimIndent())
         }
-
-         */
+        Display.primary.mode.apply {
+            println("""
+                ------Current------
+                size: ${this.size.width} x ${this.size.height}
+                frequency: ${this.frequency}
+                bits: ${this.bits}
+            """.trimIndent())
+        }
 
 
         val window = GLWindow.create()
