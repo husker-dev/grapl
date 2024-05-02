@@ -284,3 +284,19 @@ jni_win_window(void, nTrackMouseEvent)(JNIEnv* env, jobject, jlong hwnd) {
     TrackMouseEvent(&tme);
 }
 
+jni_win_window(void, nSetMinimizable)(JNIEnv* env, jobject, jlong _hwnd, jboolean value) {
+    HWND hwnd = (HWND)_hwnd;
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    if(value) style |= WS_MINIMIZEBOX;
+    else      style &= ~WS_MINIMIZEBOX;
+    SetWindowLong(hwnd, GWL_STYLE, style);
+}
+
+jni_win_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _hwnd, jboolean value) {
+    HWND hwnd = (HWND)_hwnd;
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    if(value) style |= WS_MAXIMIZEBOX;
+    else      style &= ~WS_MAXIMIZEBOX;
+    SetWindowLong(hwnd, GWL_STYLE, style);
+}
+

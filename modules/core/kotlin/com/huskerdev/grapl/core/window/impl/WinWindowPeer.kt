@@ -25,6 +25,8 @@ class WinWindowPeer(
         @JvmStatic private external fun nGetMonitor(hwnd: Long): Long
         @JvmStatic private external fun nUpdateDisplayState(hwnd: Long, fullscreen: Boolean, monitor: Long, width: Int, height: Int, bits: Int, frequency: Int): Int
         @JvmStatic private external fun nTrackMouseEvent(hwnd: Long)
+        @JvmStatic private external fun nSetMinimizable(hwnd: Long, value: Boolean)
+        @JvmStatic private external fun nSetMaximizable(hwnd: Long, value: Boolean)
     }
 
     init {
@@ -75,14 +77,8 @@ class WinWindowPeer(
         }
     }
 
-    override fun setMinimizableImpl(value: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setMaximizableImpl(value: Boolean) {
-        TODO("Not yet implemented")
-    }
-
+    override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
+    override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
 
     inner class WinWindowCallback: DefaultWindowCallback(){
 

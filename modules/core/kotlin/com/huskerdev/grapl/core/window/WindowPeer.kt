@@ -238,7 +238,6 @@ abstract class WindowPeer() {
                 this.absoluteY = y
                 this.x = x / dpi
                 this.y = y / dpi
-                lastButton = Pointer.Button.of(button)
                 lastButtonX = x
                 lastButtonY = y
                 lastReleaseTime = System.currentTimeMillis()
