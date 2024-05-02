@@ -87,6 +87,10 @@ abstract class WindowPeer() {
 
     val pointers = hashMapOf<Int, Pointer>()
 
+    val minimizable = Property(true, ::setMinimizableImpl)
+
+    val maximizable = Property(true, ::setMaximizableImpl)
+
 
     fun runEventLoop(loopCallback: () -> Unit) {
         while (!shouldClose) {
@@ -109,6 +113,8 @@ abstract class WindowPeer() {
     protected abstract fun setMaxSizeImpl(size: Size)
     protected abstract fun setPositionImpl(position: Position)
     protected abstract fun setDisplayStateImpl(state: WindowDisplayState)
+    protected abstract fun setMinimizableImpl(value: Boolean)
+    protected abstract fun setMaximizableImpl(value: Boolean)
 
     open inner class DefaultWindowCallback {
 

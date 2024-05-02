@@ -1,5 +1,6 @@
 import com.huskerdev.grapl.core.Cursor
 import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -52,8 +53,12 @@ class OJGLTest {
             """.trimIndent())
         }
 
-
         val window = GLWindow.create()
+
+        window.maximizable = false
+        window.minimizable = false
+        window.size = 100 x 100
+        window.maxSize = 200 x 200
         //window.displayState = WindowDisplayState.ScaledFullscreen(DisplayMode(Display.primary, 800 x 600, 32, 60))
         //window.size = 800 x 600
         window.pointerEnterListeners += {

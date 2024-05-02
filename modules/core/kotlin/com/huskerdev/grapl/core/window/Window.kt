@@ -112,6 +112,10 @@ abstract class Window(
 
     val focused by peer.focusedProperty::value
 
+    var maximizable by peer.maximizable::value
+
+    var minimizable by peer.minimizable::value
+
     fun alignToCenter(){
         val displaySize = Display.primary.absoluteSize
         absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)

@@ -26,6 +26,8 @@ class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nSetMaxSize(windowPtr: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetCursor(windowPtr: Long, index: Int)
         @JvmStatic private external fun nGetScreen(windowPtr: Long): Long
+        @JvmStatic private external fun nSetMinimizable(windowPtr: Long, value: Boolean)
+        @JvmStatic private external fun nSetMaximizable(windowPtr: Long, value: Boolean)
 
         fun create() = MacWindowPeer()
 
@@ -52,6 +54,9 @@ class MacWindowPeer : WindowPeer() {
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         TODO("Not yet implemented")
     }
+
+    override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
+    override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
 
 
     override val display: Display

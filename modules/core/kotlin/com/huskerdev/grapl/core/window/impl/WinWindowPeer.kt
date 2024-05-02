@@ -75,6 +75,14 @@ class WinWindowPeer(
         }
     }
 
+    override fun setMinimizableImpl(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setMaximizableImpl(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
 
     inner class WinWindowCallback: DefaultWindowCallback(){
 

@@ -196,14 +196,14 @@ jni_macos_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObj
         NSRect windowRect = NSMakeRect(0, 0, 100, 100);
 
         window = [[NSWindow alloc] initWithContentRect:windowRect
-                                                       styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
+                                                       styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable | NSWindowStyleMaskMiniaturizable
                                                          backing:NSBackingStoreBuffered
                                                            defer:NO];
 
         NSWindowController* windowController = [[NSWindowController alloc] initWithWindow:window];
         [windowController autorelease];
 
-        [window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary];
+        [window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorManaged];
         //[window autorelease];
 
         [window setAcceptsMouseMovedEvents:YES];
@@ -323,4 +323,20 @@ jni_macos_window(jlong, nGetScreen)(JNIEnv* env, jobject, jlong _windowPtr) {
         result = [window screen];
     );
     return (jlong)result;
+}
+
+jni_macos_window(void, nSetMinimizable)(JNIEnv* env, jobject, jlong _windowPtr, jboolean value) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        if(value) window.styleMask |= NSWindowStyleMaskMiniaturizable;
+        else      window.styleMask &= ~NSWindowStyleMaskMiniaturizable;
+    );
+}
+
+jni_macos_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _windowPtr, jboolean value) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        if(value) [window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorManaged];
+        else      [window setCollectionBehavior: 0];
+    );
 }
