@@ -197,9 +197,15 @@ jni_win_window(void, nSetPosition)(JNIEnv* env, jobject, jlong hwnd, jint x, jin
     UpdateWindow((HWND)hwnd);
 }
 
-jni_win_window(void, nSetSize)(JNIEnv* env, jobject, jlong hwnd, jint width, jint height) {
-    SetWindowPos((HWND)hwnd, 0, 0, 0, width, height, SWP_NOMOVE);
-    UpdateWindow((HWND)hwnd);
+jni_win_window(void, nSetSize)(JNIEnv* env, jobject, jlong _hwnd, jint width, jint height) {
+    HWND hwnd = (HWND)_hwnd;
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    LONG exStyle = GetWindowLong(hwnd, GWL_EXSTYLE);
+    RECT rect = { 0, 0, width, height };
+
+    AdjustWindowRectEx(&rect, style, 0, exStyle);
+    SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+    UpdateWindow(hwnd);
 }
 
 jni_win_window(void, nSetTitle)(JNIEnv* env, jobject, jlong hwnd, jobject _title) {
