@@ -419,6 +419,10 @@ abstract class WindowPeer() {
             Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, delta)
                 .apply { pointerRotationListeners.forEach { it(this) } }
         }
+
+        open fun printInt(value: Int){
+            println(value)
+        }
     }
 
     class DisplayModeChangingException(

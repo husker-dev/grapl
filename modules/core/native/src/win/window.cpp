@@ -1,73 +1,125 @@
 #include "grapl-win.h"
 #include <map>
 
-struct CallbackContainer {
+#include <directmanipulation.h>
+
+
+class Callback {
+public:
+    Callback(JNIEnv* env, jmethodID method, jobject callbackObject){
+        this->env = env;
+        this->method = method;
+        this->callbackObject = callbackObject;
+    }
+
+    template<class... jvalue>
+    void call(jvalue... values){
+        env->CallVoidMethod(callbackObject, method, values...);
+    }
+
+    template<class... jvalue>
+    jint callInt(jvalue... values){
+        return env->CallIntMethod(callbackObject, method, values...);
+    }
+
+    template<class... jvalue>
+    jobject callObject(jvalue... values){
+        return env->CallObjectMethod(callbackObject, method, values...);
+    }
+private:
     JNIEnv* env;
-    jobject object;
-    jmethodID onCloseCallback;
-    jmethodID onResizeCallback;
-    jmethodID onMoveCallback;
-    jmethodID getCursorCallback;
-    jmethodID getMinMaxBounds;
-    jmethodID onFocusCallback;
-
-    jmethodID onPointerMoveCallback;
-    jmethodID onPointerDownCallback;
-    jmethodID onPointerUpCallback;
-    jmethodID onPointerEnterCallback;
-    jmethodID onPointerLeaveCallback;
-    jmethodID onPointerScrollCallback;
-
-    jmethodID onPointerZoomBeginCallback;
-    jmethodID onPointerZoomCallback;
-    jmethodID onPointerZoomEndCallback;
-
-    jmethodID onPointerRotationBeginCallback;
-    jmethodID onPointerRotationCallback;
-    jmethodID onPointerRotationEndCallback;
-
-    jmethodID gestureCallback;
+    jmethodID method;
+    jobject callbackObject;
 };
-static std::map<HWND, CallbackContainer*> callbackObjects;
+
+
+class WindowWrapper {
+public:
+    HWND hwnd;
+
+    IDirectManipulationManager* manipulationManager;
+
+    JNIEnv* env;
+    jclass callbackClass;
+    jobject callbackObject;
+
+    Callback* onCloseCallback;
+    Callback* onResizeCallback;
+    Callback* onMoveCallback;
+    Callback* getCursorCallback;
+    Callback* getMinMaxBounds;
+    Callback* onFocusCallback;
+
+    Callback* onPointerMoveCallback;
+    Callback* onPointerDownCallback;
+    Callback* onPointerUpCallback;
+    Callback* onPointerEnterCallback;
+    Callback* onPointerLeaveCallback;
+    Callback* onPointerScrollCallback;
+    Callback* onPointerZoomBeginCallback;
+    Callback* onPointerZoomCallback;
+    Callback* onPointerZoomEndCallback;
+
+    Callback* onPointerRotationBeginCallback;
+    Callback* onPointerRotationCallback;
+    Callback* onPointerRotationEndCallback;
+
+    Callback* printInt;
+
+    WindowWrapper(JNIEnv* env, HWND hwnd, jobject callbackObject) {
+        this->env = env;
+        this->hwnd = hwnd;
+        this->callbackObject = env->NewGlobalRef(callbackObject);
+        this->callbackClass = env->GetObjectClass(callbackObject);
+
+        CoInitializeEx(NULL, COINIT_MULTITHREADED);
+        CoCreateInstance(CLSID_DirectManipulationManager, NULL, CLSCTX_ALL,
+                IID_IDirectManipulationManager, (void**)(&this->manipulationManager));
+
+
+        onCloseCallback = callback("onCloseCallback", "()V");
+        onResizeCallback = callback("onResizeCallback", "(II)V");
+        onMoveCallback = callback("onMoveCallback", "(II)V");
+        getCursorCallback = callback("getCursorCallback", "()I");
+        getMinMaxBounds = callback("getMinMaxBounds", "()[I");
+        onFocusCallback = callback("onFocusCallback", "(Z)V");
+
+        onPointerMoveCallback = callback("onPointerMoveCallback", "(IIII)V");
+        onPointerDownCallback = callback("onPointerDownCallback", "(IIIII)V");
+        onPointerUpCallback = callback("onPointerUpCallback", "(IIIII)V");
+        onPointerEnterCallback = callback("onPointerEnterCallback", "(IIII)V");
+        onPointerLeaveCallback = callback("onPointerLeaveCallback", "(IIII)V");
+        onPointerScrollCallback = callback("onPointerScrollCallback", "(IIIDDI)V");
+
+        onPointerZoomBeginCallback = callback("onPointerZoomBeginCallback", "(IIII)V");
+        onPointerZoomCallback = callback("onPointerZoomCallback", "(IIIDI)V");
+        onPointerZoomEndCallback = callback("onPointerZoomEndCallback", "(IIII)V");
+
+        onPointerRotationBeginCallback = callback("onPointerRotationBeginCallback", "(IIII)V");
+        onPointerRotationCallback = callback("onPointerRotationCallback", "(IIIDI)V");
+        onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IIII)V");
+
+        printInt = callback("printInt", "(I)V");
+    }
+private:
+    Callback* callback(const char* name, const char* params){
+        return new Callback(env, env->GetMethodID(callbackClass, name, params), callbackObject);
+    }
+};
+
+static std::map<HWND, WindowWrapper*> wrappers;
+
 
 void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
-    jclass callbackClass = env->GetObjectClass(callbackObject);
-    callbackObjects[hwnd] = new CallbackContainer{
-        env,
-        env->NewGlobalRef(callbackObject),
-
-        env->GetMethodID(callbackClass, "onCloseCallback", "()V"),
-        env->GetMethodID(callbackClass, "onResizeCallback", "(II)V"),
-        env->GetMethodID(callbackClass, "onMoveCallback", "(II)V"),
-        env->GetMethodID(callbackClass, "getCursorCallback", "()I"),
-        env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I"),
-        env->GetMethodID(callbackClass, "onFocusCallback", "(Z)V"),
-
-        env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerDownCallback", "(IIIII)V"),
-        env->GetMethodID(callbackClass, "onPointerUpCallback", "(IIIII)V"),
-        env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerScrollCallback", "(IIIDDI)V"),
-
-        env->GetMethodID(callbackClass, "onPointerZoomBeginCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerZoomCallback", "(IIIDI)V"),
-        env->GetMethodID(callbackClass, "onPointerZoomEndCallback", "(IIII)V"),
-
-        env->GetMethodID(callbackClass, "onPointerRotationBeginCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IIIDI)V"),
-        env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IIII)V"),
-
-        env->GetMethodID(callbackClass, "gestureCallback", "()V")
-    };
+    wrappers[hwnd] = new WindowWrapper(env, hwnd, callbackObject);
 }
 
 void removeCallbacks(HWND hwnd){
-    CallbackContainer* callbacks = callbackObjects[hwnd];
+    WindowWrapper* wrapper = wrappers[hwnd];
 
-    callbackObjects.erase(hwnd);
-    callbacks->env->DeleteGlobalRef(callbacks->object);
-    delete callbacks;
+    wrappers.erase(hwnd);
+    wrapper->env->DeleteGlobalRef(wrapper->callbackObject);
+    delete wrapper;
 }
 
 jint getModifierKeys(){
@@ -81,33 +133,49 @@ jint getModifierKeys(){
 
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam){
-    if (!callbackObjects.count(hwnd))
+    if (!wrappers.count(hwnd))
         return DefWindowProc(hwnd, msg, wParam, lParam);
 
-    CallbackContainer* callbacks = callbackObjects[hwnd];
-    JNIEnv* env = callbacks->env;
-    jobject object = callbacks->object;
+    WindowWrapper* wrapper = wrappers[hwnd];
+    JNIEnv* env = wrapper->env;
+    jobject object = wrapper->callbackObject;
+
+    wrapper->printInt->call((jint)msg);
 
     switch (msg){
         case WM_CLOSE: {
-            env->CallVoidMethod(object, callbacks->onCloseCallback);
+            wrapper->onCloseCallback->call();
             break;
         }
+
         case WM_SIZE: {
-            env->CallVoidMethod(object, callbacks->onResizeCallback, LOWORD(lParam), HIWORD(lParam));
+            wrapper->onResizeCallback->call(LOWORD(lParam), HIWORD(lParam));
+
+            if(wrapper->manipulationManager){
+                switch (wParam){
+                    case SIZE_MINIMIZED:
+                    case SIZE_MAXHIDE:
+                        wrapper->manipulationManager->Deactivate(hwnd);
+                        break;
+                    default:
+                        wrapper->manipulationManager->Activate(hwnd);
+                        break;
+                }
+            }
             break;
         }
+
         case WM_MOVE: {
-            env->CallVoidMethod(object, callbacks->onMoveCallback, LOWORD(lParam), HIWORD(lParam));
+            wrapper->onMoveCallback->call(LOWORD(lParam), HIWORD(lParam));
             break;
         }
         case WM_SETCURSOR: {
-            jint cursor = env->CallIntMethod(object, callbacks->getCursorCallback);
+            jint cursor = wrapper->getCursorCallback->callInt();
             SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(cursor)));
             break;
         }
         case WM_GETMINMAXINFO: {
-            jobject result = env->CallObjectMethod(object, callbacks->getMinMaxBounds);
+            jobject result = wrapper->getMinMaxBounds->callObject();
             jintArray* boundsArray = (jintArray*)&result;
             jint* bounds = env->GetIntArrayElements(*boundsArray, NULL);
 
@@ -118,12 +186,9 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             if(bounds[3] != -1) info->ptMaxTrackSize.y = bounds[3];
             break;
         }
+        case WM_KILLFOCUS:
         case WM_SETFOCUS: {
-            env->CallVoidMethod(object, callbacks->onFocusCallback, true);
-            break;
-        }
-        case WM_KILLFOCUS: {
-            env->CallVoidMethod(object, callbacks->onFocusCallback, false);
+            wrapper->onFocusCallback->call(msg == WM_SETFOCUS);
             break;
         }
         case WM_DESTROY: {
@@ -131,7 +196,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_MOUSELEAVE: {
-            env->CallVoidMethod(object, callbacks->onPointerLeaveCallback,
+            wrapper->onPointerLeaveCallback->call(
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
                 GET_Y_LPARAM(lParam),
@@ -140,7 +205,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_MOUSEMOVE: {
-            env->CallVoidMethod(object, callbacks->onPointerMoveCallback,
+            wrapper->onPointerMoveCallback->call(
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
                 GET_Y_LPARAM(lParam),
@@ -168,16 +233,16 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                         msg == WM_RBUTTONDOWN ||
                         msg == WM_XBUTTONDOWN;
 
-            jmethodID callback;
+            Callback* callback;
             if(down){
                 SetCapture(hwnd);
-                callback = callbacks->onPointerDownCallback;
+                callback = wrapper->onPointerDownCallback;
             }else {
                 ReleaseCapture();
-                callback = callbacks->onPointerUpCallback;
+                callback = wrapper->onPointerUpCallback;
             }
 
-            env->CallVoidMethod(object, callback,
+            callback->call(
                 pointerId,
                 GET_X_LPARAM(lParam),
                 GET_Y_LPARAM(lParam),
@@ -188,7 +253,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
         case WM_MOUSEWHEEL:
         case WM_MOUSEHWHEEL: {
-            env->CallVoidMethod(object, callbacks->onPointerScrollCallback,
+            wrapper->onPointerScrollCallback->call(
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
                 GET_Y_LPARAM(lParam),
@@ -199,29 +264,27 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_GESTURE: {
-            env->CallVoidMethod(object, callbacks->gestureCallback);
-
             GESTUREINFO gestureInfo = {};
             gestureInfo.cbSize = sizeof(gestureInfo);
             GetGestureInfo((HGESTUREINFO)lParam, &gestureInfo);
 
             if(gestureInfo.dwID == GID_ZOOM){
                 if(gestureInfo.dwFlags & GF_BEGIN == GF_BEGIN){
-                    env->CallVoidMethod(object, callbacks->onPointerZoomBeginCallback,
+                    wrapper->onPointerZoomBeginCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
                         getModifierKeys()
                     );
                 }else if(gestureInfo.dwFlags & GF_BEGIN == GF_END){
-                    env->CallVoidMethod(object, callbacks->onPointerZoomEndCallback,
+                    wrapper->onPointerZoomCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
                         getModifierKeys()
                     );
                 }else {
-                    env->CallVoidMethod(object, callbacks->onPointerZoomCallback,
+                    wrapper->onPointerZoomEndCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
@@ -232,21 +295,21 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 return 0;
             }else if(gestureInfo.dwID == GID_ROTATE){
                 if(gestureInfo.dwFlags & GF_BEGIN == GF_BEGIN){
-                    env->CallVoidMethod(object, callbacks->onPointerRotationBeginCallback,
+                    wrapper->onPointerRotationBeginCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
                         getModifierKeys()
                     );
                 }else if(gestureInfo.dwFlags & GF_BEGIN == GF_END){
-                    env->CallVoidMethod(object, callbacks->onPointerRotationEndCallback,
+                    wrapper->onPointerRotationCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
                         getModifierKeys()
                     );
                 }else {
-                    env->CallVoidMethod(object, callbacks->onPointerRotationCallback,
+                    wrapper->onPointerRotationEndCallback->call(
                         0,
                         gestureInfo.ptsLocation.x,
                         gestureInfo.ptsLocation.y,
