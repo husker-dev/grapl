@@ -1,3 +1,4 @@
+import groovy.transform.TupleConstructor
 import org.gradle.internal.os.*
 
 import java.util.function.Function
@@ -303,29 +304,64 @@ enum Compiler {
             throw new GradleException("Execution of '$file.absolutePath' finished with exit code: ${process.exitValue()}")
     }
 
+    @TupleConstructor
+    static class VSType implements Comparable {
+        File rootDrive
+        String type
+        String version
+        File file
+
+        @Override
+        int compareTo(Object o) {
+            VSType other = (VSType)o
+            int res = -(rootDrive.absolutePath <=> other.rootDrive.absolutePath)
+            if(res == 0) res = version <=> other.version
+            if(res == 0) res = type <=> other.type
+            return res
+        }
+
+        @Override
+        String toString() {
+            return file
+        }
+    }
+
     static private String findVCVarsDir(){
-        def vcPath = new File("C:/Program Files/Microsoft Visual Studio/")
-        if(!vcPath.exists())
-            vcPath = new File("C:/Program Files (x86)/Microsoft Visual Studio/")
-        if(!vcPath.exists())
+        def vcPath = new ArrayList<VSType>()
+        for(root in File.listRoots()){
+            for(path in [
+                "Microsoft Visual Studio",
+                "Program Files/Microsoft Visual Studio",
+                "Program Files (x86)/Microsoft Visual Studio"
+            ]){
+                for(type in ["Community", "Enterprise"]){
+                    for(version in ["2022", "2019"]){
+                        def file = new File(root, "$path/$version/$type")
+                        if(file.exists())
+                            vcPath.add(new VSType(root, type, version, file));
+                    }
+                }
+            }
+        }
+        if(vcPath.size() == 0)
             throw new GradleException("Cant find Visual Studio directory")
-
-        def vcVersionPath = new File(vcPath, "2022")
-        if(!vcVersionPath.exists())
-            vcVersionPath = new File(vcPath, "2019")
-        if(!vcVersionPath.exists())
-            throw new GradleException("Cant find Visual Studio 2022 or 2019")
-
-        return new File(vcVersionPath, "Community/VC/Auxiliary/Build").absolutePath
+        vcPath.sort()
+        return new File(vcPath[vcPath.size()-1].file, "VC/Auxiliary/Build").absolutePath
     }
 
     static private String findWinSDKDir(){
-        def sdkPath = new File("C:/Program Files (x86)/Windows Kits/10")
-        if(!sdkPath.exists())
-            sdkPath = new File(sdkPath, "C:/Program Files/Windows Kits/10")
-        if(!sdkPath.exists())
-            throw new GradleException("Cant find any Windows SDK 10")
-        return sdkPath.absolutePath
+        for(root in File.listRoots()){
+            for(path in [
+                "Windows Kits",
+                "Program Files/Windows Kits",
+                "Program Files (x86)/Windows Kits",
+            ]){
+                def file = new File(root, "$path/10")
+                if(file.exists())
+                    return file.absolutePath
+            }
+        }
+        throw new GradleException("Cant find any Windows SDK 10")
     }
 
     interface CompileAction{

@@ -25,6 +25,8 @@ struct CallbackContainer {
     jmethodID onPointerRotationBeginCallback;
     jmethodID onPointerRotationCallback;
     jmethodID onPointerRotationEndCallback;
+
+    jmethodID gestureCallback;
 };
 static std::map<HWND, CallbackContainer*> callbackObjects;
 
@@ -54,7 +56,9 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
 
         env->GetMethodID(callbackClass, "onPointerRotationBeginCallback", "(IIII)V"),
         env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IIIDI)V"),
-        env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IIII)V")
+        env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IIII)V"),
+
+        env->GetMethodID(callbackClass, "gestureCallback", "()V")
     };
 }
 
@@ -195,6 +199,8 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_GESTURE: {
+            env->CallVoidMethod(object, callbacks->gestureCallback);
+
             GESTUREINFO gestureInfo = {};
             gestureInfo.cbSize = sizeof(gestureInfo);
             GetGestureInfo((HGESTUREINFO)lParam, &gestureInfo);

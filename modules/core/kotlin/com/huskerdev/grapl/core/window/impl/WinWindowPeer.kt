@@ -84,6 +84,10 @@ class WinWindowPeer(
 
         var mouseEntered = false
 
+        fun gestureCallback(){
+            println("Gesture message")
+        }
+
         override fun onPointerMoveCallback(
             pointerId: Int,
             x: Int,
