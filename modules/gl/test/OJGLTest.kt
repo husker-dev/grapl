@@ -107,13 +107,13 @@ class OJGLTest {
         }
 
         window.pointerRotationBeginListeners += {
-            println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+            println("begin rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
         }
         window.pointerRotationListeners += {
-            println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+            println("rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
         }
         window.pointerRotationEndListeners += {
-            println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+            println("end rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
         }
 
 
