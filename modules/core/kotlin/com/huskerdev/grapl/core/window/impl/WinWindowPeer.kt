@@ -84,18 +84,33 @@ class WinWindowPeer(
 
         var mouseEntered = false
 
-        override fun onPointerMoveCallback(pointerId: Int, x: Int, y: Int) {
+        override fun onPointerMoveCallback(
+            pointerId: Int,
+            x: Int, y: Int,
+            isAltDown: Boolean,
+            isCtrlDown: Boolean,
+            isShiftDown: Boolean,
+            isOptionDown: Boolean
+        ) {
             if(!mouseEntered){
                 mouseEntered = true
                 nTrackMouseEvent(handle)
-                onPointerEnterCallback(pointerId, x, y)
+                onPointerEnterCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
             }
-            super.onPointerMoveCallback(pointerId, x, y)
+            super.onPointerMoveCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
         }
 
-        override fun onPointerLeaveCallback(pointerId: Int, x: Int, y: Int) {
+        override fun onPointerLeaveCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            isAltDown: Boolean,
+            isCtrlDown: Boolean,
+            isShiftDown: Boolean,
+            isOptionDown: Boolean
+        ) {
             mouseEntered = false
-            super.onPointerLeaveCallback(pointerId, x, y)
+            super.onPointerLeaveCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
         }
 
         /** Mapped from

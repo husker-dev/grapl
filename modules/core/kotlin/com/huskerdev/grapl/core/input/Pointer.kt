@@ -28,24 +28,51 @@ abstract class Pointer(
     }
 
     open class Event(
-        val pointer: Pointer
+        val pointer: Pointer,
+
+        /**
+         * Alt on Linux/Windows
+         * Cmd on macOS
+         */
+        val isAltDown: Boolean,
+        val isCtrlDown: Boolean,
+        val isShiftDown: Boolean,
+        val isOptionDown: Boolean
     )
 
     open class ClickEvent(
         pointer: Pointer,
+        isAltDown: Boolean,
+        isCtrlDown: Boolean,
+        isShiftDown: Boolean,
+        isOptionDown: Boolean,
         val clicks: Int
-    ): Event(pointer)
+    ): Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
 
     class MoveEvent(
         pointer: Pointer,
+        isAltDown: Boolean,
+        isCtrlDown: Boolean,
+        isShiftDown: Boolean,
+        isOptionDown: Boolean,
         val oldX: Double,
         val oldY: Double,
         val oldAbsoluteX: Double,
         val oldAbsoluteY: Double,
-    ): Event(pointer) {
+    ): Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown) {
         val deltaX = pointer.x - oldX
         val deltaY = pointer.y - oldY
         val deltaAbsoluteX = pointer.x - oldX
         val deltaAbsoluteY = pointer.y - oldY
     }
+
+    class WheelEvent(
+        pointer: Pointer,
+        isAltDown: Boolean,
+        isCtrlDown: Boolean,
+        isShiftDown: Boolean,
+        isOptionDown: Boolean,
+        val deltaX: Double,
+        val deltaY: Double
+    ): Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
 }

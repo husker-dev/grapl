@@ -21,8 +21,11 @@ abstract class Window(
     val pointerDownListeners by peer::pointerPressListeners
     val pointerUpListeners by peer::pointerReleaseListeners
     val pointerClickListeners by peer::pointerClickListeners
+
     val pointerEnterListeners by peer::pointerEnterListeners
     val pointerLeaveListeners by peer::pointerLeaveListeners
+
+    val pointerWheelListeners by peer::pointerWheelListeners
 
 
     var absoluteSize by peer.sizeProperty::value

@@ -59,31 +59,41 @@ class OJGLTest {
         window.minimizable = false
         window.size = 100 x 100
         window.maxSize = 200 x 200
-        //window.displayState = WindowDisplayState.ScaledFullscreen(DisplayMode(Display.primary, 800 x 600, 32, 60))
-        //window.size = 800 x 600
+        window.alignToCenter()
+
         window.pointerEnterListeners += {
             println("enter: at ${it.pointer.x}x${it.pointer.y}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerLeaveListeners += {
             println("leave: at ${it.pointer.x}x${it.pointer.y}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerMoveListeners += {
             println("moved: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerDragListeners += {
             println("drag: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY} by ${it.pointer.buttons}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerClickListeners += {
             println("clicked: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons} ${it.clicks} times")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerDownListeners += {
             println("down: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
         window.pointerUpListeners += {
             println("up: at ${it.pointer.x}x${it.pointer.y}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
-        //window.minSize = 300 x 300
-        //window.alignToCenter()
+        window.pointerWheelListeners += {
+            println("wheel: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+        }
+
         window.title = "UTF? Да"
         window.cursor = Cursor.HAND
         window.visible = true

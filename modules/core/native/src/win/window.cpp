@@ -16,6 +16,7 @@ struct CallbackContainer {
     jmethodID onPointerUpCallback;
     jmethodID onPointerEnterCallback;
     jmethodID onPointerLeaveCallback;
+    jmethodID onPointerWheelCallback;
 };
 static std::map<HWND, CallbackContainer*> callbackObjects;
 
@@ -32,11 +33,12 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
         env->GetMethodID(callbackClass, "getMinMaxBounds", "()[I"),
         env->GetMethodID(callbackClass, "onFocusCallback", "(Z)V"),
 
-        env->GetMethodID(callbackClass, "onPointerMoveCallback", "(III)V"),
-        env->GetMethodID(callbackClass, "onPointerDownCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerUpCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerEnterCallback", "(III)V"),
-        env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(III)V")
+        env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IIIZZZZ)V"),
+        env->GetMethodID(callbackClass, "onPointerDownCallback", "(IIIIZZZZ)V"),
+        env->GetMethodID(callbackClass, "onPointerUpCallback", "(IIIIZZZZ)V"),
+        env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IIIZZZZ)V"),
+        env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IIIZZZZ)V"),
+        env->GetMethodID(callbackClass, "onPointerWheelCallback", "(IIIDDZZZZ)V")
     };
 }
 
@@ -119,14 +121,28 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             removeCallbacks(hwnd);
             break;
         }
-        case WM_MOUSELEAVE:
+        case WM_MOUSELEAVE: {
+            env->CallVoidMethod(object, callbacks->onPointerLeaveCallback,
+                GetMessageExtraInfo() & 0x7F,
+                GET_X_LPARAM(lParam),
+                GET_Y_LPARAM(lParam),
+                GetKeyState(VK_MENU) < 0,
+                GetKeyState(VK_CONTROL) < 0,
+                GetKeyState(VK_SHIFT) < 0,
+                false
+            );
+            break;
+        }
         case WM_MOUSEMOVE: {
-            UINT pointerId = GetMessageExtraInfo() & 0x7F;
-            jmethodID callback = msg == WM_MOUSELEAVE ?
-                callbacks->onPointerLeaveCallback :
-                callbacks->onPointerMoveCallback;
-
-            env->CallVoidMethod(object, callback, pointerId, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            env->CallVoidMethod(object, callbacks->onPointerMoveCallback,
+                GetMessageExtraInfo() & 0x7F,
+                GET_X_LPARAM(lParam),
+                GET_Y_LPARAM(lParam),
+                GetKeyState(VK_MENU) < 0,
+                GetKeyState(VK_CONTROL) < 0,
+                GetKeyState(VK_SHIFT) < 0,
+                false
+            );
             break;
         }
         case WM_LBUTTONDOWN:
@@ -158,7 +174,31 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 callback = callbacks->onPointerUpCallback;
             }
 
-            env->CallVoidMethod(object, callback, pointerId, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), button);
+            env->CallVoidMethod(object, callback,
+                pointerId,
+                GET_X_LPARAM(lParam),
+                GET_Y_LPARAM(lParam),
+                button,
+                GetKeyState(VK_MENU) < 0,
+                GetKeyState(VK_CONTROL) < 0,
+                GetKeyState(VK_SHIFT) < 0,
+                false
+            );
+            break;
+        }
+        case WM_MOUSEWHEEL:
+        case WM_MOUSEHWHEEL: {
+            env->CallVoidMethod(object, callbacks->onPointerWheelCallback,
+                GetMessageExtraInfo() & 0x7F,
+                GET_X_LPARAM(lParam),
+                GET_Y_LPARAM(lParam),
+                (msg == WM_MOUSEWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+                (msg == WM_MOUSEHWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+                GetKeyState(VK_MENU) < 0,
+                GetKeyState(VK_CONTROL) < 0,
+                GetKeyState(VK_SHIFT) < 0,
+                false
+            );
             break;
         }
     }
