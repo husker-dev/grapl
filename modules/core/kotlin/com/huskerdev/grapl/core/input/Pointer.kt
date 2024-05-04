@@ -7,10 +7,10 @@ abstract class Pointer(
         var DOUBLE_CLICK_DELAY = 400
         var DOUBLE_CLICK_RADIUS = 5
 
-        var MASK_MODIFIER_ALT    = 0x00000001
-        var MASK_MODIFIER_CTRL   = 0x00000002
-        var MASK_MODIFIER_SHIFT  = 0x00000004
-        var MASK_MODIFIER_OPTION = 0x00000008
+        const val MASK_MODIFIER_ALT    = 0x00000001
+        const val MASK_MODIFIER_CTRL   = 0x00000002
+        const val MASK_MODIFIER_SHIFT  = 0x00000004
+        const val MASK_MODIFIER_OPTION = 0x00000008
     }
 
     abstract val absoluteX: Int
@@ -70,7 +70,7 @@ abstract class Pointer(
         val deltaAbsoluteY = pointer.y - oldY
     }
 
-    class WheelEvent(
+    class SrollEvent(
         pointer: Pointer,
         modifiers: Int,
         val deltaX: Double,

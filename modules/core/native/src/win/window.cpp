@@ -16,7 +16,7 @@ struct CallbackContainer {
     jmethodID onPointerUpCallback;
     jmethodID onPointerEnterCallback;
     jmethodID onPointerLeaveCallback;
-    jmethodID onPointerWheelCallback;
+    jmethodID onPointerScrollCallback;
 
     jmethodID onPointerZoomBeginCallback;
     jmethodID onPointerZoomCallback;
@@ -46,7 +46,7 @@ void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
         env->GetMethodID(callbackClass, "onPointerUpCallback", "(IIIII)V"),
         env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IIII)V"),
         env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IIII)V"),
-        env->GetMethodID(callbackClass, "onPointerWheelCallback", "(IIIDDI)V"),
+        env->GetMethodID(callbackClass, "onPointerScrollCallback", "(IIIDDI)V"),
 
         env->GetMethodID(callbackClass, "onPointerZoomBeginCallback", "(IIII)V"),
         env->GetMethodID(callbackClass, "onPointerZoomCallback", "(IIIDI)V"),
@@ -184,7 +184,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
         case WM_MOUSEWHEEL:
         case WM_MOUSEHWHEEL: {
-            env->CallVoidMethod(object, callbacks->onPointerWheelCallback,
+            env->CallVoidMethod(object, callbacks->onPointerScrollCallback,
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
                 GET_Y_LPARAM(lParam),

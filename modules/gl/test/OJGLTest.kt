@@ -1,5 +1,4 @@
 import com.huskerdev.grapl.core.Cursor
-import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
@@ -92,12 +91,10 @@ class OJGLTest {
             println("up: at ${it.pointer.x}x${it.pointer.y}")
             println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
-        window.pointerWheelListeners += {
-            println("wheel: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+        */
+        window.pointerScrollListeners += {
+            println("scroll: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
         }
-
-         */
 
         window.pointerZoomBeginListeners += {
             println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")

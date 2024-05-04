@@ -25,7 +25,7 @@ abstract class Window(
     val pointerEnterListeners by peer::pointerEnterListeners
     val pointerLeaveListeners by peer::pointerLeaveListeners
 
-    val pointerWheelListeners by peer::pointerWheelListeners
+    val pointerScrollListeners by peer::pointerScrollListeners
 
     val pointerZoomBeginListeners by peer::pointerZoomBeginListeners
     val pointerZoomListeners by peer::pointerZoomListeners

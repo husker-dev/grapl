@@ -45,7 +45,7 @@ abstract class WindowPeer() {
     val pointerEnterListeners = hashSetOf<(Pointer.Event) -> Unit>()
     val pointerLeaveListeners = hashSetOf<(Pointer.Event) -> Unit>()
 
-    val pointerWheelListeners = hashSetOf<(Pointer.WheelEvent) -> Unit>()
+    val pointerScrollListeners = hashSetOf<(Pointer.SrollEvent) -> Unit>()
 
     val pointerZoomBeginListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
     val pointerZoomListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
@@ -311,7 +311,7 @@ abstract class WindowPeer() {
                 .apply { pointerLeaveListeners.forEach { it(this) } }
         }
 
-        open fun onPointerWheelCallback(
+        open fun onPointerScrollCallback(
             pointerId: Int,
             x: Int,
             y: Int,
@@ -322,8 +322,8 @@ abstract class WindowPeer() {
             val pointer = pointers[pointerId] ?: return
             (pointer as WrappedPointer).updatePosition(x, y)
 
-            Pointer.WheelEvent(pointer, modifiers, deltaX, deltaY)
-                .apply { pointerWheelListeners.forEach { it(this) } }
+            Pointer.SrollEvent(pointer, modifiers, deltaX, deltaY)
+                .apply { pointerScrollListeners.forEach { it(this) } }
         }
 
         open fun onPointerZoomBeginCallback(
