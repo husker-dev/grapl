@@ -35,7 +35,7 @@ class OJGLTest {
                     frequency: ${display.mode.frequency}
             """.trimIndent())
         }
-        */
+
         Display.primary.modes.forEach {
             println("""
                 ------------
@@ -53,14 +53,17 @@ class OJGLTest {
             """.trimIndent())
         }
 
+         */
+
         val window = GLWindow.create()
 
-        window.maximizable = false
-        window.minimizable = false
+        //window.maximizable = false
+        //window.minimizable = false
         window.size = 100 x 100
-        window.maxSize = 200 x 200
+        //window.maxSize = 200 x 200
         window.alignToCenter()
 
+        /*
         window.pointerEnterListeners += {
             println("enter: at ${it.pointer.x}x${it.pointer.y}")
             println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
@@ -93,6 +96,29 @@ class OJGLTest {
             println("wheel: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
             println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
         }
+
+         */
+
+        window.pointerZoomBeginListeners += {
+            println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+        }
+        window.pointerZoomListeners += {
+            println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+        }
+        window.pointerZoomEndListeners += {
+            println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+        }
+
+        window.pointerRotationBeginListeners += {
+            println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+        }
+        window.pointerRotationListeners += {
+            println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+        }
+        window.pointerRotationEndListeners += {
+            println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+        }
+
 
         window.title = "UTF? Да"
         window.cursor = Cursor.HAND

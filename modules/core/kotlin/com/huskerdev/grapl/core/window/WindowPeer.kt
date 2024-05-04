@@ -47,6 +47,14 @@ abstract class WindowPeer() {
 
     val pointerWheelListeners = hashSetOf<(Pointer.WheelEvent) -> Unit>()
 
+    val pointerZoomBeginListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
+    val pointerZoomListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
+    val pointerZoomEndListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
+
+    val pointerRotationBeginListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
+    val pointerRotationListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
+    val pointerRotationEndListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
+
 
     val displayStateProperty = Property<WindowDisplayState>(WindowDisplayState.Windowed()) {
         setDisplayStateImpl(it)
@@ -128,6 +136,9 @@ abstract class WindowPeer() {
             var lastButtonY = 0
             var clicks = 0
 
+            var lastZoom = 0.0
+            var lastAngle = 0.0
+
             var _absoluteX: Int = 0
             override var absoluteX by ::_absoluteX
 
@@ -142,6 +153,13 @@ abstract class WindowPeer() {
 
             var _buttons: Set<Button> = hashSetOf()
             override var buttons by ::_buttons
+
+            fun updatePosition(absoluteX: Int, absoluteY: Int){
+                this.absoluteX = absoluteX
+                this.absoluteY = absoluteX
+                this.x = absoluteX / dpi
+                this.y = absoluteY / dpi
+            }
         }
 
         open fun onCloseCallback(){
@@ -165,15 +183,12 @@ abstract class WindowPeer() {
             pointerId: Int,
             x: Int,
             y: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ){
             if(pointerId !in pointers) {
                 if(x < 0 || y < 0 || x > sizeProperty.value.width || y > sizeProperty.value.height)
                     return
-                else onPointerEnterCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+                else onPointerEnterCallback(pointerId, x, y, modifiers)
             }
 
             val pointer = pointers[pointerId] as WrappedPointer
@@ -184,14 +199,9 @@ abstract class WindowPeer() {
             val oldX = pointer.absoluteX.toDouble()
             val oldY = pointer.absoluteY.toDouble()
 
-            pointer.apply {
-                this.absoluteX = x
-                this.absoluteY = y
-                this.x = absoluteX / dpi
-                this.y = absoluteY / dpi
-            }
+            pointer.updatePosition(x, y)
 
-            val event = Pointer.MoveEvent(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown, oldX / dpi, oldY / dpi, oldX, oldY)
+            val event = Pointer.MoveEvent(pointer, modifiers, oldX / dpi, oldY / dpi, oldX, oldY)
             if(pointer.buttons.isNotEmpty())
                 pointerDragListeners.forEach { it(event) }
             else
@@ -203,13 +213,10 @@ abstract class WindowPeer() {
             x: Int,
             y: Int,
             button: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ){
             if(pointerId !in pointers)
-                onPointerEnterCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+                onPointerEnterCallback(pointerId, x, y, modifiers)
             val pointer = pointers[pointerId] as WrappedPointer
 
             val currentTime = System.currentTimeMillis()
@@ -221,21 +228,18 @@ abstract class WindowPeer() {
                     ) <= DOUBLE_CLICK_RADIUS
 
             pointer.apply {
+                updatePosition(x, y)
                 this.buttons += Pointer.Button.of(button)
-                this.absoluteX = x
-                this.absoluteY = y
-                this.x = x / dpi
-                this.y = y / dpi
                 lastButton = Pointer.Button.of(button)
                 lastButtonX = x
                 lastButtonY = y
                 clicks = if(isClick) clicks + 1 else 1
             }
 
-            Pointer.Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown).apply { pointerPressListeners.forEach { it(this) } }
+            Pointer.Event(pointer, modifiers).apply { pointerPressListeners.forEach { it(this) } }
 
             if(isClick)
-                Pointer.ClickEvent(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
+                Pointer.ClickEvent(pointer, modifiers, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
         }
 
         open fun onPointerUpCallback(
@@ -243,13 +247,10 @@ abstract class WindowPeer() {
             x: Int,
             y: Int,
             button: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ){
             if(pointerId !in pointers)
-                onPointerEnterCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+                onPointerEnterCallback(pointerId, x, y, modifiers)
             val pointer = pointers[pointerId] as WrappedPointer
 
             val isClick = (pointer.lastButton == Pointer.Button.of(button)) &&
@@ -260,48 +261,38 @@ abstract class WindowPeer() {
                     ) <= DOUBLE_CLICK_RADIUS
 
             pointer.apply {
-                this.absoluteX = x
-                this.absoluteY = y
-                this.x = x / dpi
-                this.y = y / dpi
+                updatePosition(x, y)
                 lastButtonX = x
                 lastButtonY = y
                 lastReleaseTime = System.currentTimeMillis()
             }
 
-            Pointer.Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            Pointer.Event(pointer, modifiers)
                 .apply { pointerReleaseListeners.forEach { it(this) } }
 
             if(isClick)
-                Pointer.ClickEvent(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown, pointer.clicks)
+                Pointer.ClickEvent(pointer, modifiers, pointer.clicks)
                     .apply { pointerClickListeners.forEach { it(this) } }
 
             pointer.buttons -= Pointer.Button.of(button)
 
             if(x < 0 || y < 0 || x > sizeProperty.value.width || y > sizeProperty.value.height)
-                onPointerLeaveCallback(pointerId, x, y, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+                onPointerLeaveCallback(pointerId, x, y, modifiers)
         }
 
         open fun onPointerEnterCallback(
             pointerId: Int,
             x: Int,
             y: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ){
             if(pointerId in pointers)
                 return
-            val pointer = WrappedPointer(pointerId).apply {
-                this.absoluteX = x
-                this.absoluteY = y
-                this.x = x / dpi
-                this.y = y / dpi
-            }
+            val pointer = WrappedPointer(pointerId)
+            pointer.updatePosition(x, y)
             pointers[pointerId] = pointer
 
-            Pointer.Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            Pointer.Event(pointer, modifiers)
                 .apply { pointerEnterListeners.forEach { it(this) } }
         }
 
@@ -309,17 +300,14 @@ abstract class WindowPeer() {
             pointerId: Int,
             x: Int,
             y: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ){
             val pointer = pointers[pointerId]!!
             if(pointer.buttons.isNotEmpty())
                 return
             pointers.remove(pointerId)
 
-            Pointer.Event(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            Pointer.Event(pointer, modifiers)
                 .apply { pointerLeaveListeners.forEach { it(this) } }
         }
 
@@ -329,22 +317,107 @@ abstract class WindowPeer() {
             y: Int,
             deltaX: Double,
             deltaY: Double,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            (pointer as WrappedPointer).updatePosition(x, y)
+
+            Pointer.WheelEvent(pointer, modifiers, deltaX, deltaY)
+                .apply { pointerWheelListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerZoomBeginCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            (pointer as WrappedPointer).apply {
+                updatePosition(x, y)
+                lastZoom = 0.0
+            }
+            Pointer.ZoomEvent(pointer, modifiers, 0.0, 0.0)
+                .apply { pointerZoomBeginListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerZoomEndCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            modifiers: Int
         ){
             val pointer = pointers[pointerId] ?: return
             pointer as WrappedPointer
+            pointer.updatePosition(x, y)
 
-            pointer.apply {
-                this.absoluteX = x
-                this.absoluteY = y
-                this.x = x / dpi
-                this.y = y / dpi
+            Pointer.ZoomEvent(pointer, modifiers, pointer.lastZoom, 0.0)
+                .apply { pointerZoomEndListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerZoomCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            zoom: Double,
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            pointer as WrappedPointer
+            pointer.updatePosition(x, y)
+
+            val delta = zoom - pointer.lastZoom
+            pointer.lastZoom = zoom
+
+            Pointer.ZoomEvent(pointer, modifiers, pointer.lastZoom, delta)
+                .apply { pointerZoomListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerRotationBeginCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            (pointer as WrappedPointer).apply {
+                updatePosition(x, y)
+                lastAngle = 0.0
             }
-            Pointer.WheelEvent(pointer, isAltDown, isCtrlDown, isShiftDown, isOptionDown, deltaX, deltaY)
-                .apply { pointerWheelListeners.forEach { it(this) } }
+            Pointer.RotationEvent(pointer, modifiers, 0.0, 0.0)
+                .apply { pointerRotationBeginListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerRotationEndCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            pointer as WrappedPointer
+            pointer.updatePosition(x, y)
+
+            Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, 0.0)
+                .apply { pointerRotationEndListeners.forEach { it(this) } }
+        }
+
+        open fun onPointerRotationCallback(
+            pointerId: Int,
+            x: Int,
+            y: Int,
+            angle: Double,
+            modifiers: Int
+        ){
+            val pointer = pointers[pointerId] ?: return
+            pointer as WrappedPointer
+            pointer.updatePosition(x, y)
+
+            val delta = angle - pointer.lastAngle
+            pointer.lastAngle = angle
+
+            Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, delta)
+                .apply { pointerRotationListeners.forEach { it(this) } }
         }
     }
 

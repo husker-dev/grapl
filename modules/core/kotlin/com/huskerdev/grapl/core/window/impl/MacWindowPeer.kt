@@ -73,74 +73,59 @@ class MacWindowPeer : WindowPeer() {
             pointerId: Int,
             x: Double,
             y: Double,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ) = super.onPointerMoveCallback(
             pointerId,
             (x * dpi).toInt(),
             (y * dpi).toInt(),
-            isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            modifiers)
 
         fun onPointerDownCallback(
             pointerId: Int,
             x: Double,
             y: Double,
             button: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ) = super.onPointerDownCallback(
             pointerId,
             (x * dpi).toInt(),
             (y * dpi).toInt(),
             button,
-            isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            modifiers)
 
         fun onPointerUpCallback(
             pointerId: Int,
             x: Double,
             y: Double,
             button: Int,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ) = super.onPointerUpCallback(
             pointerId,
             (x * dpi).toInt(),
             (y * dpi).toInt(),
             button,
-            isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            modifiers)
 
         fun onPointerEnterCallback(
             pointerId: Int,
             x: Double,
             y: Double,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ) = super.onPointerEnterCallback(
             pointerId,
             (x * dpi).toInt(),
             (y * dpi).toInt(),
-            isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            modifiers)
 
         fun onPointerLeaveCallback(
             pointerId: Int,
             x: Double,
             y: Double,
-            isAltDown: Boolean,
-            isCtrlDown: Boolean,
-            isShiftDown: Boolean,
-            isOptionDown: Boolean
+            modifiers: Int
         ) = super.onPointerLeaveCallback(
             pointerId,
             (x * dpi).toInt(),
             (y * dpi).toInt(),
-            isAltDown, isCtrlDown, isShiftDown, isOptionDown)
+            modifiers)
     }
 }
