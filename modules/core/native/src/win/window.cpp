@@ -3,6 +3,7 @@
 
 #include <directmanipulation.h>
 
+LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 class Callback {
 public:
@@ -36,8 +37,7 @@ private:
 class WindowWrapper {
 public:
     HWND hwnd;
-
-    IDirectManipulationManager* manipulationManager;
+    WNDPROC prevProc;
 
     JNIEnv* env;
     jclass callbackClass;
@@ -64,18 +64,14 @@ public:
     Callback* onPointerRotationCallback;
     Callback* onPointerRotationEndCallback;
 
-    Callback* printInt;
-
     WindowWrapper(JNIEnv* env, HWND hwnd, jobject callbackObject) {
         this->env = env;
         this->hwnd = hwnd;
         this->callbackObject = env->NewGlobalRef(callbackObject);
         this->callbackClass = env->GetObjectClass(callbackObject);
 
-        CoInitializeEx(NULL, COINIT_MULTITHREADED);
-        CoCreateInstance(CLSID_DirectManipulationManager, NULL, CLSCTX_ALL,
-                IID_IDirectManipulationManager, (void**)(&this->manipulationManager));
-
+        prevProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
+        SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
 
         onCloseCallback = callback("onCloseCallback", "()V");
         onResizeCallback = callback("onResizeCallback", "(II)V");
@@ -98,8 +94,6 @@ public:
         onPointerRotationBeginCallback = callback("onPointerRotationBeginCallback", "(IIII)V");
         onPointerRotationCallback = callback("onPointerRotationCallback", "(IIIDI)V");
         onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IIII)V");
-
-        printInt = callback("printInt", "(I)V");
     }
 private:
     Callback* callback(const char* name, const char* params){
@@ -109,10 +103,6 @@ private:
 
 static std::map<HWND, WindowWrapper*> wrappers;
 
-
-void addCallbacks(JNIEnv* env, HWND hwnd, jobject callbackObject){
-    wrappers[hwnd] = new WindowWrapper(env, hwnd, callbackObject);
-}
 
 void removeCallbacks(HWND hwnd){
     WindowWrapper* wrapper = wrappers[hwnd];
@@ -138,33 +128,16 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
     WindowWrapper* wrapper = wrappers[hwnd];
     JNIEnv* env = wrapper->env;
-    jobject object = wrapper->callbackObject;
-
-    wrapper->printInt->call((jint)msg);
 
     switch (msg){
         case WM_CLOSE: {
             wrapper->onCloseCallback->call();
             break;
         }
-
         case WM_SIZE: {
             wrapper->onResizeCallback->call(LOWORD(lParam), HIWORD(lParam));
-
-            if(wrapper->manipulationManager){
-                switch (wParam){
-                    case SIZE_MINIMIZED:
-                    case SIZE_MAXHIDE:
-                        wrapper->manipulationManager->Deactivate(hwnd);
-                        break;
-                    default:
-                        wrapper->manipulationManager->Activate(hwnd);
-                        break;
-                }
-            }
             break;
         }
-
         case WM_MOVE: {
             wrapper->onMoveCallback->call(LOWORD(lParam), HIWORD(lParam));
             break;
@@ -263,6 +236,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             );
             break;
         }
+        /*
         case WM_GESTURE: {
             GESTUREINFO gestureInfo = {};
             gestureInfo.cbSize = sizeof(gestureInfo);
@@ -321,8 +295,9 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             }
             break;
         }
+        */
     }
-    return DefWindowProc(hwnd, msg, wParam, lParam);
+    return CallWindowProcA(wrapper->prevProc, hwnd, msg, wParam, lParam);
 }
 
 
@@ -332,8 +307,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _hwnd, jobject callbackObject) {
     HWND hwnd = (HWND)_hwnd;
-    addCallbacks(env, hwnd, callbackObject);
-    SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
+    wrappers[hwnd] = new WindowWrapper(env, hwnd, callbackObject);
 }
 
 jni_win_window(void, nPeekMessage)(JNIEnv* env, jobject, jlong hwnd) {
