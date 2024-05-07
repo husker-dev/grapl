@@ -1,7 +1,7 @@
 #include "grapl-win.h"
 #include <map>
 
-#include <directmanipulation.h>
+#include "touchpad-manager.cpp"
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -39,6 +39,8 @@ public:
     HWND hwnd;
     WNDPROC prevProc;
 
+    TouchpadManager* touchpadManager;
+
     JNIEnv* env;
     jclass callbackClass;
     jobject callbackObject;
@@ -69,6 +71,8 @@ public:
         this->hwnd = hwnd;
         this->callbackObject = env->NewGlobalRef(callbackObject);
         this->callbackClass = env->GetObjectClass(callbackObject);
+
+        touchpadManager = new TouchpadManager(hwnd);
 
         prevProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
         SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
@@ -236,66 +240,53 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             );
             break;
         }
-        /*
-        case WM_GESTURE: {
-            GESTUREINFO gestureInfo = {};
-            gestureInfo.cbSize = sizeof(gestureInfo);
-            GetGestureInfo((HGESTUREINFO)lParam, &gestureInfo);
-
-            if(gestureInfo.dwID == GID_ZOOM){
-                if(gestureInfo.dwFlags & GF_BEGIN == GF_BEGIN){
-                    wrapper->onPointerZoomBeginCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        getModifierKeys()
-                    );
-                }else if(gestureInfo.dwFlags & GF_BEGIN == GF_END){
-                    wrapper->onPointerZoomCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        getModifierKeys()
-                    );
-                }else {
-                    wrapper->onPointerZoomEndCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        (jdouble)gestureInfo.ullArguments,
-                        getModifierKeys()
-                    );
-                }
-                return 0;
-            }else if(gestureInfo.dwID == GID_ROTATE){
-                if(gestureInfo.dwFlags & GF_BEGIN == GF_BEGIN){
-                    wrapper->onPointerRotationBeginCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        getModifierKeys()
-                    );
-                }else if(gestureInfo.dwFlags & GF_BEGIN == GF_END){
-                    wrapper->onPointerRotationCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        getModifierKeys()
-                    );
-                }else {
-                    wrapper->onPointerRotationEndCallback->call(
-                        0,
-                        gestureInfo.ptsLocation.x,
-                        gestureInfo.ptsLocation.y,
-                        (jdouble)gestureInfo.ullArguments,
-                        getModifierKeys()
-                    );
-                }
-                return 0;
-            }
+        case TM_SCROLL: {
+            POINT point;
+            GetCursorPos(&point);
+            wrapper->onPointerScrollCallback->call(
+                0,
+                point.x,
+                point.y,
+                (jdouble)wParam,
+                (jdouble)lParam,
+                getModifierKeys()
+            );
             break;
         }
-        */
+        case TM_SCALE_BEGIN: {
+            POINT point;
+            GetCursorPos(&point);
+            wrapper->onPointerZoomBeginCallback->call(
+                0,
+                point.x,
+                point.y,
+                getModifierKeys()
+            );
+            break;
+        }
+        case TM_SCALE: {
+            POINT point;
+            GetCursorPos(&point);
+            wrapper->onPointerZoomEndCallback->call(
+                0,
+                point.x,
+                point.y,
+                (jdouble)FLOAT_FROM_PARAMS(wParam, lParam),
+                getModifierKeys()
+            );
+            break;
+        }
+        case TM_SCALE_END: {
+            POINT point;
+            GetCursorPos(&point);
+            wrapper->onPointerZoomEndCallback->call(
+                0,
+                point.x,
+                point.y,
+                getModifierKeys()
+            );
+            break;
+        }
     }
     return CallWindowProcA(wrapper->prevProc, hwnd, msg, wParam, lParam);
 }
