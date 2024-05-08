@@ -1,7 +1,7 @@
 package com.huskerdev.grapl.core.window.impl
 
 import com.huskerdev.grapl.core.util.c_wstr
-import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display

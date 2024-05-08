@@ -1,4 +1,4 @@
-package com.huskerdev.grapl.core
+package com.huskerdev.grapl.core.input
 
 enum class Cursor {
     DEFAULT,

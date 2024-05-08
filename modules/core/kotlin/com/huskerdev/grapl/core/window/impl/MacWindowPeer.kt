@@ -1,7 +1,7 @@
 package com.huskerdev.grapl.core.window.impl
 
 import com.huskerdev.grapl.core.util.c_str
-import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
@@ -69,63 +69,42 @@ class MacWindowPeer : WindowPeer() {
         fun onMoveCallback(x: Double, y: Double) =
             super.onMoveCallback((x * dpi).toInt(), (y * dpi).toInt())
 
-        fun onPointerMoveCallback(
-            pointerId: Int,
-            x: Double,
-            y: Double,
-            modifiers: Int
-        ) = super.onPointerMoveCallback(
-            pointerId,
-            (x * dpi).toInt(),
-            (y * dpi).toInt(),
-            modifiers)
 
-        fun onPointerDownCallback(
-            pointerId: Int,
-            x: Double,
-            y: Double,
-            button: Int,
-            modifiers: Int
-        ) = super.onPointerDownCallback(
-            pointerId,
-            (x * dpi).toInt(),
-            (y * dpi).toInt(),
-            button,
-            modifiers)
+        fun onPointerMoveCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerMoveCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
 
-        fun onPointerUpCallback(
-            pointerId: Int,
-            x: Double,
-            y: Double,
-            button: Int,
-            modifiers: Int
-        ) = super.onPointerUpCallback(
-            pointerId,
-            (x * dpi).toInt(),
-            (y * dpi).toInt(),
-            button,
-            modifiers)
+        fun onPointerDownCallback(pointerId: Int, x: Double, y: Double,button: Int, modifiers: Int) =
+            super.onPointerDownCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), button, modifiers)
 
-        fun onPointerEnterCallback(
-            pointerId: Int,
-            x: Double,
-            y: Double,
-            modifiers: Int
-        ) = super.onPointerEnterCallback(
-            pointerId,
-            (x * dpi).toInt(),
-            (y * dpi).toInt(),
-            modifiers)
+        fun onPointerUpCallback(pointerId: Int, x: Double, y: Double, button: Int, modifiers: Int) =
+            super.onPointerUpCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), button, modifiers)
 
-        fun onPointerLeaveCallback(
-            pointerId: Int,
-            x: Double,
-            y: Double,
-            modifiers: Int
-        ) = super.onPointerLeaveCallback(
-            pointerId,
-            (x * dpi).toInt(),
-            (y * dpi).toInt(),
-            modifiers)
+        fun onPointerEnterCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerEnterCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerLeaveCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerLeaveCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerScrollCallback(pointerId: Int, x: Double, y: Double, deltaX: Double, deltaY: Double, modifiers: Int) =
+            super.onPointerScrollCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), deltaX, deltaY, modifiers)
+
+        fun onPointerZoomBeginCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerZoomBeginCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerZoomEndCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerZoomEndCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerZoomCallback(pointerId: Int, x: Double, y: Double, zoom: Double, modifiers: Int) =
+            super.onPointerZoomCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), zoom, modifiers)
+
+
+        fun onPointerRotationBeginCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerRotationBeginCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerRotationEndCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
+            super.onPointerRotationEndCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
+
+        fun onPointerRotationCallback(pointerId: Int, x: Double, y: Double, angle: Double, modifiers: Int) =
+            super.onPointerRotationCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), angle, modifiers)
     }
 }

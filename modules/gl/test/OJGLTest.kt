@@ -1,4 +1,4 @@
-import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
@@ -62,36 +62,36 @@ class OJGLTest {
         //window.maxSize = 200 x 200
         window.alignToCenter()
 
-        /*
+
         window.pointerEnterListeners += {
             println("enter: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerLeaveListeners += {
             println("leave: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerMoveListeners += {
             println("moved: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerDragListeners += {
             println("drag: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY} by ${it.pointer.buttons}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerClickListeners += {
             println("clicked: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons} ${it.clicks} times")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerDownListeners += {
             println("down: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
         window.pointerUpListeners += {
             println("up: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, opt: ${it.isOptionDown}")
+            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
         }
-        */
+
         window.pointerScrollListeners += {
             println("scroll: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
         }

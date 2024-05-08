@@ -118,9 +118,9 @@ void removeCallbacks(HWND hwnd){
 
 jint getModifierKeys(){
     jint res = 0;
-    if(GetKeyState(VK_MENU) < 0)    res |= 0x00000001;
-    if(GetKeyState(VK_CONTROL) < 0) res |= 0x00000002;
-    if(GetKeyState(VK_SHIFT) < 0)   res |= 0x00000004;
+    if(GetKeyState(VK_MENU) < 0)    res |= 1;
+    if(GetKeyState(VK_CONTROL) < 0) res |= 2;
+    if(GetKeyState(VK_SHIFT) < 0)   res |= 4;
     return res;
 }
 

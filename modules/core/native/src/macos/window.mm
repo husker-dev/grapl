@@ -16,6 +16,19 @@ static JNIEnv* env;
     jmethodID onPointerEnterCallback;
     jmethodID onPointerLeaveCallback;
 
+    jmethodID onPointerScrollCallback;
+
+    jmethodID onPointerZoomBeginCallback;
+    jmethodID onPointerZoomCallback;
+    jmethodID onPointerZoomEndCallback;
+
+    jmethodID onPointerRotationBeginCallback;
+    jmethodID onPointerRotationCallback;
+    jmethodID onPointerRotationEndCallback;
+
+    float sumScale;
+    float sumRotation;
+
     @public
     NSCursor* cursor;
     NSTrackingArea* trackingArea;
@@ -32,11 +45,21 @@ static JNIEnv* env;
     onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(DD)V");
     onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(DD)V");
 
-    onPointerMoveCallback = env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IDD)V");
-    onPointerDownCallback = env->GetMethodID(callbackClass, "onPointerDownCallback", "(IDDI)V");
-    onPointerUpCallback = env->GetMethodID(callbackClass, "onPointerUpCallback", "(IDDI)V");
-    onPointerEnterCallback = env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IDD)V");
-    onPointerLeaveCallback = env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IDD)V");
+    onPointerMoveCallback = env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IDDI)V");
+    onPointerDownCallback = env->GetMethodID(callbackClass, "onPointerDownCallback", "(IDDII)V");
+    onPointerUpCallback = env->GetMethodID(callbackClass, "onPointerUpCallback", "(IDDII)V");
+    onPointerEnterCallback = env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IDDI)V");
+    onPointerLeaveCallback = env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IDDI)V");
+
+    onPointerScrollCallback = env->GetMethodID(callbackClass, "onPointerScrollCallback", "(IDDDDI)V");
+
+    onPointerZoomBeginCallback = env->GetMethodID(callbackClass, "onPointerZoomBeginCallback", "(IDDI)V");
+    onPointerZoomCallback = env->GetMethodID(callbackClass, "onPointerZoomCallback", "(IDDDI)V");
+    onPointerZoomEndCallback = env->GetMethodID(callbackClass, "onPointerZoomEndCallback", "(IDDI)V");
+
+    onPointerRotationBeginCallback = env->GetMethodID(callbackClass, "onPointerRotationBeginCallback", "(IDDI)V");
+    onPointerRotationCallback = env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IDDDI)V");
+    onPointerRotationEndCallback = env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IDDI)V");
 }
 -(void) dealloc {
     [super dealloc];
@@ -65,68 +88,127 @@ static JNIEnv* env;
 /* ====================
        Mouse events
    ==================== */
-
--(void) sendMouseEvent:(NSEvent*)event callback:(jmethodID)callback pointerId:(int)pointerId {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
-    env->CallVoidMethod(object, callback, pointerId, pos.x, size.height - pos.y);
+-(jint) getModifierKeys {
+    jint result = 0;
+    NSEventModifierFlags flags = NSEvent.modifierFlags;
+    if(NSEventModifierFlagOption & flags)  result |= 1;
+    if(NSEventModifierFlagControl & flags) result |= 2;
+    if(NSEventModifierFlagShift & flags)   result |= 4;
+    if(NSEventModifierFlagCommand & flags) result |= 8;
+    return result;
 }
 
--(void) sendMouseButtonEvent:(NSEvent*)event callback:(jmethodID)callback pointerId:(int)pointerId button:(int)button {
+-(void) sendMouseEvent:(NSEvent*)event callback:(jmethodID)callback {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
-    env->CallVoidMethod(object, callback, pointerId, pos.x, size.height - pos.y, button);
+    env->CallVoidMethod(object, callback, 0, pos.x, size.height - pos.y, [self getModifierKeys]);
+}
+
+-(void) sendMouseButtonEvent:(NSEvent*)event callback:(jmethodID)callback button:(int)button {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+    env->CallVoidMethod(object, callback, event.pointingDeviceID, pos.x, size.height - pos.y, button, [self getModifierKeys]);
 }
 
 -(void) mouseEntered:(NSEvent*)event {
-    [self sendMouseEvent:event callback:onPointerEnterCallback pointerId:0];
+    [self sendMouseEvent:event callback:onPointerEnterCallback];
 }
 
 -(void) mouseMoved:(NSEvent*)event {
-    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+    [self sendMouseEvent:event callback:onPointerMoveCallback];
 }
 
 -(void) mouseExited:(NSEvent*)event {
-    env->CallVoidMethod(object, onPointerLeaveCallback, 0, 0, 0);
+    env->CallVoidMethod(object, onPointerLeaveCallback, 0, 0, 0, [self getModifierKeys]);
 }
 
 // Left button
 -(void) mouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:1];
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:1];
 }
 
 -(void) mouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+    [self sendMouseEvent:event callback:onPointerMoveCallback];
 }
 
 -(void) mouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:1];
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:1];
 }
 
 // Right button
 -(void) rightMouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:3];
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:3];
 }
 
 -(void) rightMouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+    [self sendMouseEvent:event callback:onPointerMoveCallback];
 }
 
 -(void) rightMouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:3];
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:3];
 }
 
 // Other button
 -(void) otherMouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback pointerId:0 button:(int)[event buttonNumber]+1];
+    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:(int)[event buttonNumber]+1];
 }
 
 -(void) otherMouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback pointerId:0];
+    [self sendMouseEvent:event callback:onPointerMoveCallback];
 }
 
 -(void) otherMouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback pointerId:0 button:(int)[event buttonNumber]+1];
+    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:(int)[event buttonNumber]+1];
+}
+
+// Gestures
+- (void)magnifyWithEvent:(NSEvent *)event {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+    if ([event phase] == NSEventPhaseBegan){
+        sumScale = 1;
+        [self sendMouseEvent:event callback:onPointerZoomBeginCallback];
+    }
+    sumScale += [event magnification];
+    env->CallVoidMethod(object, onPointerZoomCallback,
+            0,
+            pos.x,
+            size.height - pos.y,
+            (jdouble)sumScale,
+            [self getModifierKeys]);
+    if ([event phase] == NSEventPhaseEnded)
+        [self sendMouseEvent:event callback:onPointerZoomEndCallback];
+}
+
+- (void)rotateWithEvent:(NSEvent *)event {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+    if ([event phase] == NSEventPhaseBegan){
+        sumRotation = 0;
+        [self sendMouseEvent:event callback:onPointerRotationBeginCallback];
+    }
+    sumRotation += [event rotation];
+    env->CallVoidMethod(object, onPointerRotationCallback,
+            0,
+            pos.x,
+            size.height - pos.y,
+            (jdouble)sumRotation,
+            [self getModifierKeys]);
+    if ([event phase] == NSEventPhaseEnded)
+        [self sendMouseEvent:event callback:onPointerRotationEndCallback];
+}
+
+- (void)scrollWheel:(NSEvent *)event {
+    const NSPoint pos = [event locationInWindow];
+    const NSSize size = [self window].contentView.frame.size;
+
+    env->CallVoidMethod(object, onPointerScrollCallback,
+            0,
+            pos.x,
+            size.height - pos.y,
+            (jdouble)[event deltaX],
+            (jdouble)[event deltaY],
+            [self getModifierKeys]);
 }
 
 /* ====================

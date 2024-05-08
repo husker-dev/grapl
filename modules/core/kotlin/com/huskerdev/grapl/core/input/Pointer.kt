@@ -7,10 +7,10 @@ abstract class Pointer(
         var DOUBLE_CLICK_DELAY = 400
         var DOUBLE_CLICK_RADIUS = 5
 
-        const val MASK_MODIFIER_ALT    = 0x00000001
-        const val MASK_MODIFIER_CTRL   = 0x00000002
-        const val MASK_MODIFIER_SHIFT  = 0x00000004
-        const val MASK_MODIFIER_OPTION = 0x00000008
+        const val MASK_MODIFIER_ALT    = 1
+        const val MASK_MODIFIER_CTRL   = 2
+        const val MASK_MODIFIER_SHIFT  = 4
+        const val MASK_MODIFIER_COMMAND = 8
     }
 
     abstract val absoluteX: Int
@@ -38,7 +38,7 @@ abstract class Pointer(
     ) {
         /**
          * Alt on Linux/Windows,
-         * Cmd on macOS
+         * Option on macOS
          */
         val isAltDown = modifiers and MASK_MODIFIER_ALT == MASK_MODIFIER_ALT
         val isCtrlDown = modifiers and MASK_MODIFIER_CTRL == MASK_MODIFIER_CTRL
@@ -47,7 +47,7 @@ abstract class Pointer(
         /**
          * Only for macOS
          */
-        val isOptionDown = modifiers and MASK_MODIFIER_OPTION == MASK_MODIFIER_OPTION
+        val isCommandDown = modifiers and MASK_MODIFIER_COMMAND == MASK_MODIFIER_COMMAND
     }
 
     open class ClickEvent(
@@ -70,7 +70,7 @@ abstract class Pointer(
         val deltaAbsoluteY = pointer.y - oldY
     }
 
-    class SrollEvent(
+    class ScrollEvent(
         pointer: Pointer,
         modifiers: Int,
         val deltaX: Double,

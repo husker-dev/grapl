@@ -1,7 +1,7 @@
 package com.huskerdev.grapl.core.window
 
 import com.huskerdev.grapl.GraplNatives
-import com.huskerdev.grapl.core.Cursor
+import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
@@ -45,7 +45,7 @@ abstract class WindowPeer() {
     val pointerEnterListeners = hashSetOf<(Pointer.Event) -> Unit>()
     val pointerLeaveListeners = hashSetOf<(Pointer.Event) -> Unit>()
 
-    val pointerScrollListeners = hashSetOf<(Pointer.SrollEvent) -> Unit>()
+    val pointerScrollListeners = hashSetOf<(Pointer.ScrollEvent) -> Unit>()
 
     val pointerZoomBeginListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
     val pointerZoomListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
@@ -322,7 +322,7 @@ abstract class WindowPeer() {
             val pointer = pointers[pointerId] ?: return
             (pointer as WrappedPointer).updatePosition(x, y)
 
-            Pointer.SrollEvent(pointer, modifiers, deltaX, deltaY)
+            Pointer.ScrollEvent(pointer, modifiers, deltaX, deltaY)
                 .apply { pointerScrollListeners.forEach { it(this) } }
         }
 
