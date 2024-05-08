@@ -162,7 +162,7 @@ static JNIEnv* env;
 }
 
 // Gestures
-- (void)magnifyWithEvent:(NSEvent *)event {
+- (void) magnifyWithEvent:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
     if ([event phase] == NSEventPhaseBegan){
@@ -180,7 +180,7 @@ static JNIEnv* env;
         [self sendMouseEvent:event callback:onPointerZoomEndCallback];
 }
 
-- (void)rotateWithEvent:(NSEvent *)event {
+- (void) rotateWithEvent:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
     if ([event phase] == NSEventPhaseBegan){
@@ -198,7 +198,7 @@ static JNIEnv* env;
         [self sendMouseEvent:event callback:onPointerRotationEndCallback];
 }
 
-- (void)scrollWheel:(NSEvent *)event {
+- (void) scrollWheel:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
 
