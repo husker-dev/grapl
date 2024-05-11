@@ -2,12 +2,17 @@ package com.huskerdev.grapl.gl
 
 import com.huskerdev.grapl.core.util.observer
 import com.huskerdev.grapl.core.window.Window
-import com.huskerdev.grapl.core.window.WindowPeer
 
 class GLWindow(
-    val context: GLContext,
-    peer: WindowPeer
-): Window(peer) {
+    shareWith: Long = 0L,
+    profile: GLProfile = GLProfile.CORE,
+    majorVersion: Int = -1,
+    minorVersion: Int = -1
+): Window(
+    GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion),
+) {
+
+    val context by (peer as GLWindowPeer)::context
 
     // TODO: Implement ScaledFullscreen via shader
 
@@ -19,7 +24,7 @@ class GLWindow(
             profile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
-        ) = GLPlatform.current.createWindow(profile, shareWith.handle, majorVersion, minorVersion)
+        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith.handle, majorVersion, minorVersion)
 
         @JvmOverloads
         @JvmStatic
@@ -28,7 +33,7 @@ class GLWindow(
             profile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
-        ) = GLPlatform.current.createWindow(profile, shareWith, majorVersion, minorVersion)
+        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion)
     }
 
     var swapInterval by observer(1) {

@@ -7,128 +7,58 @@ import org.junit.jupiter.api.Test
 import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
+fun main(){
+    //Window.useBackgroundMessageHandler = false
+    val window = GLWindow()
+
+    //window.maximizable = false
+    //window.minimizable = false
+    window.size = 100 x 100
+    //window.maxSize = 200 x 200
+    window.alignToCenter()
+
+    window.pointerScrollListeners += {
+        println("scroll: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
+    }
+
+    window.pointerZoomBeginListeners += {
+        println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+    }
+    window.pointerZoomListeners += {
+        println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+    }
+    window.pointerZoomEndListeners += {
+        println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
+    }
+
+    window.pointerRotationBeginListeners += {
+        println("begin rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+    }
+    window.pointerRotationListeners += {
+        println("rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+    }
+    window.pointerRotationEndListeners += {
+        println("end rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
+    }
+
+    window.title = "UTF? Да"
+    window.cursor = Cursor.HAND
+    window.visible = true
+
+    window.updateListener += {
+        window.context.makeCurrent()
+        GL.createCapabilities()
+        glClearColor(1f, 0f, 0f, 1f)
+        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+        window.swapBuffers()
+    }
+}
 
 class OJGLTest {
 
     @Test
     fun createWindow() {
-        /*
-        Display.list.forEach { display ->
-            println("""
-                ===========
-                handle: ${display.peer.handle}
-                name: ${display.name} (${display.systemName})
-                frequency: ${display.frequency}
-                x: ${display.x} (${display.absoluteX})
-                y: ${display.y} (${display.absoluteY})
-                width: ${display.width} (${display.absoluteWidth})
-                height: ${display.height} (${display.absoluteHeight})
-                dpi: ${display.dpi}
-                width (mm): ${display.physicalWidth}
-                height (mm): ${display.physicalHeight}
-            """.trimIndent())
-            println("""
-                --- Current ----
-                    width: ${display.mode.size.width}
-                    height: ${display.mode.size.height}
-                    frequency: ${display.mode.frequency}
-            """.trimIndent())
-        }
 
-        Display.primary.modes.forEach {
-            println("""
-                ------------
-                size: ${it.size.width} x ${it.size.height}
-                frequency: ${it.frequency}
-                bits: ${it.bits}
-            """.trimIndent())
-        }
-        Display.primary.mode.apply {
-            println("""
-                ------Current------
-                size: ${this.size.width} x ${this.size.height}
-                frequency: ${this.frequency}
-                bits: ${this.bits}
-            """.trimIndent())
-        }
-
-         */
-
-        val window = GLWindow.create()
-
-        //window.maximizable = false
-        //window.minimizable = false
-        window.size = 100 x 100
-        //window.maxSize = 200 x 200
-        window.alignToCenter()
-
-
-        window.pointerEnterListeners += {
-            println("enter: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerLeaveListeners += {
-            println("leave: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerMoveListeners += {
-            println("moved: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerDragListeners += {
-            println("drag: from ${it.oldX}x${it.oldY} to ${it.pointer.x}x${it.pointer.y} with delta ${it.deltaX}x${it.deltaY} by ${it.pointer.buttons}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerClickListeners += {
-            println("clicked: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons} ${it.clicks} times")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerDownListeners += {
-            println("down: at ${it.pointer.x}x${it.pointer.y} by ${it.pointer.buttons}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-        window.pointerUpListeners += {
-            println("up: at ${it.pointer.x}x${it.pointer.y}")
-            println("\talt: ${it.isAltDown}, shift: ${it.isShiftDown}, ctrl: ${it.isCtrlDown}, cmd: ${it.isCommandDown}")
-        }
-
-        window.pointerScrollListeners += {
-            println("scroll: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
-        }
-
-        window.pointerZoomBeginListeners += {
-            println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-        }
-        window.pointerZoomListeners += {
-            println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-        }
-        window.pointerZoomEndListeners += {
-            println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-        }
-
-        window.pointerRotationBeginListeners += {
-            println("begin rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-        }
-        window.pointerRotationListeners += {
-            println("rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-        }
-        window.pointerRotationEndListeners += {
-            println("end rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-        }
-
-
-        window.title = "UTF? Да"
-        window.cursor = Cursor.HAND
-        window.visible = true
-
-        window.context.makeCurrent()
-        GL.createCapabilities()
-        glClearColor(1f, 0f, 0f, 1f)
-
-        window.runEventLoop {
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-            window.swapBuffers()
-        }
     }
 
     @Test

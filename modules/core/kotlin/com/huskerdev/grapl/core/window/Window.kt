@@ -3,6 +3,7 @@ package com.huskerdev.grapl.core.window
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.platform.Platform
 
 import com.huskerdev.grapl.core.x
 
@@ -10,6 +11,17 @@ import com.huskerdev.grapl.core.x
 abstract class Window(
     val peer: WindowPeer
 ) {
+    companion object {
+        var useBackgroundMessageHandler by WindowPeer.Companion::useBackgroundMessageHandler
+        var continuousUpdate by WindowPeer.Companion::continuousUpdate
+
+        fun peekMessages() = Platform.current.peekMessages()
+        fun waitMessages(timeout: Int = -1) = Platform.current.waitMessages(timeout)
+        fun postEmptyMessage() = Platform.current.postEmptyMessage()
+    }
+
+    val updateListener by peer::updateListener
+
     val moveListeners by peer.positionProperty::listeners
     val resizeListeners by peer.sizeProperty::listeners
     val visibleListeners by peer.visibleProperty::listeners
@@ -35,6 +47,7 @@ abstract class Window(
     val pointerRotationListeners by peer::pointerRotationListeners
     val pointerRotationEndListeners by peer::pointerRotationEndListeners
 
+    val shouldClose by peer::shouldClose
 
     var absoluteSize by peer.sizeProperty::value
     var absoluteWidth: Int
@@ -132,7 +145,6 @@ abstract class Window(
         absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)
     }
 
-    fun runEventLoop(loopCallback: () -> Unit = {}) = peer.runEventLoop(loopCallback)
     fun destroy() = peer.destroy()
 
     init {

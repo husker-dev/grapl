@@ -10,7 +10,7 @@ import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
-class WinWindowPeer(
+open class WinWindowPeer(
     hwnd: Long,
 ): WindowPeer(hwnd) {
     companion object {
@@ -37,7 +37,7 @@ class WinWindowPeer(
         get() = Display(WinDisplayPeer(nGetMonitor(handle)))
 
     override fun destroy() = nPostQuit(handle)
-    override fun peekMessages() = nPeekMessage(handle)
+    //override fun peekMessages() = nPeekMessage(handle)
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)

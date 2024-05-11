@@ -15,4 +15,16 @@ class WinPlatform: Platform() {
 
     override fun specifyLibName(libName: String) =
         "$libName-$arch.$dynamicLibExtension"
+
+    override fun peekMessages() {
+        TODO("Not yet implemented")
+    }
+
+    override fun waitMessages(timeout: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun postEmptyMessage() {
+        TODO("Not yet implemented")
+    }
 }

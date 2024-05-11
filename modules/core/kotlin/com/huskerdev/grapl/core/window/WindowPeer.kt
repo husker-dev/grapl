@@ -9,31 +9,66 @@ import com.huskerdev.grapl.core.display.DisplayMode
 import com.huskerdev.grapl.core.input.Pointer
 import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_DELAY
 import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_RADIUS
+import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.core.util.Property
 import com.huskerdev.grapl.core.util.LinkedProperty
 import com.huskerdev.grapl.core.util.ReadOnlyProperty
+import com.huskerdev.grapl.core.util.observer
+import java.util.Collections.synchronizedList
+import kotlin.concurrent.thread
 import kotlin.math.hypot
 
 
 abstract class WindowPeer() {
     companion object {
+
+        var useBackgroundMessageHandler = true
+        var continuousUpdate = true
+
+        private var activePeers = synchronizedList(arrayListOf<WindowPeer>())
+        private var updatingThread: Thread? = null
+
         init {
             GraplNatives.load()
+        }
+
+        fun checkWindowsMessageState(){
+            if(activePeers.isNotEmpty() && updatingThread == null){
+                updatingThread = thread(name = "Grapl Message Loop") {
+                    val platform = Platform.current
+
+                    while (activePeers.isNotEmpty()) {
+                        if(continuousUpdate)
+                            platform.peekMessages()
+                        else
+                            platform.waitMessages()
+                        try {
+                            activePeers.forEach { it.onUpdate() }
+                        }catch (e: Exception){
+                            e.printStackTrace()
+                        }
+                    }
+                }
+            }
         }
     }
 
     var handle = 0L
         protected set
 
-    protected var shouldClose = false
-
-    constructor(handle: Long): this() {
-        this.handle = handle
+    var shouldClose by observer(false) {
+        activePeers.remove(this)
+        Platform.current.postEmptyMessage()
     }
 
     abstract val display: Display
 
     val dpi by display::dpi
+
+    /**
+     * Called only if useBackgroundMessageHandler is true
+     */
+    val updateListener = hashSetOf<() -> Unit>()
 
     val pointerMoveListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
     val pointerDragListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
@@ -102,18 +137,20 @@ abstract class WindowPeer() {
 
     val maximizable = Property(true, ::setMaximizableImpl)
 
+    constructor(handle: Long): this() {
+        this.handle = handle
+    }
 
-    fun runEventLoop(loopCallback: () -> Unit) {
-        while (!shouldClose) {
-            loopCallback()
-            peekMessages()
+    init {
+        if(useBackgroundMessageHandler) {
+            activePeers.add(this)
+            checkWindowsMessageState()
         }
     }
 
     protected fun isFullscreen() = displayStateProperty.value is WindowDisplayState.Fullscreen
 
     abstract fun destroy()
-    abstract fun peekMessages()
 
     protected abstract fun setTitleImpl(title: String)
     protected abstract fun setVisibleImpl(visible: Boolean)
@@ -126,6 +163,10 @@ abstract class WindowPeer() {
     protected abstract fun setDisplayStateImpl(state: WindowDisplayState)
     protected abstract fun setMinimizableImpl(value: Boolean)
     protected abstract fun setMaximizableImpl(value: Boolean)
+
+    protected open fun onUpdate(){
+        updateListener.forEach { it() }
+    }
 
     open inner class DefaultWindowCallback {
 

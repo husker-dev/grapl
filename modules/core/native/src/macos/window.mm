@@ -262,7 +262,7 @@ jni_macos_window(void, nInitApplication)(JNIEnv* _env, jobject) {
     _env->GetJavaVM(&jvm);
 
     ON_MAIN_THREAD(
-        jvm->AttachCurrentThread((void**)&env, NULL);
+        jvm->AttachCurrentThreadAsDaemon((void**)&env, NULL);
 
         pool = [[NSAutoreleasePool alloc] init];
 
@@ -301,19 +301,6 @@ jni_macos_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObj
     return (jlong)window;
 }
 
-jni_macos_window(void, nPeekMessage)(JNIEnv* env, jobject) {
-    ON_MAIN_THREAD(
-        for (;;) {
-            NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                                untilDate:[NSDate distantPast]
-                                                   inMode:NSDefaultRunLoopMode
-                                                  dequeue:YES];
-            if (event == nil)
-                break;
-            [NSApp sendEvent:event];
-        }
-    );
-}
 
 jni_macos_window(void, nCloseWindow)(JNIEnv* env, jobject, jlong _windowPtr) {
     ON_MAIN_THREAD(

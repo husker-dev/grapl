@@ -74,4 +74,8 @@ abstract class Platform {
     abstract val displays: Array<Display>
 
     internal abstract fun specifyLibName(libName: String): String
+
+    abstract fun peekMessages()
+    abstract fun waitMessages(timeout: Int = -1)
+    abstract fun postEmptyMessage()
 }

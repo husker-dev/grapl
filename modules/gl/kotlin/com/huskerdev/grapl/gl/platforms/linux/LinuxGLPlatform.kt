@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.gl.platforms.linux
 
+import com.huskerdev.grapl.core.window.WindowPeer
 import com.huskerdev.grapl.gl.GLPlatform
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
@@ -14,7 +15,12 @@ class LinuxGLPlatform: GLPlatform() {
     override fun clearContext() =
         GLXContext.clearContext()
 
-    override fun createWindow(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int): GLWindow {
+    override fun createGLWindowPeer(
+        profile: GLProfile,
+        shareWith: Long,
+        majorVersion: Int,
+        minorVersion: Int
+    ): WindowPeer {
         TODO("Not yet implemented")
     }
 

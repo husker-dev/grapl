@@ -8,6 +8,9 @@ class MacPlatform: Platform() {
 
     companion object {
         @JvmStatic private external fun nInvokeOnMainThread(runnable: Runnable, wait: Boolean)
+        @JvmStatic private external fun nPeekMessage()
+        @JvmStatic private external fun nWaitMessage(timeout: Int)
+        @JvmStatic private external fun nPostEmptyMessage()
 
         fun invokeOnMainThread(runnable: Runnable) = nInvokeOnMainThread(runnable, false)
         fun invokeOnMainThreadSync(runnable: Runnable) = nInvokeOnMainThread(runnable, true)
@@ -23,4 +26,10 @@ class MacPlatform: Platform() {
 
     override fun specifyLibName(libName: String) =
         "$libName.$dynamicLibExtension"
+
+    override fun peekMessages() = nPeekMessage()
+
+    override fun waitMessages(timeout: Int) = nWaitMessage(timeout)
+
+    override fun postEmptyMessage() = nPostEmptyMessage()
 }

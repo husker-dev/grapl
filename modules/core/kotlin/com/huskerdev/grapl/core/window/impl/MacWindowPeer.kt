@@ -10,13 +10,12 @@ import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
-class MacWindowPeer : WindowPeer() {
+open class MacWindowPeer : WindowPeer() {
 
     companion object {
         @JvmStatic private external fun nInitApplication()
         @JvmStatic private external fun nCreateWindow(callbackClass: Any): Long
 
-        @JvmStatic private external fun nPeekMessage()
         @JvmStatic private external fun nCloseWindow(windowPtr: Long)
         @JvmStatic private external fun nSetVisible(windowPtr: Long, value: Boolean)
         @JvmStatic private external fun nSetTitle(windowPtr: Long, title: ByteBuffer)
@@ -41,7 +40,6 @@ class MacWindowPeer : WindowPeer() {
     }
 
     override fun destroy() = nCloseWindow(handle)
-    override fun peekMessages() = nPeekMessage()
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
