@@ -13,12 +13,6 @@ abstract class Pointer(
         const val MASK_MODIFIER_COMMAND = 8
     }
 
-    abstract val absoluteX: Int
-    abstract val absoluteY: Int
-    abstract val x: Double
-    abstract val y: Double
-    abstract val buttons: Set<Button>
-
     enum class Button {
         NONE,
         LEFT,
@@ -30,6 +24,16 @@ abstract class Pointer(
         companion object {
             fun of(index: Int) = values()[index]
         }
+    }
+
+    abstract val absoluteX: Int
+    abstract val absoluteY: Int
+    abstract val x: Double
+    abstract val y: Double
+    abstract val buttons: Set<Button>
+
+    override fun toString(): String {
+        return "Pointer(id=$id, absoluteX=$absoluteX, absoluteY=$absoluteY, x=$x, y=$y, buttons=$buttons)"
     }
 
     open class Event(

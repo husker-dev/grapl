@@ -6,6 +6,7 @@ import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.DisplayMode
+import com.huskerdev.grapl.core.input.Key
 import com.huskerdev.grapl.core.input.Pointer
 import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_DELAY
 import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_RADIUS
@@ -171,6 +172,12 @@ abstract class WindowPeer() {
     open inner class DefaultWindowCallback {
 
         inner class WrappedPointer(id: Int): Pointer(id) {
+            override var absoluteX = 0
+            override var absoluteY = 0
+            override var x = 0.0
+            override var y = 0.0
+            override var buttons = hashSetOf<Button>()
+
             var lastReleaseTime = 0L
             var lastButton: Button? = null
             var lastButtonX = 0
@@ -179,21 +186,6 @@ abstract class WindowPeer() {
 
             var lastZoom = 0.0
             var lastAngle = 0.0
-
-            var _absoluteX: Int = 0
-            override var absoluteX by ::_absoluteX
-
-            var _absoluteY: Int = 0
-            override var absoluteY by ::_absoluteY
-
-            var _x: Double = 0.0
-            override var x by ::_x
-
-            var _y: Double = 0.0
-            override var y by ::_y
-
-            var _buttons: Set<Button> = hashSetOf()
-            override var buttons by ::_buttons
 
             fun updatePosition(absoluteX: Int, absoluteY: Int){
                 this.absoluteX = absoluteX
@@ -459,6 +451,20 @@ abstract class WindowPeer() {
 
             Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, delta)
                 .apply { pointerRotationListeners.forEach { it(this) } }
+        }
+
+        open fun onKeyDownCallback(
+            keyCode: Int,
+            modifiers: Int
+        ){
+            println("down: ${Key.name(keyCode)} (${keyCode})")
+        }
+
+        open fun onKeyUpCallback(
+            keyCode: Int,
+            modifiers: Int
+        ){
+            println("up: ${Key.name(keyCode)} (${keyCode})")
         }
     }
 
