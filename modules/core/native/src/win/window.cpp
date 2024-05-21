@@ -301,14 +301,6 @@ jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _hwnd, jobject cal
     wrappers[hwnd] = new WindowWrapper(env, hwnd, callbackObject);
 }
 
-jni_win_window(void, nPeekMessage)(JNIEnv* env, jobject, jlong hwnd) {
-    MSG msg = {};
-    if(PeekMessageA(&msg, (HWND)hwnd, 0, 0, PM_REMOVE)){
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-}
-
 jni_win_window(void, nPostQuit)(JNIEnv* env, jobject, jlong hwnd) {
     PostMessage((HWND)hwnd, WM_CLOSE, 0, 0);
 }

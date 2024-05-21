@@ -15,7 +15,6 @@ open class WinWindowPeer(
 ): WindowPeer(hwnd) {
     companion object {
         @JvmStatic private external fun nHookWindow(hwnd: Long, callbackClass: Any)
-        @JvmStatic private external fun nPeekMessage(hwnd: Long)
         @JvmStatic private external fun nPostQuit(hwnd: Long)   // Pushes WM_QUIT
 
         @JvmStatic private external fun nSetVisible(hwnd: Long, value: Boolean)
@@ -37,7 +36,6 @@ open class WinWindowPeer(
         get() = Display(WinDisplayPeer(nGetMonitor(handle)))
 
     override fun destroy() = nPostQuit(handle)
-    //override fun peekMessages() = nPeekMessage(handle)
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
@@ -83,10 +81,6 @@ open class WinWindowPeer(
     inner class WinWindowCallback: DefaultWindowCallback(){
 
         var mouseEntered = false
-
-        fun gestureCallback(){
-            println("Gesture message")
-        }
 
         override fun onPointerMoveCallback(
             pointerId: Int,

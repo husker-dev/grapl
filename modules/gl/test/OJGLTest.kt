@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
 fun main(){
-    //Window.useBackgroundMessageHandler = false
     val window = GLWindow()
 
     //window.maximizable = false
@@ -45,9 +44,12 @@ fun main(){
     window.cursor = Cursor.HAND
     window.visible = true
 
-    window.updateListener += {
+    window.onInit = {
         window.context.makeCurrent()
         GL.createCapabilities()
+    }
+
+    window.onUpdate = {
         glClearColor(1f, 0f, 0f, 1f)
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         window.swapBuffers()

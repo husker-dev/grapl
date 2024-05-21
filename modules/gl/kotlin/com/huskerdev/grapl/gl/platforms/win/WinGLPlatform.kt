@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.gl.platforms.win
 
+import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.gl.GLPlatform
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
@@ -32,11 +33,13 @@ class WinGLPlatform: GLPlatform() {
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int
-    ) = nCreateGLWindow(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion).run {
-        WinGLWindowPeer(
-            this[0],
-            WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt()),
-        )
+    ) = BackgroundMessageHandler.invokeWaiting {
+        nCreateGLWindow(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion).run {
+            WinGLWindowPeer(
+                this[0],
+                WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt()),
+            )
+        }
     }
 
     override fun swapBuffers(window: GLWindow) = nSwapBuffers(window.peer.handle)

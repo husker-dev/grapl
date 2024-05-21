@@ -5,6 +5,12 @@ import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
 import com.huskerdev.grapl.core.platform.Platform
 
 class WinPlatform: Platform() {
+    companion object {
+        @JvmStatic private external fun nPeekMessage()
+        @JvmStatic private external fun nWaitMessage(timeout: Int)
+        @JvmStatic private external fun nPostEmptyMessage()
+    }
+
     override val dynamicLibExtension = "dll"
 
     override val primaryDisplay: Display
@@ -16,15 +22,9 @@ class WinPlatform: Platform() {
     override fun specifyLibName(libName: String) =
         "$libName-$arch.$dynamicLibExtension"
 
-    override fun peekMessages() {
-        TODO("Not yet implemented")
-    }
+    override fun peekMessages() = nPeekMessage()
 
-    override fun waitMessages(timeout: Int) {
-        TODO("Not yet implemented")
-    }
+    override fun waitMessages(timeout: Int) = nWaitMessage(timeout)
 
-    override fun postEmptyMessage() {
-        TODO("Not yet implemented")
-    }
+    override fun postEmptyMessage() = nPostEmptyMessage()
 }

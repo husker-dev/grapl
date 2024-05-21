@@ -12,15 +12,13 @@ abstract class Window(
     val peer: WindowPeer
 ) {
     companion object {
-        var useBackgroundMessageHandler by WindowPeer.Companion::useBackgroundMessageHandler
-        var continuousUpdate by WindowPeer.Companion::continuousUpdate
-
         fun peekMessages() = Platform.current.peekMessages()
         fun waitMessages(timeout: Int = -1) = Platform.current.waitMessages(timeout)
         fun postEmptyMessage() = Platform.current.postEmptyMessage()
     }
 
-    val updateListener by peer::updateListener
+    var onUpdate by peer::onUpdate
+    var onInit by peer::onInit
 
     val moveListeners by peer.positionProperty::listeners
     val resizeListeners by peer.sizeProperty::listeners
