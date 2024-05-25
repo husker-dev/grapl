@@ -1,36 +1,33 @@
 package com.huskerdev.grapl.core.input
 
+import com.huskerdev.grapl.core.platform.Platform
+
+
+const val MB_LEFT = 1
+const val MB_MIDDLE = 2
+const val MB_RIGHT = 3
+const val MB_BACK = 4
+const val MB_FORWARD = 5
+
+var DOUBLE_CLICK_DELAY = 400
+var DOUBLE_CLICK_RADIUS = 5
+
+const val MASK_MODIFIER_ALT    = 1
+const val MASK_MODIFIER_CTRL   = 2
+const val MASK_MODIFIER_SHIFT  = 4
+const val MASK_MODIFIER_COMMAND = 8
+
+
+fun getMouseButtonName(button: Int) = Platform.current.getMouseButtonName(button)
+
 abstract class Pointer(
     open val id: Int
 ) {
-    companion object {
-        var DOUBLE_CLICK_DELAY = 400
-        var DOUBLE_CLICK_RADIUS = 5
-
-        const val MASK_MODIFIER_ALT    = 1
-        const val MASK_MODIFIER_CTRL   = 2
-        const val MASK_MODIFIER_SHIFT  = 4
-        const val MASK_MODIFIER_COMMAND = 8
-    }
-
-    enum class Button {
-        NONE,
-        LEFT,
-        MIDDLE,
-        RIGHT,
-        BACK,
-        FORWARD;
-
-        companion object {
-            fun of(index: Int) = values()[index]
-        }
-    }
-
     abstract val absoluteX: Int
     abstract val absoluteY: Int
     abstract val x: Double
     abstract val y: Double
-    abstract val buttons: Set<Button>
+    abstract val buttons: Set<Int>
 
     override fun toString(): String {
         return "Pointer(id=$id, absoluteX=$absoluteX, absoluteY=$absoluteY, x=$x, y=$y, buttons=$buttons)"

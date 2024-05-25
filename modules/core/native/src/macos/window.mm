@@ -81,8 +81,8 @@ static JNIEnv* env;
     onPointerRotationCallback = env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IDDDI)V");
     onPointerRotationEndCallback = env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IDDI)V");
 
-    onKeyDownCallback = env->GetMethodID(callbackClass, "onKeyDownCallback", "(II)V");
-    onKeyUpCallback = env->GetMethodID(callbackClass, "onKeyUpCallback", "(II)V");
+    onKeyDownCallback = env->GetMethodID(callbackClass, "onKeyDownCallback", "(III)V");
+    onKeyUpCallback = env->GetMethodID(callbackClass, "onKeyUpCallback", "(III)V");
 }
 -(void) dealloc {
     [super dealloc];
@@ -223,11 +223,12 @@ static JNIEnv* env;
         case kVK_Shift:             return 340; // LEFT_SHIFT
         case kVK_Control:           return 341; // LEFT_CONTROL
         case kVK_Option:            return 342; // LEFT_ALT
-        case kVK_Command:           return 343; // LEFT_COMMAND
         case kVK_RightShift:        return 344; // RIGHT_SHIFT
         case kVK_RightControl:      return 345; // RIGHT_CONTROL
         case kVK_RightOption:       return 346; // RIGHT_ALT
-        case kVK_RightCommand:      return 347; // RIGHT_COMMAND
+
+        case kVK_Command:           return 349; // LEFT_COMMAND
+        case kVK_RightCommand:      return 350; // RIGHT_COMMAND
     }
     return key;
 }
@@ -425,9 +426,9 @@ static JNIEnv* env;
     const unsigned int modifierFlags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
 
     if(key & modifierFlags)
-        env->CallVoidMethod(object, onKeyDownCallback, [self translateKey:event.keyCode], [self getModifierKeys]);
+        env->CallVoidMethod(object, onKeyDownCallback, [self translateKey:event.keyCode], event.keyCode, [self getModifierKeys]);
     else
-        env->CallVoidMethod(object, onKeyUpCallback, [self translateKey:event.keyCode], [self getModifierKeys]);
+        env->CallVoidMethod(object, onKeyUpCallback, [self translateKey:event.keyCode], event.keyCode, [self getModifierKeys]);
 }
 
 -(void) keyUp:(NSEvent*)event{

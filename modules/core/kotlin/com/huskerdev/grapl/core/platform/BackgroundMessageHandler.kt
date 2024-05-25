@@ -66,17 +66,18 @@ class BackgroundMessageHandler {
                             }
                             toInvoke.clear()
                         }
+                        if(activePeers.size > 0) {
+                            if (continuousUpdate)
+                                platform.peekMessages()
+                            else
+                                platform.waitMessages()
 
-                        if(continuousUpdate)
-                            platform.peekMessages()
-                        else
-                            platform.waitMessages()
-
-                        activePeers.forEach {
-                            try {
-                                it.dispatchUpdate()
-                            }catch (e: Exception){
-                                e.printStackTrace()
+                            activePeers.forEach {
+                                try {
+                                    it.dispatchUpdate()
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                }
                             }
                         }
                     }

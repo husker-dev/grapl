@@ -1,15 +1,11 @@
 package com.huskerdev.grapl.core.window
 
 import com.huskerdev.grapl.GraplNatives
-import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.DisplayMode
-import com.huskerdev.grapl.core.input.Key
-import com.huskerdev.grapl.core.input.Pointer
-import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_DELAY
-import com.huskerdev.grapl.core.input.Pointer.Companion.DOUBLE_CLICK_RADIUS
+import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler.Companion.useHandler
 import com.huskerdev.grapl.core.platform.Platform
@@ -158,10 +154,10 @@ abstract class WindowPeer() {
             override var absoluteY = 0
             override var x = 0.0
             override var y = 0.0
-            override var buttons = hashSetOf<Button>()
+            override var buttons = hashSetOf<Int>()
 
             var lastReleaseTime = 0L
-            var lastButton: Button? = null
+            var lastButton: Int? = null
             var lastButtonX = 0
             var lastButtonY = 0
             var clicks = 0
@@ -235,7 +231,7 @@ abstract class WindowPeer() {
             val pointer = pointers[pointerId] as WrappedPointer
 
             val currentTime = System.currentTimeMillis()
-            val isClick = (pointer.lastButton == Pointer.Button.of(button)) &&
+            val isClick = (pointer.lastButton == button) &&
                     (currentTime - pointer.lastReleaseTime <= DOUBLE_CLICK_DELAY) &&
                     hypot(
                         x - pointer.lastButtonX.toDouble(),
@@ -244,8 +240,8 @@ abstract class WindowPeer() {
 
             pointer.apply {
                 updatePosition(x, y)
-                this.buttons += Pointer.Button.of(button)
-                lastButton = Pointer.Button.of(button)
+                this.buttons += button
+                lastButton = button
                 lastButtonX = x
                 lastButtonY = y
                 clicks = if(isClick) clicks + 1 else 1
@@ -268,7 +264,7 @@ abstract class WindowPeer() {
                 onPointerEnterCallback(pointerId, x, y, modifiers)
             val pointer = pointers[pointerId] as WrappedPointer
 
-            val isClick = (pointer.lastButton == Pointer.Button.of(button)) &&
+            val isClick = (pointer.lastButton == button) &&
                     (pointer.clicks == 1) &&
                     hypot(
                         x - pointer.lastButtonX.toDouble(),
@@ -289,7 +285,7 @@ abstract class WindowPeer() {
                 Pointer.ClickEvent(pointer, modifiers, pointer.clicks)
                     .apply { pointerClickListeners.forEach { it(this) } }
 
-            pointer.buttons -= Pointer.Button.of(button)
+            pointer.buttons -= button
 
             if(x < 0 || y < 0 || x > sizeProperty.value.width || y > sizeProperty.value.height)
                 onPointerLeaveCallback(pointerId, x, y, modifiers)
@@ -317,7 +313,7 @@ abstract class WindowPeer() {
             y: Int,
             modifiers: Int
         ){
-            val pointer = pointers[pointerId]!!
+            val pointer = pointers[pointerId] ?: return
             if(pointer.buttons.isNotEmpty())
                 return
             pointers.remove(pointerId)
@@ -437,16 +433,18 @@ abstract class WindowPeer() {
 
         open fun onKeyDownCallback(
             keyCode: Int,
+            nativeCode: Int,
             modifiers: Int
         ){
-            println("down: ${Key.name(keyCode)} (${keyCode})")
+            println("down: ${getVirtualKeyName(keyCode)} (${keyCode}, native: ${nativeCode})")
         }
 
         open fun onKeyUpCallback(
             keyCode: Int,
+            nativeCode: Int,
             modifiers: Int
         ){
-            println("up: ${Key.name(keyCode)} (${keyCode})")
+            println("up: ${getVirtualKeyName(keyCode)} (${keyCode}, native: ${nativeCode})")
         }
     }
 

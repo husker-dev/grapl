@@ -2,6 +2,7 @@ package com.huskerdev.grapl.core.platform.impl
 
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
+import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.Platform
 
 class WinPlatform: Platform() {
@@ -27,4 +28,10 @@ class WinPlatform: Platform() {
     override fun waitMessages(timeout: Int) = nWaitMessage(timeout)
 
     override fun postEmptyMessage() = nPostEmptyMessage()
+
+    override fun getVirtualKeyName(keyCode: Int) = when(keyCode){
+        VK_LEFT_SUPER -> "win"
+        VK_RIGHT_SUPER -> "right win"
+        else -> super.getVirtualKeyName(keyCode)
+    }
 }
