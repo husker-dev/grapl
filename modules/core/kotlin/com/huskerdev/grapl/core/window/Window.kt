@@ -45,6 +45,10 @@ abstract class Window(
     val pointerRotationListeners by peer::pointerRotationListeners
     val pointerRotationEndListeners by peer::pointerRotationEndListeners
 
+    val keyPressedListeners by peer::keyPressedListeners
+    val keyReleasedListeners by peer::keyReleasedListeners
+    val keyTypedListeners by peer::keyTypedListeners
+
     val shouldClose by peer::shouldClose
 
     var absoluteSize by peer.sizeProperty::value
@@ -137,6 +141,9 @@ abstract class Window(
     var maximizable by peer.maximizable::value
 
     var minimizable by peer.minimizable::value
+
+    val pointer by peer.pointers::values
+    val keys by peer::keys
 
     fun alignToCenter(){
         val displaySize = Display.primary.absoluteSize

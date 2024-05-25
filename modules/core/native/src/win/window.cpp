@@ -104,8 +104,8 @@ public:
         onPointerRotationCallback = callback("onPointerRotationCallback", "(IIIDI)V");
         onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IIII)V");
 
-        onKeyDownCallback = callback("onKeyDownCallback", "(III)V");
-        onKeyUpCallback = callback("onKeyUpCallback", "(III)V");
+        onKeyDownCallback = callback("onKeyDownCallback", "(IILjava/lang/String;I)V");
+        onKeyUpCallback = callback("onKeyUpCallback", "(IILjava/lang/String;I)V");
     }
 private:
     Callback* callback(const char* name, const char* params){
@@ -446,16 +446,25 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             if (scancode == 0x136)
                 scancode = 0x36;
 
+            BYTE keyboardState[256];
+            GetKeyboardState(keyboardState);
+
+            wchar_t unicodeBuffer[5] = {};
+            int bufferLength = ToUnicode((UINT)wParam, scancode, keyboardState, unicodeBuffer, 5, 0);
+            jstring unicodeString = env->NewString((const jchar*)&unicodeBuffer, bufferLength);
+
             if(HIWORD(lParam) & KF_UP){
                 wrapper->onKeyUpCallback->call(
                     translateKey(scancode),
                     scancode,
+                    unicodeString,
                     getModifierKeys()
                 );
             }else {
                 wrapper->onKeyDownCallback->call(
                     translateKey(scancode),
                     scancode,
+                    unicodeString,
                     getModifierKeys()
                 );
             }

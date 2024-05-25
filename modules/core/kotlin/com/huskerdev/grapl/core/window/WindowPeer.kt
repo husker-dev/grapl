@@ -47,25 +47,29 @@ abstract class WindowPeer() {
             field = value
         }
 
-    val pointerMoveListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
-    val pointerDragListeners = hashSetOf<(Pointer.MoveEvent) -> Unit>()
+    val pointerMoveListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
+    val pointerDragListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
 
-    val pointerPressListeners = hashSetOf<(Pointer.Event) -> Unit>()
-    val pointerReleaseListeners = hashSetOf<(Pointer.Event) -> Unit>()
-    val pointerClickListeners = hashSetOf<(Pointer.ClickEvent) -> Unit>()
+    val pointerPressListeners = hashSetOf<(PointerEvent) -> Unit>()
+    val pointerReleaseListeners = hashSetOf<(PointerEvent) -> Unit>()
+    val pointerClickListeners = hashSetOf<(PointerClickEvent) -> Unit>()
 
-    val pointerEnterListeners = hashSetOf<(Pointer.Event) -> Unit>()
-    val pointerLeaveListeners = hashSetOf<(Pointer.Event) -> Unit>()
+    val pointerEnterListeners = hashSetOf<(PointerEvent) -> Unit>()
+    val pointerLeaveListeners = hashSetOf<(PointerEvent) -> Unit>()
 
-    val pointerScrollListeners = hashSetOf<(Pointer.ScrollEvent) -> Unit>()
+    val pointerScrollListeners = hashSetOf<(PointerScrollEvent) -> Unit>()
 
-    val pointerZoomBeginListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
-    val pointerZoomListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
-    val pointerZoomEndListeners = hashSetOf<(Pointer.ZoomEvent) -> Unit>()
+    val pointerZoomBeginListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
+    val pointerZoomListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
+    val pointerZoomEndListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
 
-    val pointerRotationBeginListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
-    val pointerRotationListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
-    val pointerRotationEndListeners = hashSetOf<(Pointer.RotationEvent) -> Unit>()
+    val pointerRotationBeginListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
+    val pointerRotationListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
+    val pointerRotationEndListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
+
+    val keyPressedListeners = hashSetOf<(KeyEvent) -> Unit>()
+    val keyReleasedListeners = hashSetOf<(KeyEvent) -> Unit>()
+    val keyTypedListeners = hashSetOf<(KeyEvent) -> Unit>()
 
 
     val displayStateProperty = Property<WindowDisplayState>(WindowDisplayState.Windowed()) {
@@ -109,6 +113,7 @@ abstract class WindowPeer() {
     val cursor = Property(Cursor.DEFAULT, ::setCursorImpl)
 
     val pointers = hashMapOf<Int, Pointer>()
+    val keys = hashSetOf<Key>()
 
     val minimizable = Property(true, ::setMinimizableImpl)
 
@@ -212,7 +217,7 @@ abstract class WindowPeer() {
 
             pointer.updatePosition(x, y)
 
-            val event = Pointer.MoveEvent(pointer, modifiers, oldX / dpi, oldY / dpi, oldX, oldY)
+            val event = PointerMoveEvent(pointer, modifiers, oldX / dpi, oldY / dpi, oldX, oldY)
             if(pointer.buttons.isNotEmpty())
                 pointerDragListeners.forEach { it(event) }
             else
@@ -247,10 +252,10 @@ abstract class WindowPeer() {
                 clicks = if(isClick) clicks + 1 else 1
             }
 
-            Pointer.Event(pointer, modifiers).apply { pointerPressListeners.forEach { it(this) } }
+            PointerEvent(pointer, modifiers).apply { pointerPressListeners.forEach { it(this) } }
 
             if(isClick)
-                Pointer.ClickEvent(pointer, modifiers, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
+                PointerClickEvent(pointer, modifiers, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
         }
 
         open fun onPointerUpCallback(
@@ -278,11 +283,11 @@ abstract class WindowPeer() {
                 lastReleaseTime = System.currentTimeMillis()
             }
 
-            Pointer.Event(pointer, modifiers)
+            PointerEvent(pointer, modifiers)
                 .apply { pointerReleaseListeners.forEach { it(this) } }
 
             if(isClick)
-                Pointer.ClickEvent(pointer, modifiers, pointer.clicks)
+                PointerClickEvent(pointer, modifiers, pointer.clicks)
                     .apply { pointerClickListeners.forEach { it(this) } }
 
             pointer.buttons -= button
@@ -303,7 +308,7 @@ abstract class WindowPeer() {
             pointer.updatePosition(x, y)
             pointers[pointerId] = pointer
 
-            Pointer.Event(pointer, modifiers)
+            PointerEvent(pointer, modifiers)
                 .apply { pointerEnterListeners.forEach { it(this) } }
         }
 
@@ -318,7 +323,7 @@ abstract class WindowPeer() {
                 return
             pointers.remove(pointerId)
 
-            Pointer.Event(pointer, modifiers)
+            PointerEvent(pointer, modifiers)
                 .apply { pointerLeaveListeners.forEach { it(this) } }
         }
 
@@ -333,7 +338,7 @@ abstract class WindowPeer() {
             val pointer = pointers[pointerId] ?: return
             (pointer as WrappedPointer).updatePosition(x, y)
 
-            Pointer.ScrollEvent(pointer, modifiers, deltaX, deltaY)
+            PointerScrollEvent(pointer, modifiers, deltaX, deltaY)
                 .apply { pointerScrollListeners.forEach { it(this) } }
         }
 
@@ -348,7 +353,7 @@ abstract class WindowPeer() {
                 updatePosition(x, y)
                 lastZoom = 0.0
             }
-            Pointer.ZoomEvent(pointer, modifiers, 0.0, 0.0)
+            PointerZoomEvent(pointer, modifiers, 0.0, 0.0)
                 .apply { pointerZoomBeginListeners.forEach { it(this) } }
         }
 
@@ -362,7 +367,7 @@ abstract class WindowPeer() {
             pointer as WrappedPointer
             pointer.updatePosition(x, y)
 
-            Pointer.ZoomEvent(pointer, modifiers, pointer.lastZoom, 0.0)
+            PointerZoomEvent(pointer, modifiers, pointer.lastZoom, 0.0)
                 .apply { pointerZoomEndListeners.forEach { it(this) } }
         }
 
@@ -380,7 +385,7 @@ abstract class WindowPeer() {
             val delta = zoom - pointer.lastZoom
             pointer.lastZoom = zoom
 
-            Pointer.ZoomEvent(pointer, modifiers, pointer.lastZoom, delta)
+            PointerZoomEvent(pointer, modifiers, pointer.lastZoom, delta)
                 .apply { pointerZoomListeners.forEach { it(this) } }
         }
 
@@ -395,7 +400,7 @@ abstract class WindowPeer() {
                 updatePosition(x, y)
                 lastAngle = 0.0
             }
-            Pointer.RotationEvent(pointer, modifiers, 0.0, 0.0)
+            PointerRotationEvent(pointer, modifiers, 0.0, 0.0)
                 .apply { pointerRotationBeginListeners.forEach { it(this) } }
         }
 
@@ -409,7 +414,7 @@ abstract class WindowPeer() {
             pointer as WrappedPointer
             pointer.updatePosition(x, y)
 
-            Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, 0.0)
+            PointerRotationEvent(pointer, modifiers, pointer.lastAngle, 0.0)
                 .apply { pointerRotationEndListeners.forEach { it(this) } }
         }
 
@@ -427,25 +432,42 @@ abstract class WindowPeer() {
             val delta = angle - pointer.lastAngle
             pointer.lastAngle = angle
 
-            Pointer.RotationEvent(pointer, modifiers, pointer.lastAngle, delta)
+            PointerRotationEvent(pointer, modifiers, pointer.lastAngle, delta)
                 .apply { pointerRotationListeners.forEach { it(this) } }
         }
 
         open fun onKeyDownCallback(
             keyCode: Int,
             nativeCode: Int,
+            unicodeChars: String,
             modifiers: Int
         ){
-            println("down: ${getVirtualKeyName(keyCode)} (${keyCode}, native: ${nativeCode})")
+            val char = if(unicodeChars.isEmpty()) null else unicodeChars[0]
+            val key = Key(keyCode, nativeCode, char)
+            val event = KeyEvent(key, modifiers)
+
+            keys.add(key)
+
+            keyPressedListeners.forEach { it(event) }
+            if(unicodeChars.isNotEmpty())
+                keyTypedListeners.forEach { it(event)}
         }
 
         open fun onKeyUpCallback(
             keyCode: Int,
             nativeCode: Int,
+            unicodeChars: String,
             modifiers: Int
         ){
-            println("up: ${getVirtualKeyName(keyCode)} (${keyCode}, native: ${nativeCode})")
+            val char = if(unicodeChars.isEmpty()) null else unicodeChars[0]
+            val key = Key(keyCode, nativeCode, char)
+            val event = KeyEvent(key, modifiers)
+
+            keys.remove(key)
+
+            keyReleasedListeners.forEach { it(event) }
         }
+
     }
 
     class DisplayModeChangingException(

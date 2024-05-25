@@ -8,51 +8,25 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
 fun main(){
-    val window = GLWindow()
+    GLWindow().apply {
+        title = "UTF? Да"
+        cursor = Cursor.HAND
 
-    //window.maximizable = false
-    //window.minimizable = false
-    window.size = 100 x 100
-    //window.maxSize = 200 x 200
-    window.alignToCenter()
+        size = 100 x 100
+        alignToCenter()
 
-    window.pointerScrollListeners += {
-        println("scroll: at ${it.pointer.x}x${it.pointer.y} with deltaX: ${it.deltaX}, deltaY: ${it.deltaY}")
-    }
+        onInit = {
+            context.makeCurrent()
+            GL.createCapabilities()
+        }
+        onUpdate = {
+            context.makeCurrent()
+            glClearColor(1f, 0f, 0f, 1f)
+            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+            swapBuffers()
+        }
 
-    window.pointerZoomBeginListeners += {
-        println("begin zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-    }
-    window.pointerZoomListeners += {
-        println("zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-    }
-    window.pointerZoomEndListeners += {
-        println("end zoom: at ${it.pointer.x}x${it.pointer.y} with ${it.zoom}, delta: ${it.deltaZoom}")
-    }
-
-    window.pointerRotationBeginListeners += {
-        println("begin rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-    }
-    window.pointerRotationListeners += {
-        println("rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-    }
-    window.pointerRotationEndListeners += {
-        println("end rotation: at ${it.pointer.x}x${it.pointer.y} with ${it.angle}, delta: ${it.deltaAngle}")
-    }
-
-    window.title = "UTF? Да"
-    window.cursor = Cursor.HAND
-    window.visible = true
-
-    window.onInit = {
-        window.context.makeCurrent()
-        GL.createCapabilities()
-    }
-
-    window.onUpdate = {
-        glClearColor(1f, 0f, 0f, 1f)
-        glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
-        window.swapBuffers()
+        visible = true
     }
 }
 

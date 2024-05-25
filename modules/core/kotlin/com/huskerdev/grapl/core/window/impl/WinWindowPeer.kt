@@ -82,6 +82,11 @@ open class WinWindowPeer(
 
         var mouseEntered = false
 
+        override fun onResizeCallback(width: Int, height: Int) {
+            super.onResizeCallback(width, height)
+            dispatchUpdate()
+        }
+
         override fun onPointerMoveCallback(
             pointerId: Int,
             x: Int,
