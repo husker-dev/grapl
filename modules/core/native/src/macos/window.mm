@@ -81,8 +81,8 @@ static JNIEnv* env;
     onPointerRotationCallback = env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IDDDI)V");
     onPointerRotationEndCallback = env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IDDI)V");
 
-    onKeyDownCallback = env->GetMethodID(callbackClass, "onKeyDownCallback", "(III)V");
-    onKeyUpCallback = env->GetMethodID(callbackClass, "onKeyUpCallback", "(III)V");
+    onKeyDownCallback = env->GetMethodID(callbackClass, "onKeyDownCallback", "(IILjava/lang/String;I)V");
+    onKeyUpCallback = env->GetMethodID(callbackClass, "onKeyUpCallback", "(IILjava/lang/String;I)V");
 }
 -(void) dealloc {
     [super dealloc];
@@ -230,7 +230,7 @@ static JNIEnv* env;
         case kVK_Command:           return 349; // LEFT_COMMAND
         case kVK_RightCommand:      return 350; // RIGHT_COMMAND
     }
-    return key;
+    return -1;
 }
 
 /* ====================
@@ -418,7 +418,12 @@ static JNIEnv* env;
    ==================== */
 
 -(void) keyDown:(NSEvent*)event{
-    env->CallVoidMethod(object, onKeyDownCallback, [self translateKey:event.keyCode], [self getModifierKeys]);
+    env->CallVoidMethod(object, onKeyDownCallback,
+        [self translateKey:event.keyCode],
+        event.keyCode,
+        toJString(env, event.characters),
+        [self getModifierKeys]
+    );
 }
 
 - (void)flagsChanged:(NSEvent*)event{
@@ -426,13 +431,28 @@ static JNIEnv* env;
     const unsigned int modifierFlags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
 
     if(key & modifierFlags)
-        env->CallVoidMethod(object, onKeyDownCallback, [self translateKey:event.keyCode], event.keyCode, [self getModifierKeys]);
+        env->CallVoidMethod(object, onKeyDownCallback,
+            [self translateKey:event.keyCode],
+            event.keyCode,
+            0,
+            [self getModifierKeys]
+        );
     else
-        env->CallVoidMethod(object, onKeyUpCallback, [self translateKey:event.keyCode], event.keyCode, [self getModifierKeys]);
+        env->CallVoidMethod(object, onKeyUpCallback,
+            [self translateKey:event.keyCode],
+            event.keyCode,
+            0,
+            [self getModifierKeys]
+        );
 }
 
 -(void) keyUp:(NSEvent*)event{
-    env->CallVoidMethod(object, onKeyUpCallback, [self translateKey:event.keyCode], [self getModifierKeys]);
+    env->CallVoidMethod(object, onKeyUpCallback,
+        [self translateKey:event.keyCode],
+        event.keyCode,
+        toJString(env, event.characters),
+        [self getModifierKeys]
+    );
 }
 @end
 
