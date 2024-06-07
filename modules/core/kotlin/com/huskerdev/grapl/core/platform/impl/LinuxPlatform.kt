@@ -4,6 +4,14 @@ import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.platform.Platform
 
 class LinuxPlatform: Platform() {
+    companion object {
+        @JvmStatic private external fun nInit()
+
+        init {
+            nInit()
+        }
+    }
+
     override val dynamicLibExtension = "so"
     override val primaryDisplay: Display
         get() = TODO("Not yet implemented")

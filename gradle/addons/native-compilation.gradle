@@ -20,11 +20,7 @@ abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
 }
 
 abstract class LinuxConfiguration extends AbstractPlatformConfiguration{
-    @Nested abstract BinariesConfiguration getBinaries()
 
-    void binaries(Action<? super BinariesConfiguration> action) {
-        action.execute(getBinaries())
-    }
 }
 
 abstract class BinariesConfiguration {
@@ -98,7 +94,7 @@ enum Platform {
             os -> os.isLinux(),
             config -> config.linux,
             Compiler.GCC,
-            new Arch[]{Arch.X64, Arch.X86, Arch.ARM64},
+            new Arch[]{Arch.X64},
             ".a", ".so", ""
     ),
     MACOS(
@@ -195,30 +191,22 @@ enum Compiler {
     GCC((projectConfig, platformConfig, project, platform, type, archs, includeDirs, libDirs, libs, output, sources) -> {
         String typeModifier = type == OutputType.SHARED ? "-shared" : ""
 
-        // 1. Get from platform config
-        // 2. Otherwise from global build
-        // 3. Otherwise from default
-        def binDirs = new HashMap<Arch, String>()
-        binDirs[Arch.X64]   = platformConfig.binaries.x64.getOrElse(projectConfig.binaries.x64.getOrElse(""))
-        binDirs[Arch.X86]   = platformConfig.binaries.x86.getOrElse(projectConfig.binaries.x86.getOrElse(""))
-        binDirs[Arch.ARM64] = platformConfig.binaries.arm64.getOrElse(projectConfig.binaries.arm64.getOrElse(""))
-
         for(Arch arch in archs) {
             String archModifier = arch == Arch.X64 ? "-m64" : (arch == Arch.X86 ? "-m32" : "-arm64")
 
-            execute("""
-                    ${binDirs[arch]}gcc
-                    -Wall -Os -s
-                    -static
-                    $typeModifier
-                    $archModifier
-                    ${includeDirs.collect { "-I$it" }.join(" ")}
-                    ${libDirs.collect { "-L$it" }.join(" ")}
-                    -o ${getOutputName(projectConfig, project, output, type, arch)}
-                    ${sources.join(" ")}
-                    ${libs.collect { "-l$it" }.join(" ")}
-                    """,
-                    binDirs[arch],
+            execute(new String[]{"""gcc
+                        -Wall -Os -s
+                        -Wno-unused-function
+                        -Wno-unused-variable
+                        $typeModifier
+                        $archModifier
+                        ${includeDirs.collect { "-I$it" }.join(" ")}
+                        ${libDirs.collect { "-L$it" }.join(" ")}
+                        -o ${getOutputName(projectConfig, project, output, type, arch)}
+                        ${sources.join(" ")}
+                        ${libs.collect { "-l$it" }.join(" ")}
+                        """},
+                    "",
                     project.file(".")
             )
         }

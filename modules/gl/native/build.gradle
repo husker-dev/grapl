@@ -15,6 +15,9 @@ compilation {
         frameworks = ["OpenGL", "Cocoa"]
         sharedDir project(":modules:core:native").file("shared/macos")
     }
+    linux {
+        libs = ["GL", "X11"]
+    }
 }
 
 maven {

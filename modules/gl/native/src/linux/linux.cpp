@@ -1,6 +1,8 @@
-#include "../shared.h"
+#include "grapl-gl-linux.h"
 
 #include <jni.h>
+
+#define __gl_h_
 #include <GL/glx.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -8,7 +10,7 @@
 typedef GLXContext (*glXCreateContextAttribsARBPtr)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 
-linuxglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
+jni_linux_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
     Display* display = XOpenDisplay(nullptr);
     auto glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr) glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
     auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
@@ -39,16 +41,16 @@ linuxglfun(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jl
     GLXContext oldContext = glXGetCurrentContext();
     GLint major, minor;
 
-    glXMakeContextCurrent(display, pbuffer, context);
+    glXMakeContextCurrent(display, pbuffer, pbuffer, context);
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
-    glXMakeContextCurrent(oldDisplay, oldPBuffer, oldContext);
+    glXMakeContextCurrent(oldDisplay, oldPBuffer, oldPBuffer, oldContext);
 
     jlong array[] = { (jlong)display, (jlong)pbuffer, (jlong)context, (jlong)major, (jlong)minor };
     return createLongArray(env, 3, array);
 }
 
-linuxglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
+jni_linux_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
     GLint major, minor;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
@@ -58,10 +60,10 @@ linuxglfun(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     return createLongArray(env, 5, array);
 }
 
-linuxglfunjboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong display, jlong pbuffer, jlong context) {
+jni_linux_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong display, jlong pbuffer, jlong context) {
     return glXMakeContextCurrent((Display*)display, (GLXPbuffer)pbuffer, (GLXPbuffer)pbuffer, (GLXContext)context);
 }
 
-linuxglfun(void, nDeleteContext)(JNIEnv* env, jobject, jlong display, jlong context) {
+jni_linux_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong display, jlong context) {
     glXDestroyContext((Display*)display, (GLXContext)context);
 }
