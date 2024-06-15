@@ -1,7 +1,5 @@
-import com.huskerdev.grapl.core.display.Display
+
 import com.huskerdev.grapl.core.input.Cursor
-import com.huskerdev.grapl.core.platform.Platform
-import com.huskerdev.grapl.core.window.impl.X11WindowPeer
 import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
 import com.huskerdev.grapl.gl.GLWindow
@@ -11,12 +9,6 @@ import org.lwjgl.opengl.GL
 import org.lwjgl.opengl.GL11.*
 
 fun main(){
-    //println(Display.primary)
-    //println()
-    Display.list.forEach {
-        println(it)
-    }
-    /*
     GLWindow().apply {
         title = "UTF? Да"
         cursor = Cursor.HAND
@@ -37,8 +29,6 @@ fun main(){
 
         visible = true
     }
-
-     */
 }
 
 class OJGLTest {

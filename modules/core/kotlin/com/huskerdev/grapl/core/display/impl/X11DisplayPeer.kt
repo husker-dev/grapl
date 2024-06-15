@@ -16,7 +16,7 @@ class X11DisplayPeer(
         @JvmStatic private external fun nGetAllScreens(display: Long): LongArray
         @JvmStatic private external fun nGetSize(display: Long, screen: Long): IntArray
         @JvmStatic private external fun nGetPosition(display: Long, screen: Long): IntArray
-        @JvmStatic private external fun nGetDpi(screen: Long): Double
+        @JvmStatic private external fun nGetDpi(display: Long, screen: Long): Double
         @JvmStatic private external fun nGetFrequency(display: Long, screen: Long): Int
         @JvmStatic private external fun nGetName(display: Long, screen: Long): String
         @JvmStatic private external fun nGetSystemName(display: Long, screen: Long): String
@@ -38,7 +38,8 @@ class X11DisplayPeer(
     override val physicalSize: Size
         get() = nGetPhysicalSize(display, handle).run { Size(this[0], this[1]) }
 
-    override val dpi = 1.0
+    override val dpi: Double
+        get() = nGetDpi(display, handle)
 
     override val frequency: Int
         get() = nGetFrequency(display, handle)
