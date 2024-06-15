@@ -3,6 +3,7 @@ package com.huskerdev.grapl.core.window
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
+import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.Platform
 
 import com.huskerdev.grapl.core.x
@@ -17,41 +18,84 @@ abstract class Window(
         fun postEmptyMessage() = Platform.current.postEmptyMessage()
     }
 
-    var onUpdate by peer::onUpdate
-    var onInit by peer::onInit
+    var onUpdate: () -> Unit
+        get() = peer.onUpdate
+        set(value) { peer.onUpdate = value }
 
-    val moveListeners by peer.positionProperty::listeners
-    val resizeListeners by peer.sizeProperty::listeners
-    val visibleListeners by peer.visibleProperty::listeners
-    val displayStateListeners by peer.displayStateProperty::listeners
-    val focusedListener by peer.focusedProperty::listeners
+    var onInit: () -> Unit
+        get() = peer.onInit
+        set(value) { peer.onInit = value }
 
-    val pointerMoveListeners by peer::pointerMoveListeners
-    val pointerDragListeners by peer::pointerDragListeners
-    val pointerDownListeners by peer::pointerPressListeners
-    val pointerUpListeners by peer::pointerReleaseListeners
-    val pointerClickListeners by peer::pointerClickListeners
+    val moveListeners: HashSet<() -> Unit>
+        get() = peer.positionProperty.listeners
 
-    val pointerEnterListeners by peer::pointerEnterListeners
-    val pointerLeaveListeners by peer::pointerLeaveListeners
+    val resizeListeners: HashSet<() -> Unit>
+        get() = peer.sizeProperty.listeners
 
-    val pointerScrollListeners by peer::pointerScrollListeners
+    val visibleListeners: HashSet<() -> Unit>
+        get() = peer.visibleProperty.listeners
 
-    val pointerZoomBeginListeners by peer::pointerZoomBeginListeners
-    val pointerZoomListeners by peer::pointerZoomListeners
-    val pointerZoomEndListeners by peer::pointerZoomEndListeners
+    val displayStateListeners: HashSet<() -> Unit>
+        get() = peer.displayStateProperty.listeners
 
-    val pointerRotationBeginListeners by peer::pointerRotationBeginListeners
-    val pointerRotationListeners by peer::pointerRotationListeners
-    val pointerRotationEndListeners by peer::pointerRotationEndListeners
+    val focusedListener: HashSet<() -> Unit>
+        get() = peer.focusProperty.listeners
 
-    val keyPressedListeners by peer::keyPressedListeners
-    val keyReleasedListeners by peer::keyReleasedListeners
-    val keyTypedListeners by peer::keyTypedListeners
+    val pointerMoveListeners: HashSet<(PointerMoveEvent) -> Unit>
+        get() = peer.pointerMoveListeners
 
-    val shouldClose by peer::shouldClose
+    val pointerDragListeners: HashSet<(PointerMoveEvent) -> Unit>
+        get() = peer.pointerDragListeners
 
-    var absoluteSize by peer.sizeProperty::value
+    val pointerDownListeners: HashSet<(PointerEvent) -> Unit>
+        get() = peer.pointerPressListeners
+
+    val pointerUpListeners: HashSet<(PointerEvent) -> Unit>
+        get() = peer.pointerReleaseListeners
+
+    val pointerClickListeners: HashSet<(PointerClickEvent) -> Unit>
+        get() = peer.pointerClickListeners
+
+    val pointerEnterListeners: HashSet<(PointerEvent) -> Unit>
+        get() = peer.pointerEnterListeners
+
+    val pointerLeaveListeners: HashSet<(PointerEvent) -> Unit>
+        get() = peer.pointerLeaveListeners
+
+    val pointerScrollListeners: HashSet<(PointerScrollEvent) -> Unit>
+        get() = peer.pointerScrollListeners
+
+    val pointerZoomBeginListeners: HashSet<(PointerZoomEvent) -> Unit>
+        get() = peer.pointerZoomBeginListeners
+
+    val pointerZoomListeners: HashSet<(PointerZoomEvent) -> Unit>
+        get() = peer.pointerZoomListeners
+
+    val pointerZoomEndListeners: HashSet<(PointerZoomEvent) -> Unit>
+        get() = peer.pointerZoomEndListeners
+
+    val pointerRotationBeginListeners: HashSet<(PointerRotationEvent) -> Unit>
+        get() = peer.pointerRotationBeginListeners
+
+    val pointerRotationListeners: HashSet<(PointerRotationEvent) -> Unit>
+        get() = peer.pointerRotationListeners
+
+    val pointerRotationEndListeners: HashSet<(PointerRotationEvent) -> Unit>
+        get() = peer.pointerRotationEndListeners
+
+    val keyPressedListeners: HashSet<(KeyEvent) -> Unit>
+        get() = peer.keyPressedListeners
+    val keyReleasedListeners: HashSet<(KeyEvent) -> Unit>
+        get() = peer.keyReleasedListeners
+    val keyTypedListeners: HashSet<(KeyEvent) -> Unit>
+        get() = peer.keyTypedListeners
+
+    val shouldClose: Boolean
+        get() = peer.shouldClose
+
+    var absoluteSize: Size
+        get() = peer.sizeProperty.value
+        set(value) { peer.sizeProperty.value = value }
     var absoluteWidth: Int
         set(value) { absoluteSize = absoluteSize.withWidth(value) }
         get() = absoluteSize.width.toInt()
@@ -59,7 +103,9 @@ abstract class Window(
         set(value) { absoluteSize = absoluteSize.withHeight(value) }
         get() = absoluteSize.height.toInt()
 
-    var absoluteMinSize by peer.minSizeProperty::value
+    var absoluteMinSize: Size
+        get() = peer.minSizeProperty.value
+        set(value) { peer.minSizeProperty.value = value }
     var absoluteMinWidth: Int
         set(value) { absoluteMinSize = absoluteMinSize.withWidth(value) }
         get() = absoluteMinSize.width.toInt()
@@ -67,7 +113,9 @@ abstract class Window(
         set(value) { absoluteMinSize = absoluteMinSize.withHeight(value) }
         get() = absoluteMinSize.height.toInt()
 
-    var absoluteMaxSize by peer.maxSizeProperty::value
+    var absoluteMaxSize: Size
+        get() = peer.maxSizeProperty.value
+        set(value) { peer.maxSizeProperty.value = value }
     var absoluteMaxWidth: Int
         set(value) { absoluteMaxSize = absoluteMaxSize.withWidth(value) }
         get() = absoluteMaxSize.width.toInt()
@@ -75,7 +123,9 @@ abstract class Window(
         set(value) { absoluteMaxSize = absoluteMaxSize.withHeight(value) }
         get() = absoluteMaxSize.height.toInt()
 
-    var absolutePosition by peer.positionProperty::value
+    var absolutePosition: Position
+        get() = peer.positionProperty.value
+        set(value) { peer.positionProperty.value = value }
     var absoluteX: Int
         set(value) { absolutePosition = absolutePosition.withX(value) }
         get() = absolutePosition.x.toInt()
@@ -83,11 +133,8 @@ abstract class Window(
         set(value) { absolutePosition = absolutePosition.withY(value) }
         get() = absolutePosition.y.toInt()
 
-
     var size: Size
-        set(value) {
-            absoluteSize = value * display.dpi
-        }
+        set(value) { absoluteSize = value * display.dpi }
         get() = absoluteSize / display.dpi
     var width: Double
         set(value) { absoluteWidth = (value * display.dpi).toInt() }
@@ -126,24 +173,41 @@ abstract class Window(
         set(value) { absoluteY = (value * display.dpi).toInt() }
         get() = absoluteY / display.dpi
 
-    open var displayState by peer.displayStateProperty::value
+    open var displayState: WindowDisplayState
+        get() = peer.displayStateProperty.value
+        set(value) { peer.displayStateProperty.value = value }
 
-    var title by peer.titleProperty::value
+    var title: String
+        get() = peer.titleProperty.value
+        set(value) { peer.titleProperty.value = value }
 
-    var visible by peer.visibleProperty::value
+    var visible: Boolean
+        get() = peer.visibleProperty.value
+        set(value) { peer.visibleProperty.value = value }
 
-    var cursor by peer.cursor::value
+    var cursor: Cursor
+        get() = peer.cursor.value
+        set(value) { peer.cursor.value = value }
 
-    val display by peer::display
+    val display: Display
+        get() = peer.display
 
-    val focused by peer.focusedProperty::value
+    val focused: Boolean
+        get() = peer.focusProperty.value
 
-    var maximizable by peer.maximizable::value
+    var maximizable: Boolean
+        get() = peer.maximizable.value
+        set(value) { peer.maximizable.value = value }
 
-    var minimizable by peer.minimizable::value
+    var minimizable: Boolean
+        get() = peer.minimizable.value
+        set(value) { peer.minimizable.value = value }
 
-    val pointer by peer.pointers::values
-    val keys by peer::keys
+    val pointer: Set<Pointer>
+        get() = peer.pointers.values.toSet()
+
+    val keys: Set<Key>
+        get() = peer.keys
 
     fun alignToCenter(){
         val displaySize = Display.primary.absoluteSize

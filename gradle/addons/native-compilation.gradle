@@ -94,7 +94,7 @@ enum Platform {
             os -> os.isLinux(),
             config -> config.linux,
             Compiler.GCC,
-            new Arch[]{Arch.X64},
+            new Arch[]{Arch.X64, Arch.X86},
             ".a", ".so", ""
     ),
     MACOS(
@@ -194,7 +194,7 @@ enum Compiler {
         for(Arch arch in archs) {
             String archModifier = arch == Arch.X64 ? "-m64" : (arch == Arch.X86 ? "-m32" : "-arm64")
 
-            execute(new String[]{"""gcc
+            execute(new String[]{"""g++
                         -Wall -Os -s
                         -Wno-unused-function
                         -Wno-unused-variable

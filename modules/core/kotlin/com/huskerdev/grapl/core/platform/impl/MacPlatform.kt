@@ -16,8 +16,6 @@ class MacPlatform: Platform() {
         fun invokeOnMainThreadSync(runnable: Runnable) = nInvokeOnMainThread(runnable, true)
     }
 
-    override val dynamicLibExtension = "dylib"
-
     override val primaryDisplay: Display
         get() = Display(MacDisplayPeer.primary)
 
@@ -25,7 +23,7 @@ class MacPlatform: Platform() {
         get() = MacDisplayPeer.list.map { Display(it) }.toTypedArray()
 
     override fun specifyLibName(libName: String) =
-        "$libName.$dynamicLibExtension"
+        "$libName.dylib"
 
     override fun peekMessages() = nPeekMessage()
 

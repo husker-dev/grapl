@@ -106,7 +106,7 @@ abstract class WindowPeer() {
 
     val visibleProperty = Property(false, ::setVisibleImpl)
 
-    val focusedProperty = ReadOnlyProperty(false)
+    val focusProperty = ReadOnlyProperty(false)
 
     val viewportProperty = ReadOnlyProperty(Size.UNDEFINED)
 
@@ -192,7 +192,7 @@ abstract class WindowPeer() {
         }
 
         open fun onFocusCallback(focused: Boolean){
-            focusedProperty.internalValue = focused
+            focusProperty.internalValue = focused
         }
 
         open fun onPointerMoveCallback(

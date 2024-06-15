@@ -12,8 +12,6 @@ class WinPlatform: Platform() {
         @JvmStatic private external fun nPostEmptyMessage()
     }
 
-    override val dynamicLibExtension = "dll"
-
     override val primaryDisplay: Display
         get() = Display(WinDisplayPeer.primary)
 
@@ -21,7 +19,7 @@ class WinPlatform: Platform() {
         get() = WinDisplayPeer.list.map { Display(it) }.toTypedArray()
 
     override fun specifyLibName(libName: String) =
-        "$libName-$arch.$dynamicLibExtension"
+        "$libName-$arch.dll"
 
     override fun peekMessages() = nPeekMessage()
 

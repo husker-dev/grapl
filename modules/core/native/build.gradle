@@ -16,6 +16,9 @@ compilation {
         frameworks = ["Cocoa"]
         sharedDir file("shared/macos")
     }
+    linux {
+        libs = ["wayland-client", "X11", "Xrandr"]
+    }
 }
 
 maven {

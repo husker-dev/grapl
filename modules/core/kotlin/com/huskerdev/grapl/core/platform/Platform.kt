@@ -13,26 +13,29 @@ import java.io.FileOutputStream
 
 abstract class Platform {
     companion object {
-
         val os = System.getProperty("os.name", "generic").lowercase().run {
-            return@run if ("mac" in this || "darwin" in this) OS.MacOS
-            else if ("win" in this) OS.Windows
-            else if ("nux" in this || "nix" in this || "aix" in this) OS.Linux
-            else OS.Other
+            when {
+                "mac" in this || "darwin" in this -> OS.MacOS
+                "win" in this -> OS.Windows
+                "nux" in this || "nix" in this || "aix" in this -> OS.Linux
+                else -> OS.Other
+            }
         }
 
         val arch = System.getProperty("os.arch").lowercase().run {
-            if (startsWith("aarch64") || startsWith("armv8")) Architecture.ARM64
-            else if (startsWith("arm")) Architecture.ARM32
-            else if ("64" in this) Architecture.X64
-            else Architecture.X86
+            when {
+                startsWith("aarch64") || startsWith("armv8") -> Architecture.ARM64
+                startsWith("arm") -> Architecture.ARM32
+                "64" in this -> Architecture.X64
+                else -> Architecture.X86
+            }
         }
 
         val current = when(os) {
             OS.Windows -> WinPlatform()
             OS.Linux -> LinuxPlatform()
             OS.MacOS -> MacPlatform()
-            OS.Other -> throw UnsupportedOperationException("Unsupported platform")
+            else -> throw UnsupportedOperationException("Unsupported platform")
         }
 
         private val loadedLibs = hashSetOf<String>()
@@ -58,7 +61,11 @@ abstract class Platform {
             loadedLibs.add(path)
         }
 
-        fun loadLibraryFromResources(classpath: String, baseName: String, version: String) {
+        fun loadLibraryFromResources(
+            classpath: String,
+            baseName: String,
+            version: String
+        ) {
             val fileName = current.specifyLibName("$baseName-$version")
             val path = classpath.replace(".", "/")
             loadLibraryFromResources("/$path/$fileName")
@@ -69,10 +76,7 @@ abstract class Platform {
         }
     }
 
-    abstract val dynamicLibExtension: String
-
     abstract val primaryDisplay: Display
-
     abstract val displays: Array<Display>
 
     internal abstract fun specifyLibName(libName: String): String

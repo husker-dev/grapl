@@ -9,20 +9,32 @@ class Display(
 ) {
 
     companion object {
-        val primary by Platform.current::primaryDisplay
-        val list by Platform.current::displays
+        val primary: Display
+            get() = Platform.current.primaryDisplay
+        val list: Array<Display>
+            get() = Platform.current.displays
     }
 
-    val absoluteSize by peer::size
-    val absoluteWidth by peer.size::width
-    val absoluteHeight by peer.size::height
+    val absoluteSize: Size
+        get() = peer.size
+    val absoluteWidth: Double
+        get() = peer.size.width
+    val absoluteHeight: Double
+        get() = peer.size.height
 
-    val absolutePosition by peer::position
-    val absoluteX by peer.position::x
-    val absoluteY by peer.position::y
+    val absolutePosition: Position
+        get() = peer.position
+    val absoluteX: Double
+        get() = peer.position.x
+    val absoluteY: Double
+        get() = peer.position.y
 
-    val physicalWidth by peer.physicalSize::width
-    val physicalHeight by peer.physicalSize::height
+    val physicalSize: Size
+        get() = peer.physicalSize
+    val physicalWidth: Double
+        get() = peer.physicalSize.width
+    val physicalHeight: Double
+        get() = peer.physicalSize.height
 
     val size: Size
         get() = absoluteSize / peer.dpi
@@ -38,17 +50,37 @@ class Display(
     val y: Double
         get() = absoluteY / peer.dpi
 
-    val dpi by peer::dpi
+    val dpi: Double
+        get() = peer.dpi
 
-    val frequency by peer::frequency
+    val frequency: Int
+        get() = peer.frequency
 
-    val name by peer::name
+    val name: String
+        get() = peer.name
 
-    val systemName by peer::systemName
+    val systemName: String
+        get() = peer.systemName
 
-    val modes by peer::modes
+    val modes: Array<DisplayMode>
+        get() = peer.modes
 
-    val mode by peer::mode
+    val mode: DisplayMode
+        get() = peer.mode
+
+    override fun toString(): String {
+        return "Display[" +
+                "absoluteSize:$absoluteSize, " +
+                "absolutePosition:$absolutePosition, " +
+                "size:$size, " +
+                "position:$position, " +
+                "physicalSize:$physicalSize, d" +
+                "pi:$dpi, " +
+                "frequency:$frequency, " +
+                "name:\"$name\", " +
+                "systemName:\"$systemName\"" +
+                "]"
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
