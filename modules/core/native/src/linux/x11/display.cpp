@@ -6,7 +6,19 @@
 
 jni_x11_display(jlong, nGetPrimaryScreen)(JNIEnv* env, jobject, jlong _display) {
     Display* display = (Display*)_display;
-   	return (jlong)XDefaultScreenOfDisplay(display);
+    Window root = DefaultRootWindow(display);
+
+    XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, root);
+    RROutput primary = XRRGetOutputPrimary(display, root);
+
+    for(int i = 0; i < sr->noutput; i++){
+        if(sr->outputs[i] == primary){
+            XRRFreeScreenResources(sr);
+            return i;
+        }
+    }
+    XRRFreeScreenResources(sr);
+    return -1;
 }
 
 jni_x11_display(jlongArray, nGetAllScreens)(JNIEnv* env, jobject, jlong _display) {
