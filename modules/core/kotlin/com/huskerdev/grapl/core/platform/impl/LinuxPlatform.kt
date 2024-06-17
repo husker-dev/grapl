@@ -40,7 +40,7 @@ class X11: WindowingSystem {
     companion object {
         @JvmStatic private external fun nXOpenDisplay(): Long
 
-        @JvmStatic private external fun nPeekMessages(): Long
+        @JvmStatic private external fun nPeekMessage(display: Long)
     }
 
     val display = nXOpenDisplay()
@@ -52,16 +52,14 @@ class X11: WindowingSystem {
     override val primaryDisplay = Display(X11DisplayPeer.primary(display))
     override val displays = X11DisplayPeer.list(display).map { Display(it) }.toTypedArray()
 
-    override fun peekMessages() {
-        TODO("Not yet implemented")
-    }
+    override fun peekMessages() = nPeekMessage(display)
 
     override fun waitMessages(timeout: Int) {
-        TODO("Not yet implemented")
+
     }
 
     override fun postEmptyMessage() {
-        TODO("Not yet implemented")
+
     }
 }
 

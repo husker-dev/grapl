@@ -1,14 +1,5 @@
 #include "grapl-gl-linux.h"
 
-#include <jni.h>
-
-#define __gl_h_
-#include <GL/glx.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-
-typedef GLXContext (*glXCreateContextAttribsARBPtr)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-
 
 jni_linux_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
     Display* display = XOpenDisplay(nullptr);
@@ -46,8 +37,9 @@ jni_linux_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isC
     glGetIntegerv(GL_MINOR_VERSION, &minor);
     glXMakeContextCurrent(oldDisplay, oldPBuffer, oldPBuffer, oldContext);
 
-    jlong array[] = { (jlong)display, (jlong)pbuffer, (jlong)context, (jlong)major, (jlong)minor };
-    return createLongArray(env, 3, array);
+    return createLongArray(env, {
+        (jlong)display, (jlong)pbuffer, (jlong)context, (jlong)major, (jlong)minor
+    });
 }
 
 jni_linux_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
@@ -56,8 +48,7 @@ jni_linux_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
-    jlong array[] = { (jlong)glXGetCurrentDisplay(), (jlong)glXGetCurrentDrawable(), (jlong)glXGetCurrentContext(), (jlong)major, (jlong)minor };
-    return createLongArray(env, 5, array);
+    return createLongArray(env, { (jlong)glXGetCurrentDisplay(), (jlong)glXGetCurrentDrawable(), (jlong)glXGetCurrentContext(), (jlong)major, (jlong)minor });
 }
 
 jni_linux_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong display, jlong pbuffer, jlong context) {

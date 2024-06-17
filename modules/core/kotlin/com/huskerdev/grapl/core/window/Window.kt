@@ -134,44 +134,44 @@ abstract class Window(
         get() = absolutePosition.y.toInt()
 
     var size: Size
-        set(value) { absoluteSize = value * display.dpi }
-        get() = absoluteSize / display.dpi
+        set(value) { absoluteSize = value * dpi }
+        get() = absoluteSize / dpi
     var width: Double
-        set(value) { absoluteWidth = (value * display.dpi).toInt() }
-        get() = absoluteWidth / display.dpi
+        set(value) { absoluteWidth = (value * dpi).toInt() }
+        get() = absoluteWidth / dpi
     var height: Double
-        set(value) { absoluteHeight = (value * display.dpi).toInt() }
-        get() = absoluteHeight / display.dpi
+        set(value) { absoluteHeight = (value * dpi).toInt() }
+        get() = absoluteHeight / dpi
 
     var minSize: Size
-        set(value) { absoluteMinSize = value * display.dpi }
-        get() = absoluteMinSize / display.dpi
+        set(value) { absoluteMinSize = value * dpi }
+        get() = absoluteMinSize / dpi
     var minWidth: Double
-        set(value) { absoluteMinWidth = (value * display.dpi).toInt() }
-        get() = absoluteMinWidth / display.dpi
+        set(value) { absoluteMinWidth = (value * dpi).toInt() }
+        get() = absoluteMinWidth / dpi
     var minHeight: Double
-        set(value) { absoluteMinHeight = (value * display.dpi).toInt() }
-        get() = absoluteMinHeight / display.dpi
+        set(value) { absoluteMinHeight = (value * dpi).toInt() }
+        get() = absoluteMinHeight / dpi
 
     var maxSize: Size
-        set(value) { absoluteMaxSize = value * display.dpi }
-        get() = absoluteMaxSize / display.dpi
+        set(value) { absoluteMaxSize = value * dpi }
+        get() = absoluteMaxSize / dpi
     var maxWidth: Double
-        set(value) { absoluteMaxWidth = (value * display.dpi).toInt() }
-        get() = absoluteMaxWidth / display.dpi
+        set(value) { absoluteMaxWidth = (value * dpi).toInt() }
+        get() = absoluteMaxWidth / dpi
     var maxHeight: Double
-        set(value) { absoluteMaxHeight = (value * display.dpi).toInt() }
-        get() = absoluteMaxHeight / display.dpi
+        set(value) { absoluteMaxHeight = (value * dpi).toInt() }
+        get() = absoluteMaxHeight / dpi
 
     var position: Position
-        set(value) { absolutePosition = value * display.dpi }
-        get() = absolutePosition / display.dpi
+        set(value) { absolutePosition = value * dpi }
+        get() = absolutePosition / dpi
     var x: Double
-        set(value) { absoluteX = (value * display.dpi).toInt() }
-        get() = absoluteX / display.dpi
+        set(value) { absoluteX = (value * dpi).toInt() }
+        get() = absoluteX / dpi
     var y: Double
-        set(value) { absoluteY = (value * display.dpi).toInt() }
-        get() = absoluteY / display.dpi
+        set(value) { absoluteY = (value * dpi).toInt() }
+        get() = absoluteY / dpi
 
     open var displayState: WindowDisplayState
         get() = peer.displayStateProperty.value
@@ -186,11 +186,14 @@ abstract class Window(
         set(value) { peer.visibleProperty.value = value }
 
     var cursor: Cursor
-        get() = peer.cursor.value
-        set(value) { peer.cursor.value = value }
+        get() = peer.cursorProperty.value
+        set(value) { peer.cursorProperty.value = value }
 
-    val display: Display
+    val display: Display?
         get() = peer.display
+
+    val dpi: Double
+        get() = peer.dpi
 
     val focused: Boolean
         get() = peer.focusProperty.value

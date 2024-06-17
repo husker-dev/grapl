@@ -5,6 +5,9 @@
 #include <X11/Xutil.h>
 #include <X11/Xresource.h>
 #include <X11/extensions/Xrandr.h>
+#include <X11/cursorfont.h>
+#include <X11/Xcursor/Xcursor.h>
+#include <X11/Xatom.h>
 
 #include <fcntl.h>
 

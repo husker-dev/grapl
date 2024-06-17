@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.core.window
 
 import com.huskerdev.grapl.GraplNatives
+import com.huskerdev.grapl.core.Dimension
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
@@ -32,9 +33,10 @@ abstract class WindowPeer() {
         Platform.current.postEmptyMessage()
     }
 
-    abstract val display: Display
+    abstract val display: Display?
 
-    val dpi by display::dpi
+    val dpi: Double
+        get() = display?.dpi ?: 1.0
 
     private var newInit = true
     /**
@@ -102,6 +104,9 @@ abstract class WindowPeer() {
             setMaxSizeImpl(it)
     }
 
+    val dimension: Dimension
+        get() = Dimension(positionProperty.value, sizeProperty.value)
+
     val titleProperty = Property("", ::setTitleImpl)
 
     val visibleProperty = Property(false, ::setVisibleImpl)
@@ -110,7 +115,7 @@ abstract class WindowPeer() {
 
     val viewportProperty = ReadOnlyProperty(Size.UNDEFINED)
 
-    val cursor = Property(Cursor.DEFAULT, ::setCursorImpl)
+    val cursorProperty = Property(Cursor.DEFAULT, ::setCursorImpl)
 
     val pointers = hashMapOf<Int, Pointer>()
     val keys = hashSetOf<Key>()
@@ -211,7 +216,7 @@ abstract class WindowPeer() {
             if(x == pointer.absoluteX && y == pointer.absoluteY)
                 return
 
-            val dpi = display.dpi
+            val dpi = dpi
             val oldX = pointer.absoluteX.toDouble()
             val oldY = pointer.absoluteY.toDouble()
 

@@ -17,7 +17,7 @@ compilation {
         sharedDir file("shared/macos")
     }
     linux {
-        libs = ["wayland-client", "X11", "Xrandr"]
+        libs = ["wayland-client", "X11", "Xrandr", "Xcursor"]
     }
 }
 

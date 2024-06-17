@@ -10,14 +10,16 @@ enum class Cursor {
     NOT_ALLOWED,
     HELP,
 
-    SIZE_HORIZONTAL,    // -
-    SIZE_VERTICAL,      // |
-    SIZE_NE,            // /
-    SIZE_SE,            // \
-    MOVE,               // +
+    SIZE_VERTICAL_DOUBLE,
+    SIZE_HORIZONTAL_DOUBLE,
+    SIZE_W,
+    SIZE_E,
+    SIZE_N,
+    SIZE_S,
+    SIZE_NE, // /
+    SIZE_SE, // \
+    MOVE,
 
-    SCROLL_VERTICAL,
-    SCROLL_HORIZONTAL,
     SCROLL_ALL,
     SCROLL_UP,
     SCROLL_DOWN,

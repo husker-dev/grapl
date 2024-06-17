@@ -113,7 +113,7 @@ open class WinWindowPeer(
 
         /** Mapped from
          * [learn.microsoft.com](https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors) */
-        fun getCursorCallback() = when(cursor.value){
+        fun getCursorCallback() = when(cursorProperty.value){
             Cursor.DEFAULT -> 32512         // IDC_ARROW
             Cursor.HAND -> 32649            // IDC_HAND
             Cursor.TEXT -> 32513            // IDC_IBEAM
@@ -122,13 +122,15 @@ open class WinWindowPeer(
             Cursor.CROSSHAIR -> 32515       // IDC_CROSS
             Cursor.NOT_ALLOWED -> 32648     // IDC_NO
             Cursor.HELP -> 32651            // IDC_HELP
-            Cursor.SIZE_HORIZONTAL -> 32644 // IDC_SIZEWE
-            Cursor.SIZE_VERTICAL -> 32645   // IDC_SIZENS
+            Cursor.SIZE_W,
+            Cursor.SIZE_E,
+            Cursor.SIZE_HORIZONTAL_DOUBLE -> 32644 // IDC_SIZEWE
+            Cursor.SIZE_N,
+            Cursor.SIZE_S,
+            Cursor.SIZE_VERTICAL_DOUBLE -> 32645   // IDC_SIZENS
             Cursor.SIZE_NE -> 32643         // IDC_SIZENESW
             Cursor.SIZE_SE -> 32642         // IDC_SIZENWSE
             Cursor.MOVE -> 32646            // IDC_SIZEALL
-            Cursor.SCROLL_VERTICAL -> 32652
-            Cursor.SCROLL_HORIZONTAL -> 32653
             Cursor.SCROLL_ALL -> 32654
             Cursor.SCROLL_UP -> 32655
             Cursor.SCROLL_DOWN -> 32656

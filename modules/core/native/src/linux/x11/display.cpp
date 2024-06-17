@@ -63,7 +63,7 @@ jni_x11_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong _display, jlong
 
     RRMode modeId = ci->mode;
 
-    int width, height;
+    int width = 0, height = 0;
     for (int i = 0; i < sr->nmode; i++) {
         XRRModeInfo mode = sr->modes[i];
         if (mode.id == modeId) {

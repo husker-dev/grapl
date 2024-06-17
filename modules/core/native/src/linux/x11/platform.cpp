@@ -7,6 +7,7 @@ static void peekMessage(){
 }
 
 jni_x11_platform(jlong, nXOpenDisplay)(JNIEnv* env, jobject) {
+    XInitThreads();
     return (jlong)XOpenDisplay(NULL);
 }
 
@@ -14,8 +15,10 @@ jni_x11_platform(void, nInit)(JNIEnv* env, jobject) {
 
 }
 
-jni_x11_platform(void, nPeekMessage)(JNIEnv* env, jobject) {
-    peekMessage();
+jni_x11_platform(void, nPeekMessage)(JNIEnv* env, jobject, jlong _display) {
+    Display* display = (Display*)_display;
+    XEvent event;
+    XNextEvent(display, &event);
 }
 
 jni_x11_platform(void, nWaitMessage)(JNIEnv* env, jobject, jint timeout) {
