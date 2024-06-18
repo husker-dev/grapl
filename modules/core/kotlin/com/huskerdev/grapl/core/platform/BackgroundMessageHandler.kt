@@ -11,7 +11,7 @@ class BackgroundMessageHandler {
         var continuousUpdate = true
 
         private val toInvoke = synchronizedList(arrayListOf<() -> Unit>())
-        private var activePeers = synchronizedSet(hashSetOf<WindowPeer>())
+        val activePeers = synchronizedSet(hashSetOf<WindowPeer>())
         private var updatingThread: Thread? = null
 
         fun addPeer(peer: WindowPeer){
