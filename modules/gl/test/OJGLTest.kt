@@ -19,10 +19,9 @@ fun main(){
         onInit = {
             context.makeCurrent()
             GL.createCapabilities()
+            glClearColor(1f, 0f, 0f, 1f)
         }
         onUpdate = {
-            context.makeCurrent()
-            glClearColor(1f, 0f, 0f, 1f)
             glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
             swapBuffers()
         }

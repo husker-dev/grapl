@@ -35,7 +35,7 @@ jni_linux_platform(jlongArray, nCreateWindow)(JNIEnv* env, jobject, jlong _displ
     return createLongArray(env, { (jlong)window, (jlong)context });
 }
 
-jni_linux_platform(jlongArray, nSwapBuffers)(JNIEnv* env, jobject, jlong _display, jlong _window) {
+jni_linux_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _display, jlong _window) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
 

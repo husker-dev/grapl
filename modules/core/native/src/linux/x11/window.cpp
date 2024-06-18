@@ -49,7 +49,11 @@ jni_x11_window(void, nSetTitle)(JNIEnv* env, jobject, jlong _display, jlong _win
     Window window = (Window)_window;
 
     char* title = (char*)env->GetDirectBufferAddress(_title);
-    XStoreName(display, window, title);
+    XChangeProperty(display, window,
+            XInternAtom(display, "_NET_WM_NAME", False),
+            XInternAtom(display, "UTF8_STRING", False),
+            8, PropModeReplace, (unsigned char*) title,
+            env->GetDirectBufferCapacity(_title)-2);
 }
 
 jni_x11_window(void, nSetVisible)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean isVisible) {

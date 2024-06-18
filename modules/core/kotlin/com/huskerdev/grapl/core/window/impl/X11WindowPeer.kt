@@ -62,7 +62,11 @@ open class X11WindowPeer: WindowPeer {
 
     override fun setTitleImpl(title: String) = nSetTitle(xDisplay, handle, title.c_str)
 
-    override fun setVisibleImpl(visible: Boolean) = nSetVisible(xDisplay, handle, visible)
+    override fun setVisibleImpl(visible: Boolean) {
+        nSetVisible(xDisplay, handle, visible)
+        nSetSize(xDisplay, handle, sizeProperty.value.width.toInt(), sizeProperty.value.height.toInt())
+        nSetPosition(xDisplay, handle, positionProperty.value.x.toInt(), positionProperty.value.y.toInt())
+    }
 
     override fun setCursorImpl(cursor: Cursor) = nSetCursor(xDisplay, handle, when(cursor){
         Cursor.DEFAULT -> 0

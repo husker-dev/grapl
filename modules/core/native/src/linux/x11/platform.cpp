@@ -18,7 +18,8 @@ jni_x11_platform(void, nInit)(JNIEnv* env, jobject) {
 jni_x11_platform(void, nPeekMessage)(JNIEnv* env, jobject, jlong _display) {
     Display* display = (Display*)_display;
     XEvent event;
-    XNextEvent(display, &event);
+    while(XPending(display))
+        XNextEvent(display, &event);
 }
 
 jni_x11_platform(void, nWaitMessage)(JNIEnv* env, jobject, jint timeout) {
