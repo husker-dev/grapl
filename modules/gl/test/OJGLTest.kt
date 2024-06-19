@@ -12,7 +12,6 @@ fun main(){
     GLWindow().apply {
         title = "UTF? Да"
         cursor = Cursor.HAND
-
         size = 100 x 100
         alignToCenter()
 
@@ -22,7 +21,7 @@ fun main(){
             glClearColor(1f, 0f, 0f, 1f)
         }
         onUpdate = {
-            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
+            glClear(GL_COLOR_BUFFER_BIT)
             swapBuffers()
         }
 
@@ -31,11 +30,6 @@ fun main(){
 }
 
 class OJGLTest {
-
-    @Test
-    fun createWindow() {
-
-    }
 
     @Test
     fun createAndDeleteInstance() {

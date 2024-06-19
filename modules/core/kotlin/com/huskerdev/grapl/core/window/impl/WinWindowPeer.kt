@@ -14,7 +14,7 @@ open class WinWindowPeer(
     hwnd: Long,
 ): WindowPeer(hwnd) {
     companion object {
-        @JvmStatic private external fun nHookWindow(hwnd: Long, callbackClass: Any)
+        @JvmStatic private external fun nHookWindow(hwnd: Long, callbackObject: Any)
         @JvmStatic private external fun nPostQuit(hwnd: Long)   // Pushes WM_QUIT
 
         @JvmStatic private external fun nSetVisible(hwnd: Long, value: Boolean)

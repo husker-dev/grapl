@@ -1,0 +1,5 @@
+{
+  "resources": [
+    {"pattern": ".*com/huskerdev/grapl/.*/native/lib.*$"}
+  ]
+}

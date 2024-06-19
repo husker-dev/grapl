@@ -8,6 +8,7 @@ apply from: addon(addons_testing)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
+    main.resources.srcDirs = ['resources']
 }
 
 dependencies {
