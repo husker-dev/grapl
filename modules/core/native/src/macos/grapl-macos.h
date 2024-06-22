@@ -1,4 +1,5 @@
 #import <grapl.h>
+#import <callbacks.hpp>
 #import <thread-utils.h>
 
 #import <Cocoa/Cocoa.h>
