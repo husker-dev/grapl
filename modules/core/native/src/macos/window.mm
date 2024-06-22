@@ -49,7 +49,7 @@ public:
            View
    ==================== */
 @interface View : NSView <NSWindowDelegate> {
-    MacWindowCallbackContainer callbacks;
+    MacWindowCallbackContainer* callbacks;
 
     float sumScale;
     float sumRotation;
@@ -151,10 +151,10 @@ public:
         case kVK_ANSI_Z:            return GRAPL_VK_Z;
 
         case kVK_ANSI_LeftBracket:  return GRAPL_VK_LEFT_BRACKET;
-        case kVK_ANSI_Backslash:    return GRAPL_VK_ACKSLASH;
+        case kVK_ANSI_Backslash:    return GRAPL_VK_BACKSLASH;
         case kVK_ANSI_RightBracket: return GRAPL_VK_RIGHT_BRACKET;
         case kVK_ANSI_Grave:        return GRAPL_VK_GRAVE_ACCENT;
-        case kVK_Escape:            return GRAPL_VK_ESC;
+        case kVK_Escape:            return GRAPL_VK_ESCAPE;
         case kVK_Return:            return GRAPL_VK_ENTER;
         case kVK_Tab:               return GRAPL_VK_TAB;
         case kVK_Delete:            return GRAPL_VK_BACKSPACE;
@@ -324,7 +324,7 @@ public:
             (jdouble)sumScale,
             [self getModifierKeys]);
     if ([event phase] == NSEventPhaseEnded)
-        [self sendMouseEvent:event callback:onPointerZoomEndCallback];
+        [self sendMouseEvent:event callback:callbacks->onPointerZoomEndCallback];
 }
 
 - (void) rotateWithEvent:(NSEvent *)event {
@@ -332,7 +332,7 @@ public:
     const NSSize size = [self window].contentView.frame.size;
     if ([event phase] == NSEventPhaseBegan){
         sumRotation = 0;
-        [self sendMouseEvent:event callback:onPointerRotationBeginCallback];
+        [self sendMouseEvent:event callback:callbacks->onPointerRotationBeginCallback];
     }
     sumRotation += [event rotation];
     callbacks->onPointerRotationCallback->call(
@@ -342,7 +342,7 @@ public:
             (jdouble)sumRotation,
             [self getModifierKeys]);
     if ([event phase] == NSEventPhaseEnded)
-        [self sendMouseEvent:event callback:onPointerRotationEndCallback];
+        [self sendMouseEvent:event callback:callbacks->onPointerRotationEndCallback];
 }
 
 - (void) scrollWheel:(NSEvent *)event {
