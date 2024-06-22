@@ -27,7 +27,6 @@ jni_x11_display(jlongArray, nGetAllScreens)(JNIEnv* env, jobject, jlong _display
 
     XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, root);
     int count = sr->noutput;
-    XRRFreeScreenResources(sr);
 
     int actualCount = 0;
     for(int i = 0; i < count; i++){
@@ -45,6 +44,7 @@ jni_x11_display(jlongArray, nGetAllScreens)(JNIEnv* env, jobject, jlong _display
         XRRFreeOutputInfo(oi);
     }
 
+    XRRFreeScreenResources(sr);
     jlongArray result = createLongArray(env, actualCount, screens);
     delete[] screens;
     return result;
@@ -227,7 +227,7 @@ jni_x11_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _display, jlong i
                       &actual_type, &actual_format,
                       &nitems, &bytes_after, &prop);
 
-            for(int r = 0; r < nitems - 4; r++){
+            for(long unsigned int r = 0; r < nitems - 4; r++){
                 if(prop[r] == 0 && prop[r+1] == 0 && prop[r+2] == 0 && (prop[r+3] == 0xFC || prop[r+3] == 0xFE)){
                     r += 4;
                     int a = 0;
@@ -301,10 +301,10 @@ jni_x11_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong _
         XRRModeInfo mode = sr->modes[i];
         if (mode.id == modeId) {
             return createIntArray(env, {
-                mode.width,
-                mode.height,
+                (int)mode.width,
+                (int)mode.height,
                 32,
-                round((double)mode.dotClock / ((double)mode.hTotal * (double)mode.vTotal))
+                (int)round((double)mode.dotClock / ((double)mode.hTotal * (double)mode.vTotal))
             });
         }
     }

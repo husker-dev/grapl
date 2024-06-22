@@ -1,5 +1,6 @@
 package com.huskerdev.grapl.gl.platforms.linux
 
+import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.impl.LinuxPlatform
 import com.huskerdev.grapl.core.platform.impl.X11
 import com.huskerdev.grapl.core.window.impl.X11WindowPeer
@@ -28,8 +29,10 @@ class LinuxGLPlatform: GLPlatform() {
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int
-    ) = nCreateWindow((LinuxPlatform.windowingSystem as X11).display).run {
-        GLXWindowPeer(this[0]).apply { context = GLXContext(xDisplay, handle, this@run[1], 0, 0) }
+    ) = BackgroundMessageHandler.invokeWaiting {
+        nCreateWindow((LinuxPlatform.windowingSystem as X11).display).run {
+            GLXWindowPeer(this[0]).apply { context = GLXContext(xDisplay, handle, this@run[1], 0, 0) }
+        }
     }
 
     override fun swapBuffers(window: GLWindow) = nSwapBuffers((window.peer as X11WindowPeer).xDisplay, window.peer.handle)

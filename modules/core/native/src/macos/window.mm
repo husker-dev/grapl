@@ -121,114 +121,123 @@ static JNIEnv* env;
 
 -(jint) translateKey:(int)key {
     switch(key){
-        case kVK_Space:             return 32; // SPACE
-        case kVK_ANSI_Quote:        return 39; // APOSTROPHE
-        case kVK_ANSI_Comma:        return 44; // COMMA
-        case kVK_ANSI_Minus:        return 45; // MINUS
-        case kVK_ANSI_Period:       return 46; // PERIOD
-        case kVK_ANSI_Slash:        return 47; // SLASH
-        case kVK_ANSI_0:            return 48; // 0
-        case kVK_ANSI_1:            return 49; // 1
-        case kVK_ANSI_2:            return 50; // 2
-        case kVK_ANSI_3:            return 51; // 3
-        case kVK_ANSI_4:            return 52; // 4
-        case kVK_ANSI_5:            return 53; // 5
-        case kVK_ANSI_6:            return 54; // 6
-        case kVK_ANSI_7:            return 55; // 7
-        case kVK_ANSI_8:            return 56; // 8
-        case kVK_ANSI_9:            return 57; // 9
-        case kVK_ANSI_Semicolon:    return 59; // ;
-        case kVK_ANSI_Equal:        return 61; // =
-        case kVK_ANSI_A:            return 65; // A
-        case kVK_ANSI_B:            return 66; // B
-        case kVK_ANSI_C:            return 67; // C
-        case kVK_ANSI_D:            return 68; // D
-        case kVK_ANSI_E:            return 69; // E
-        case kVK_ANSI_F:            return 70; // F
-        case kVK_ANSI_G:            return 71; // G
-        case kVK_ANSI_H:            return 72; // H
-        case kVK_ANSI_I:            return 73; // I
-        case kVK_ANSI_J:            return 74; // J
-        case kVK_ANSI_K:            return 75; // K
-        case kVK_ANSI_L:            return 76; // L
-        case kVK_ANSI_M:            return 77; // M
-        case kVK_ANSI_N:            return 78; // N
-        case kVK_ANSI_O:            return 79; // O
-        case kVK_ANSI_P:            return 80; // P
-        case kVK_ANSI_Q:            return 81; // Q
-        case kVK_ANSI_R:            return 82; // R
-        case kVK_ANSI_S:            return 83; // S
-        case kVK_ANSI_T:            return 84; // T
-        case kVK_ANSI_U:            return 85; // U
-        case kVK_ANSI_V:            return 86; // V
-        case kVK_ANSI_W:            return 87; // W
-        case kVK_ANSI_X:            return 88; // X
-        case kVK_ANSI_Y:            return 89; // Y
-        case kVK_ANSI_Z:            return 90; // Z
-        case kVK_ANSI_LeftBracket:  return 91; // [
-        case kVK_ANSI_Backslash:    return 92; // \.
-        case kVK_ANSI_RightBracket: return 93; // ]
-        case kVK_ANSI_Grave:        return 96; // GRAVE_ACCENT
-        case kVK_Escape:            return 256; // ESC
-        case kVK_Return:            return 257; // ENTER
-        case kVK_Tab:               return 258; // TAB
-        case kVK_Delete:            return 259; // BACKSPACE
-        case kVK_ForwardDelete:     return 261; // DELETE
-        case kVK_RightArrow:        return 262; // RIGHT
-        case kVK_LeftArrow:         return 263; // LEFT
-        case kVK_DownArrow:         return 264; // DOWN
-        case kVK_UpArrow:           return 265; // UP
-        case kVK_PageUp:            return 266; // PAGE_UP
-        case kVK_PageDown:          return 267; // PAGE_DOWN
-        case kVK_Home:              return 268; // HOME
-        case kVK_End:               return 269; // END
-        case kVK_CapsLock:          return 280; // CAPS_LOCK
-        case kVK_F1:                return 290; // F1
-        case kVK_F2:                return 291; // F2
-        case kVK_F3:                return 292; // F3
-        case kVK_F4:                return 293; // F4
-        case kVK_F5:                return 294; // F5
-        case kVK_F6:                return 295; // F6
-        case kVK_F7:                return 296; // F7
-        case kVK_F8:                return 297; // F8
-        case kVK_F9:                return 298; // F9
-        case kVK_F10:               return 299; // F10
-        case kVK_F11:               return 300; // F11
-        case kVK_F12:               return 301; // F12
-        case kVK_F13:               return 302; // F13
-        case kVK_F14:               return 303; // F14
-        case kVK_F15:               return 304; // F15
-        case kVK_F16:               return 305; // F16
-        case kVK_F17:               return 306; // F17
-        case kVK_F18:               return 307; // F18
-        case kVK_F19:               return 308; // F19
-        case kVK_F20:               return 309; // F20
-        case kVK_ANSI_Keypad0:      return 320; // KP_0
-        case kVK_ANSI_Keypad1:      return 321; // KP_1
-        case kVK_ANSI_Keypad2:      return 322; // KP_2
-        case kVK_ANSI_Keypad3:      return 323; // KP_3
-        case kVK_ANSI_Keypad4:      return 324; // KP_4
-        case kVK_ANSI_Keypad5:      return 325; // KP_5
-        case kVK_ANSI_Keypad6:      return 326; // KP_6
-        case kVK_ANSI_Keypad7:      return 327; // KP_7
-        case kVK_ANSI_Keypad8:      return 328; // KP_8
-        case kVK_ANSI_Keypad9:      return 329; // KP_9
-        case kVK_ANSI_KeypadDecimal:  return 330; // KP_DECIMAL
-        case kVK_ANSI_KeypadDivide:   return 331; // KP_DIVIDE
-        case kVK_ANSI_KeypadMultiply: return 332; // KP_MULTIPLY
-        case kVK_ANSI_KeypadMinus:    return 333; // KP_SUBTRACT
-        case kVK_ANSI_KeypadPlus:     return 334; // KP_ADD
-        case kVK_ANSI_KeypadEnter:    return 335; // KP_ENTER
-        case kVK_ANSI_KeypadEquals:   return 336; // KP_EQUAL
-        case kVK_Shift:             return 340; // LEFT_SHIFT
-        case kVK_Control:           return 341; // LEFT_CONTROL
-        case kVK_Option:            return 342; // LEFT_ALT
-        case kVK_RightShift:        return 344; // RIGHT_SHIFT
-        case kVK_RightControl:      return 345; // RIGHT_CONTROL
-        case kVK_RightOption:       return 346; // RIGHT_ALT
+        case kVK_Space:             return GRAPL_VK_SPACE;
+        case kVK_ANSI_Quote:        return GRAPL_VK_APOSTROPHE;
+        case kVK_ANSI_Comma:        return GRAPL_VK_COMMA;
+        case kVK_ANSI_Minus:        return GRAPL_VK_MINUS;
+        case kVK_ANSI_Period:       return GRAPL_VK_PERIOD;
+        case kVK_ANSI_Slash:        return GRAPL_VK_SLASH;
 
-        case kVK_Command:           return 349; // LEFT_COMMAND
-        case kVK_RightCommand:      return 350; // RIGHT_COMMAND
+        case kVK_ANSI_0:            return GRAPL_VK_0;
+        case kVK_ANSI_1:            return GRAPL_VK_1;
+        case kVK_ANSI_2:            return GRAPL_VK_2;
+        case kVK_ANSI_3:            return GRAPL_VK_3;
+        case kVK_ANSI_4:            return GRAPL_VK_4;
+        case kVK_ANSI_5:            return GRAPL_VK_5;
+        case kVK_ANSI_6:            return GRAPL_VK_6;
+        case kVK_ANSI_7:            return GRAPL_VK_7;
+        case kVK_ANSI_8:            return GRAPL_VK_8;
+        case kVK_ANSI_9:            return GRAPL_VK_9;
+
+        case kVK_ANSI_Semicolon:    return GRAPL_VK_SEMICOLON;
+        case kVK_ANSI_Equal:        return GRAPL_VK_EQUAL;
+
+        case kVK_ANSI_A:            return GRAPL_VK_A;
+        case kVK_ANSI_B:            return GRAPL_VK_B;
+        case kVK_ANSI_C:            return GRAPL_VK_C;
+        case kVK_ANSI_D:            return GRAPL_VK_D;
+        case kVK_ANSI_E:            return GRAPL_VK_E;
+        case kVK_ANSI_F:            return GRAPL_VK_F;
+        case kVK_ANSI_G:            return GRAPL_VK_G;
+        case kVK_ANSI_H:            return GRAPL_VK_H;
+        case kVK_ANSI_I:            return GRAPL_VK_I;
+        case kVK_ANSI_J:            return GRAPL_VK_J;
+        case kVK_ANSI_K:            return GRAPL_VK_K;
+        case kVK_ANSI_L:            return GRAPL_VK_L;
+        case kVK_ANSI_M:            return GRAPL_VK_M;
+        case kVK_ANSI_N:            return GRAPL_VK_N;
+        case kVK_ANSI_O:            return GRAPL_VK_O;
+        case kVK_ANSI_P:            return GRAPL_VK_P;
+        case kVK_ANSI_Q:            return GRAPL_VK_Q;
+        case kVK_ANSI_R:            return GRAPL_VK_R;
+        case kVK_ANSI_S:            return GRAPL_VK_S;
+        case kVK_ANSI_T:            return GRAPL_VK_T;
+        case kVK_ANSI_U:            return GRAPL_VK_U;
+        case kVK_ANSI_V:            return GRAPL_VK_V;
+        case kVK_ANSI_W:            return GRAPL_VK_W;
+        case kVK_ANSI_X:            return GRAPL_VK_X;
+        case kVK_ANSI_Y:            return GRAPL_VK_Y;
+        case kVK_ANSI_Z:            return GRAPL_VK_Z;
+
+        case kVK_ANSI_LeftBracket:  return GRAPL_VK_LEFT_BRACKET;
+        case kVK_ANSI_Backslash:    return GRAPL_VK_ACKSLASH;
+        case kVK_ANSI_RightBracket: return GRAPL_VK_RIGHT_BRACKET;
+        case kVK_ANSI_Grave:        return GRAPL_VK_GRAVE_ACCENT;
+        case kVK_Escape:            return GRAPL_VK_ESC;
+        case kVK_Return:            return GRAPL_VK_ENTER;
+        case kVK_Tab:               return GRAPL_VK_TAB;
+        case kVK_Delete:            return GRAPL_VK_BACKSPACE;
+        case kVK_ForwardDelete:     return GRAPL_VK_DELETE;
+
+        case kVK_RightArrow:        return GRAPL_VK_RIGHT;
+        case kVK_LeftArrow:         return GRAPL_VK_LEFT;
+        case kVK_DownArrow:         return GRAPL_VK_DOWN;
+        case kVK_UpArrow:           return GRAPL_VK_UP;
+
+        case kVK_PageUp:            return GRAPL_VK_PAGE_UP;
+        case kVK_PageDown:          return GRAPL_VK_PAGE_DOWN;
+        case kVK_Home:              return GRAPL_VK_HOME;
+        case kVK_End:               return GRAPL_VK_END;
+        case kVK_CapsLock:          return GRAPL_VK_CAPS_LOCK;
+
+        case kVK_F1:                return GRAPL_VK_F1;
+        case kVK_F2:                return GRAPL_VK_F2;
+        case kVK_F3:                return GRAPL_VK_F3;
+        case kVK_F4:                return GRAPL_VK_F4;
+        case kVK_F5:                return GRAPL_VK_F5;
+        case kVK_F6:                return GRAPL_VK_F6;
+        case kVK_F7:                return GRAPL_VK_F7;
+        case kVK_F8:                return GRAPL_VK_F8;
+        case kVK_F9:                return GRAPL_VK_F9;
+        case kVK_F10:               return GRAPL_VK_F10;
+        case kVK_F11:               return GRAPL_VK_F11;
+        case kVK_F12:               return GRAPL_VK_F12;
+        case kVK_F13:               return GRAPL_VK_F13;
+        case kVK_F14:               return GRAPL_VK_F14;
+        case kVK_F15:               return GRAPL_VK_F15;
+        case kVK_F16:               return GRAPL_VK_F16;
+        case kVK_F17:               return GRAPL_VK_F17;
+        case kVK_F18:               return GRAPL_VK_F18;
+        case kVK_F19:               return GRAPL_VK_F19;
+        case kVK_F20:               return GRAPL_VK_F20;
+
+        case kVK_ANSI_Keypad0:      return GRAPL_VK_KP_0;
+        case kVK_ANSI_Keypad1:      return GRAPL_VK_KP_1;
+        case kVK_ANSI_Keypad2:      return GRAPL_VK_KP_2;
+        case kVK_ANSI_Keypad3:      return GRAPL_VK_KP_3;
+        case kVK_ANSI_Keypad4:      return GRAPL_VK_KP_4;
+        case kVK_ANSI_Keypad5:      return GRAPL_VK_KP_5;
+        case kVK_ANSI_Keypad6:      return GRAPL_VK_KP_6;
+        case kVK_ANSI_Keypad7:      return GRAPL_VK_KP_7;
+        case kVK_ANSI_Keypad8:      return GRAPL_VK_KP_8;
+        case kVK_ANSI_Keypad9:      return GRAPL_VK_KP_9;
+        case kVK_ANSI_KeypadDecimal:  return GRAPL_VK_KP_DECIMAL;
+        case kVK_ANSI_KeypadDivide:   return GRAPL_VK_KP_DIVIDE;
+        case kVK_ANSI_KeypadMultiply: return GRAPL_VK_KP_MULTIPLY;
+        case kVK_ANSI_KeypadMinus:    return GRAPL_VK_KP_SUBTRACT;
+        case kVK_ANSI_KeypadPlus:     return GRAPL_VK_KP_ADD;
+        case kVK_ANSI_KeypadEnter:    return GRAPL_VK_KP_ENTER;
+        case kVK_ANSI_KeypadEquals:   return GRAPL_VK_KP_EQUAL;
+
+        case kVK_Shift:             return GRAPL_VK_LEFT_SHIFT;
+        case kVK_Control:           return GRAPL_VK_LEFT_CONTROL;
+        case kVK_Option:            return GRAPL_VK_LEFT_ALT;
+        case kVK_RightShift:        return GRAPL_VK_RIGHT_SHIFT;
+        case kVK_RightControl:      return GRAPL_VK_RIGHT_CONTROL;
+        case kVK_RightOption:       return GRAPL_VK_RIGHT_ALT;
+
+        case kVK_Command:           return GRAPL_VK_LEFT_COMMAND;
+        case kVK_RightCommand:      return GRAPL_VK_RIGHT_COMMAND;
     }
     return -1;
 }

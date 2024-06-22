@@ -12,9 +12,12 @@ import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
 
-open class X11WindowPeer: WindowPeer {
+open class X11WindowPeer(
+    handle: Long = nCreateWindow((LinuxPlatform.windowingSystem as X11).display)
+): WindowPeer(handle) {
     companion object {
         @JvmStatic private external fun nCreateWindow(display: Long): Long
+        @JvmStatic private external fun nHookWindow(display: Long, window: Long, callback: Any)
         @JvmStatic private external fun nDestroyWindow(display: Long, window: Long)
         @JvmStatic private external fun nSetTitle(display: Long, window: Long, title: ByteBuffer)
         @JvmStatic private external fun nSetVisible(display: Long, window: Long, isVisible: Boolean)
@@ -27,13 +30,8 @@ open class X11WindowPeer: WindowPeer {
 
     val xDisplay = (LinuxPlatform.windowingSystem as X11).display
 
-
-    constructor(): super(){
-        handle = nCreateWindow(xDisplay)
-    }
-
-    constructor(handle: Long): super(){
-        this.handle = handle
+    init {
+        nHookWindow(xDisplay, handle, X11WindowCallback())
     }
 
     override val display: Display?
@@ -118,4 +116,11 @@ open class X11WindowPeer: WindowPeer {
     override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value)
 
     override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value)
+
+    inner class X11WindowCallback: DefaultWindowCallback(){
+        override fun onCloseCallback() {
+            super.onCloseCallback()
+            nDestroyWindow(xDisplay, handle)
+        }
+    }
 }

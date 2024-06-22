@@ -198,6 +198,7 @@ enum Compiler {
                         -Wall -Os -s
                         -Wno-unused-function
                         -Wno-unused-variable
+                        -fPIC
                         $typeModifier
                         $archModifier
                         ${includeDirs.collect { "-I$it" }.join(" ")}

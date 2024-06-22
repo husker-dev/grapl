@@ -20,27 +20,213 @@ enum {
     MWM_FUNC_CLOSE = (1L << 5)
 };
 
+class X11WindowCallbackContainer: public WindowCallbackContainer {
+public:
+    Window window;
+    XIC xic;
+
+    X11WindowCallbackContainer(JNIEnv* env, Window window, XIC xic, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
+        this->window = window;
+        this->xic = xic;
+    }
+};
+static std::map<Window, X11WindowCallbackContainer*> wrappers;
+
+int translateModifiers(int state){
+    int mods = 0;
+    if (state & Mod1Mask)    mods |= 1;
+    if (state & ControlMask) mods |= 2;
+    if (state & ShiftMask)   mods |= 4;
+    return mods;
+}
+
+int translateKeyCode(int code){
+    if (!keyMap.count(code))
+        return -1;
+    return keyMap[code];
+}
+
+void dispatchEvent(XEvent event){
+    Display* display = event.xany.display;
+    Window window = event.xany.window;
+
+    if (!wrappers.count(window))
+        return;
+    X11WindowCallbackContainer* wrapper = wrappers[window];
+    JNIEnv* env = wrapper->env;
+
+    int keycode = 0;
+    if (event.type == KeyPress || event.type == KeyRelease)
+        keycode = event.xkey.keycode;
+
+    Bool filtered = XFilterEvent(&event, None);
+
+    switch(event.type){
+        case ClientMessage: {
+            if (filtered || event.xclient.message_type == None)
+                return;
+
+            if (event.xclient.message_type == WM_PROTOCOLS){
+                const Atom protocol = event.xclient.data.l[0];
+                if (protocol == None)
+                    return;
+
+                if (protocol == WM_DELETE_WINDOW){
+                    wrapper->onCloseCallback->call();
+                    return;
+                } else if (protocol == NET_WM_PING) {
+                    XEvent reply = event;
+                    reply.xclient.window = DefaultRootWindow(display);
+                    XSendEvent(display, reply.xclient.window, False,
+                               SubstructureNotifyMask | SubstructureRedirectMask,
+                               &reply);
+                }
+            }
+            break;
+        }
+        case ConfigureNotify: {
+            XConfigureRequestEvent e = event.xconfigurerequest;
+            wrapper->onResizeCallback->call(e.width, e.height);
+            wrapper->onMoveCallback->call(e.x, e.y);
+            break;
+        }
+        case FocusIn: {
+            wrapper->onFocusCallback->call(true);
+            break;
+        }
+        case FocusOut: {
+            wrapper->onFocusCallback->call(false);
+            break;
+        }
+        case MotionNotify: {
+            const int x = event.xmotion.x;
+            const int y = event.xmotion.y;
+            const int mods = translateModifiers(event.xmotion.state);
+            wrapper->onPointerMoveCallback->call(1, x, y, mods);
+            break;
+        }
+        case ButtonPress: {
+            const int x = event.xbutton.x;
+            const int y = event.xbutton.y;
+            const int mods = translateModifiers(event.xbutton.state);
+
+            if (event.xbutton.button <= 3)
+                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button, mods);
+            if (event.xbutton.button > 7)
+                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button - 4, mods);
+            else if (event.xbutton.button == 4)
+                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, 1.0, mods);
+            else if (event.xbutton.button == 5)
+                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, -1.0, mods);
+            else if (event.xbutton.button == 6)
+                wrapper->onPointerScrollCallback->call(1, x, y, 1.0, 0.0, mods);
+            else if (event.xbutton.button == 7)
+                wrapper->onPointerScrollCallback->call(1, x, y, -1.0, 0.0, mods);
+            break;
+        }
+        case ButtonRelease: {
+            const int x = event.xbutton.x;
+            const int y = event.xbutton.y;
+            const int mods = translateModifiers(event.xbutton.state);
+
+            if (event.xbutton.button <= 3)
+                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button, mods);
+            if (event.xbutton.button > 7)
+                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button - 4, mods);
+            break;
+        }
+        case EnterNotify: {
+            const int x = event.xcrossing.x;
+            const int y = event.xcrossing.y;
+            const int mods = translateModifiers(event.xbutton.state);
+            wrapper->onPointerEnterCallback->call(1, x, y, mods);
+            break;
+        }
+        case LeaveNotify: {
+            const int x = event.xcrossing.x;
+            const int y = event.xcrossing.y;
+            const int mods = translateModifiers(event.xbutton.state);
+            wrapper->onPointerLeaveCallback->call(1, x, y, mods);
+            break;
+        }
+        case KeyPress: {
+            const int key = translateKeyCode(keycode);
+            const int mods = translateModifiers(event.xkey.state);
+
+            Status status;
+            char buffer[200];
+            Xutf8LookupString(wrapper->xic, &event.xkey, buffer, sizeof(buffer) - 1, NULL, &status);
+
+            wrapper->onKeyDownCallback->call(key, keycode, toJString(env, buffer), mods);
+            break;
+        }
+        case KeyRelease: {
+            const int key = translateKeyCode(keycode);
+            const int mods = translateModifiers(event.xkey.state);
+            wrapper->onKeyUpCallback->call(key, keycode, toJString(env, ""), mods);
+            break;
+        }
+    }
+}
+
 
 jni_x11_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jlong _display) {
     Display* display = (Display*)_display;
 
    	int screen = DefaultScreen(display);
    	Window window = XCreateSimpleWindow(
-   	    display,
-   	    DefaultRootWindow(display),
-   	    0, 0,
-		200, 300,
-		5,
-		WhitePixel(display, screen), BlackPixel(display, screen)
+   	    display, DefaultRootWindow(display),
+   	    0, 0, 10, 10,
+		5, WhitePixel(display, screen), BlackPixel(display, screen)
     );
-    XSelectInput(display, window, ExposureMask|ButtonPressMask|KeyPressMask);
 
 	return (jlong)window;
+}
+
+jni_x11_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _display, jlong _window, jobject callbackObject) {
+    Display* display = (Display*)_display;
+    Window window = (Window)_window;
+
+    // Set events
+    XSelectInput(display, window, StructureNotifyMask | KeyPressMask    | KeyReleaseMask       |
+                                  PointerMotionMask   | ButtonPressMask | ButtonReleaseMask    |
+                                  ExposureMask        | FocusChangeMask | VisibilityChangeMask |
+                                  EnterWindowMask     | LeaveWindowMask | PropertyChangeMask   );
+
+    // Set protocols to handle 'close' and 'ping' events
+    Atom protocols[] = {
+        WM_DELETE_WINDOW,
+        NET_WM_PING
+    };
+    XSetWMProtocols(display, window, protocols, sizeof(protocols) / sizeof(Atom));
+
+    // Setup XIC
+    XSetLocaleModifiers("");
+    XIM xim = XOpenIM(display, 0, 0, 0);
+    if(!xim){
+        XSetLocaleModifiers("@im=none");
+        xim = XOpenIM(display, 0, 0, 0);
+    }
+
+    XIC xic = XCreateIC(xim,
+                        XNInputStyle,   XIMPreeditNothing | XIMStatusNothing,
+                        XNClientWindow, window,
+                        XNFocusWindow,  window,
+                        NULL);
+    XSetICFocus(xic);
+
+    // Create callback container
+    wrappers[window] = new X11WindowCallbackContainer(env, window, xic, callbackObject);
 }
 
 jni_x11_window(void, nDestroyWindow)(JNIEnv* env, jobject, jlong _display, jlong _window) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
+
+    X11WindowCallbackContainer* wrapper = wrappers[window];
+    wrappers.erase(window);
+    delete wrapper;
+
     XDestroyWindow(display, window);
 }
 
@@ -50,8 +236,7 @@ jni_x11_window(void, nSetTitle)(JNIEnv* env, jobject, jlong _display, jlong _win
 
     char* title = (char*)env->GetDirectBufferAddress(_title);
     XChangeProperty(display, window,
-            XInternAtom(display, "_NET_WM_NAME", False),
-            XInternAtom(display, "UTF8_STRING", False),
+            _NET_WM_NAME, UTF8_STRING,
             8, PropModeReplace, (unsigned char*) title,
             env->GetDirectBufferCapacity(_title)-2);
 }
@@ -163,6 +348,6 @@ jni_x11_window(void, nUpdateActions)(JNIEnv* env, jobject, jlong _display, jlong
     if(minimizable) hints.functions |= MWM_FUNC_MINIMIZE;
     if(maximizable) hints.functions |= MWM_FUNC_MAXIMIZE;
 
-    XChangeProperty(display, window, XInternAtom(display, "_MOTIF_WM_HINTS", False), XA_ATOM, 32, PropModeReplace, (unsigned char*)&hints, 5);
+    XChangeProperty(display, window, _MOTIF_WM_HINTS, XA_ATOM, 32, PropModeReplace, (unsigned char*)&hints, 5);
     XFlush(display);
 }

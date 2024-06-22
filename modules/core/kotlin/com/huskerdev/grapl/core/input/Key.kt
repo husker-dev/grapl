@@ -6,7 +6,11 @@ data class Key(
     val char: Char?
 )
 
-open class KeyEvent(
+class KeyEvent(
     val key: Key,
     modifiers: Int
-): InputEvent(modifiers)
+): InputEvent(modifiers) {
+    override fun toString(): String {
+        return "KeyEvent[key:${key}, modifiers:${modifiers}]"
+    }
+}

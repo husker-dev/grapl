@@ -1,6 +1,8 @@
 #define UNICODE
 
 #include <grapl.h>
+#include <callbacks.hpp>
+
 #include <windows.h>
 #include <windowsx.h>
 

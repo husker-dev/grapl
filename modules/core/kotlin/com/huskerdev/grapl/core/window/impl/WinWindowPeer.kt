@@ -80,7 +80,7 @@ open class WinWindowPeer(
 
     inner class WinWindowCallback: DefaultWindowCallback(){
 
-        var mouseEntered = false
+        private var mouseEntered = false
 
         override fun onResizeCallback(width: Int, height: Int) {
             super.onResizeCallback(width, height)

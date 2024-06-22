@@ -1,126 +1,37 @@
 #include "grapl-win.h"
-#include <map>
-
-#include <iostream>
-
 #include "touchpad-manager.cpp"
+
+#include <map>
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-class Callback {
-public:
-    Callback(JNIEnv* env, jmethodID method, jobject callbackObject){
-        this->env = env;
-        this->method = method;
-        this->callbackObject = callbackObject;
-    }
-
-    template<class... jvalue>
-    void call(jvalue... values){
-        env->CallVoidMethod(callbackObject, method, values...);
-    }
-
-    template<class... jvalue>
-    jint callInt(jvalue... values){
-        return env->CallIntMethod(callbackObject, method, values...);
-    }
-
-    template<class... jvalue>
-    jobject callObject(jvalue... values){
-        return env->CallObjectMethod(callbackObject, method, values...);
-    }
-private:
-    JNIEnv* env;
-    jmethodID method;
-    jobject callbackObject;
-};
-
-
-class WindowWrapper {
+class WinWindowCallbackContainer: public WindowCallbackContainer {
 public:
     HWND hwnd;
     WNDPROC prevProc;
-
     TouchpadManager* touchpadManager;
 
-    JNIEnv* env;
-    jclass callbackClass;
-    jobject callbackObject;
-
-    Callback* onCloseCallback;
-    Callback* onResizeCallback;
-    Callback* onMoveCallback;
     Callback* getCursorCallback;
     Callback* getMinMaxBounds;
-    Callback* onFocusCallback;
 
-    Callback* onPointerMoveCallback;
-    Callback* onPointerDownCallback;
-    Callback* onPointerUpCallback;
-    Callback* onPointerEnterCallback;
-    Callback* onPointerLeaveCallback;
-    Callback* onPointerScrollCallback;
-    Callback* onPointerZoomBeginCallback;
-    Callback* onPointerZoomCallback;
-    Callback* onPointerZoomEndCallback;
-
-    Callback* onPointerRotationBeginCallback;
-    Callback* onPointerRotationCallback;
-    Callback* onPointerRotationEndCallback;
-
-    Callback* onKeyDownCallback;
-    Callback* onKeyUpCallback;
-
-    WindowWrapper(JNIEnv* env, HWND hwnd, jobject callbackObject) {
-        this->env = env;
+    WinCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
         this->hwnd = hwnd;
-        this->callbackObject = env->NewGlobalRef(callbackObject);
-        this->callbackClass = env->GetObjectClass(callbackObject);
 
         touchpadManager = new TouchpadManager(hwnd);
+        prevProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
 
-        prevProc = (WNDPROC)GetWindowLongPtr(hwnd, GWLP_WNDPROC);
-        SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
-
-        onCloseCallback = callback("onCloseCallback", "()V");
-        onResizeCallback = callback("onResizeCallback", "(II)V");
-        onMoveCallback = callback("onMoveCallback", "(II)V");
         getCursorCallback = callback("getCursorCallback", "()I");
         getMinMaxBounds = callback("getMinMaxBounds", "()[I");
-        onFocusCallback = callback("onFocusCallback", "(Z)V");
-
-        onPointerMoveCallback = callback("onPointerMoveCallback", "(IIII)V");
-        onPointerDownCallback = callback("onPointerDownCallback", "(IIIII)V");
-        onPointerUpCallback = callback("onPointerUpCallback", "(IIIII)V");
-        onPointerEnterCallback = callback("onPointerEnterCallback", "(IIII)V");
-        onPointerLeaveCallback = callback("onPointerLeaveCallback", "(IIII)V");
-        onPointerScrollCallback = callback("onPointerScrollCallback", "(IIIDDI)V");
-
-        onPointerZoomBeginCallback = callback("onPointerZoomBeginCallback", "(IIII)V");
-        onPointerZoomCallback = callback("onPointerZoomCallback", "(IIIDI)V");
-        onPointerZoomEndCallback = callback("onPointerZoomEndCallback", "(IIII)V");
-
-        onPointerRotationBeginCallback = callback("onPointerRotationBeginCallback", "(IIII)V");
-        onPointerRotationCallback = callback("onPointerRotationCallback", "(IIIDI)V");
-        onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IIII)V");
-
-        onKeyDownCallback = callback("onKeyDownCallback", "(IILjava/lang/String;I)V");
-        onKeyUpCallback = callback("onKeyUpCallback", "(IILjava/lang/String;I)V");
     }
-private:
-    Callback* callback(const char* name, const char* params){
-        return new Callback(env, env->GetMethodID(callbackClass, name, params), callbackObject);
-    }
-};
+}
 
-static std::map<HWND, WindowWrapper*> wrappers;
+
+static std::map<HWND, WinWindowCallbackContainer*> wrappers;
 
 
 void removeCallbacks(HWND hwnd){
-    WindowWrapper* wrapper = wrappers[hwnd];
-
+    WinWindowCallbackContainer* wrapper = wrappers[hwnd];
     wrappers.erase(hwnd);
-    wrapper->env->DeleteGlobalRef(wrapper->callbackObject);
     delete wrapper;
 }
 
@@ -134,131 +45,138 @@ jint getModifierKeys(){
 
 jint translateKey(WPARAM key){
     switch(key){
-        case 0x039: return 32; // SPACE
-        case 0x028: return 39; // APOSTROPHE
-        case 0x033: return 44; // COMMA
-        case 0x00C: return 45; // MINUS
-        case 0x034: return 46; // PERIOD
-        case 0x035: return 47; // SLASH
-        case 0x00B: return 48; // 0
-        case 0x002: return 49; // 1
-        case 0x003: return 50; // 2
-        case 0x004: return 51; // 3
-        case 0x005: return 52; // 4
-        case 0x006: return 53; // 5
-        case 0x007: return 54; // 6
-        case 0x008: return 55; // 7
-        case 0x009: return 56; // 8
-        case 0x00A: return 57; // 9
-        case 0x027: return 59; // ;
-        case 0x00D: return 61; // =
-        case 0x01E: return 65; // A
-        case 0x030: return 66; // B
-        case 0x02E: return 67; // C
-        case 0x020: return 68; // D
-        case 0x012: return 69; // E
-        case 0x021: return 70; // F
-        case 0x022: return 71; // G
-        case 0x023: return 72; // H
-        case 0x017: return 73; // I
-        case 0x024: return 74; // J
-        case 0x025: return 75; // K
-        case 0x026: return 76; // L
-        case 0x032: return 77; // M
-        case 0x031: return 78; // N
-        case 0x018: return 79; // O
-        case 0x019: return 80; // P
-        case 0x010: return 81; // Q
-        case 0x013: return 82; // R
-        case 0x01F: return 83; // S
-        case 0x014: return 84; // T
-        case 0x016: return 85; // U
-        case 0x02F: return 86; // V
-        case 0x011: return 87; // W
-        case 0x02D: return 88; // X
-        case 0x015: return 89; // Y
-        case 0x02C: return 90; // Z
-        case 0x01A: return 91; // [
-        case 0x02B: return 92; // \.
-        case 0x01B: return 93; // ]
-        case 0x029: return 96; // GRAVE_ACCENT
-        case 0x001: return 256; // ESC
-        case 0x01C: return 257; // ENTER
-        case 0x00F: return 258; // TAB
-        case 0x00E: return 259; // BACKSPACE
-        case 0x152: return 260; // INSERT
-        case 0x153: return 261; // DELETE
-        case 0x14D: return 262; // RIGHT
-        case 0x14B: return 263; // LEFT
-        case 0x150: return 264; // DOWN
-        case 0x148: return 265; // UP
-        case 0x149: return 266; // PAGE_UP
-        case 0x151: return 267; // PAGE_DOWN
-        case 0x147: return 268; // HOME
-        case 0x14F: return 269; // END
-        case 0x03A: return 280; // CAPS_LOCK
-        case 0x046: return 281; // SCROLL_LOCK
-        case 0x145: return 282;  /// NUM_LOCK
-        case 0x137: return 283; // PRINT_SCREEN
-        case 0x03B: return 290; // F1
-        case 0x03C: return 291; // F2
-        case 0x03D: return 292; // F3
-        case 0x03E: return 293; // F4
-        case 0x03F: return 294; // F5
-        case 0x040: return 295; // F6
-        case 0x041: return 296; // F7
-        case 0x042: return 297; // F8
-        case 0x043: return 298; // F9
-        case 0x044: return 299; // F10
-        case 0x057: return 300; // F11
-        case 0x058: return 301; // F12
-        case 0x064: return 302; // F13
-        case 0x065: return 303; // F14
-        case 0x066: return 304; // F15
-        case 0x067: return 305; // F16
-        case 0x068: return 306; // F17
-        case 0x069: return 307; // F18
-        case 0x06A: return 308; // F19
-        case 0x06B: return 309; // F20
-        case 0x06C: return 310; // F21
-        case 0x06D: return 311; // F22
-        case 0x06E: return 312; // F23
-        case 0x076: return 313; // F24
-        case 0x052: return 320; // KP_0
-        case 0x04F: return 321; // KP_1
-        case 0x050: return 322; // KP_2
-        case 0x051: return 323; // KP_3
-        case 0x04B: return 324; // KP_4
-        case 0x04C: return 325; // KP_5
-        case 0x04D: return 326; // KP_6
-        case 0x047: return 327; // KP_7
-        case 0x048: return 328; // KP_8
-        case 0x049: return 329; // KP_9
-        case 0x053: return 330; // KP_DECIMAL
-        case 0x135: return 331; // KP_DIVIDE
-        case 0x037: return 332; // KP_MULTIPLY
-        case 0x04A: return 333; // KP_SUBTRACT
-        case 0x04E: return 334; // KP_ADD
-        case 0x11C: return 335; // KP_ENTER
-        case 0x059: return 336; // KP_EQUAL
+        case 0x039: return GRAPL_VK_SPACE;
+        case 0x028: return GRAPL_VK_APOSTROPHE;
+        case 0x033: return GRAPL_VK_COMMA;
+        case 0x00C: return GRAPL_VK_MINUS;
+        case 0x034: return GRAPL_VK_PERIOD;
+        case 0x035: return GRAPL_VK_SLASH;
 
-        case 0x02A: return 340; // LEFT_SHIFT
-        case 0x01D: return 341; // LEFT_CONTROL
-        case 0x038: return 342; // LEFT_ALT
-        case 0x15B: return 343; // LEFT_SUPER
+        case 0x00B: return GRAPL_VK_0;
+        case 0x002: return GRAPL_VK_1;
+        case 0x003: return GRAPL_VK_2;
+        case 0x004: return GRAPL_VK_3;
+        case 0x005: return GRAPL_VK_4;
+        case 0x006: return GRAPL_VK_5;
+        case 0x007: return GRAPL_VK_6;
+        case 0x008: return GRAPL_VK_7;
+        case 0x009: return GRAPL_VK_8;
+        case 0x00A: return GRAPL_VK_9;
 
-        case 0x036: return 344; // RIGHT_SHIFT
-        case 0x11D: return 345; // RIGHT_CONTROL
-        case 0x138: return 346; // RIGHT_ALT
-        case 0x15C: return 347; // LEFT_SUPER
+        case 0x027: return GRAPL_VK_SEMICOLON;
+        case 0x00D: return GRAPL_VK_EQUAL;
 
-        case 0x110: return 360; // VK_MEDIA_PREVIOUS
-        case 0x119: return 361; // VK_MEDIA_NEXT
-        case 0x122: return 362; // VK_MEDIA_PAUSE
+        case 0x01E: return GRAPL_VK_A;
+        case 0x030: return GRAPL_VK_B;
+        case 0x02E: return GRAPL_VK_C;
+        case 0x020: return GRAPL_VK_D;
+        case 0x012: return GRAPL_VK_E;
+        case 0x021: return GRAPL_VK_F;
+        case 0x022: return GRAPL_VK_G;
+        case 0x023: return GRAPL_VK_H;
+        case 0x017: return GRAPL_VK_I;
+        case 0x024: return GRAPL_VK_J;
+        case 0x025: return GRAPL_VK_K;
+        case 0x026: return GRAPL_VK_L;
+        case 0x032: return GRAPL_VK_M;
+        case 0x031: return GRAPL_VK_N;
+        case 0x018: return GRAPL_VK_O;
+        case 0x019: return GRAPL_VK_P;
+        case 0x010: return GRAPL_VK_Q;
+        case 0x013: return GRAPL_VK_R;
+        case 0x01F: return GRAPL_VK_S;
+        case 0x014: return GRAPL_VK_T;
+        case 0x016: return GRAPL_VK_U;
+        case 0x02F: return GRAPL_VK_V;
+        case 0x011: return GRAPL_VK_W;
+        case 0x02D: return GRAPL_VK_X;
+        case 0x015: return GRAPL_VK_Y;
+        case 0x02C: return GRAPL_VK_Z;
 
-        case 0x130: return 370; // VK_VOLUME_UP
-        case 0x12E: return 371; // VK_VOLUME_DOWN
-        case 0x120: return 372; // VK_VOLUME_MUTE
+        case 0x01A: return GRAPL_VK_LEFT_BRACKET;
+        case 0x02B: return GRAPL_VK_BACKSLASH;
+        case 0x01B: return GRAPL_VK_RIGHT_BRACKET;
+        case 0x029: return GRAPL_VK_GRAVE_ACCENT;
+        case 0x001: return GRAPL_VK_ESCAPE;
+        case 0x01C: return GRAPL_VK_ENTER;
+        case 0x00F: return GRAPL_VK_TAB;
+        case 0x00E: return GRAPL_VK_BACKSPACE;
+        case 0x152: return GRAPL_VK_INSERT;
+        case 0x153: return GRAPL_VK_DELETE;
+
+        case 0x14D: return GRAPL_VK_RIGHT;
+        case 0x14B: return GRAPL_VK_LEFT;
+        case 0x150: return GRAPL_VK_DOWN;
+        case 0x148: return GRAPL_VK_UP;
+
+        case 0x149: return GRAPL_VK_PAGE_UP;
+        case 0x151: return GRAPL_VK_PAGE_DOWN;
+        case 0x147: return GRAPL_VK_HOME;
+        case 0x14F: return GRAPL_VK_END;
+        case 0x03A: return GRAPL_VK_CAPS_LOCK;
+        case 0x046: return GRAPL_VK_SCROLL_LOCK;
+        case 0x145: return GRAPL_VK_NUM_LOCK;
+        case 0x137: return GRAPL_VK_PRINT_SCREEN;
+        case 0x03B: return GRAPL_VK_F1;
+        case 0x03C: return GRAPL_VK_F2;
+        case 0x03D: return GRAPL_VK_F3;
+        case 0x03E: return GRAPL_VK_F4;
+        case 0x03F: return GRAPL_VK_F5;
+        case 0x040: return GRAPL_VK_F6;
+        case 0x041: return GRAPL_VK_F7;
+        case 0x042: return GRAPL_VK_F8;
+        case 0x043: return GRAPL_VK_F9;
+        case 0x044: return GRAPL_VK_F10;
+        case 0x057: return GRAPL_VK_F11;
+        case 0x058: return GRAPL_VK_F12;
+        case 0x064: return GRAPL_VK_F13;
+        case 0x065: return GRAPL_VK_F14;
+        case 0x066: return GRAPL_VK_F15;
+        case 0x067: return GRAPL_VK_F16;
+        case 0x068: return GRAPL_VK_F17;
+        case 0x069: return GRAPL_VK_F18;
+        case 0x06A: return GRAPL_VK_F19;
+        case 0x06B: return GRAPL_VK_F20;
+        case 0x06C: return GRAPL_VK_F21;
+        case 0x06D: return GRAPL_VK_F22;
+        case 0x06E: return GRAPL_VK_F23;
+        case 0x076: return GRAPL_VK_F24;
+
+        case 0x052: return GRAPL_VK_KP_0;
+        case 0x04F: return GRAPL_VK_KP_1;
+        case 0x050: return GRAPL_VK_KP_2;
+        case 0x051: return GRAPL_VK_KP_3;
+        case 0x04B: return GRAPL_VK_KP_4;
+        case 0x04C: return GRAPL_VK_KP_5;
+        case 0x04D: return GRAPL_VK_KP_6;
+        case 0x047: return GRAPL_VK_;
+        case 0x048: return GRAPL_VK_KP_7;
+        case 0x049: return GRAPL_VK_KP_9;
+        case 0x053: return GRAPL_VK_KP_DECIMAL;
+        case 0x135: return GRAPL_VK_KP_DIVIDE;
+        case 0x037: return GRAPL_VK_KP_MULTIPLY;
+        case 0x04A: return GRAPL_VK_KP_SUBTRACT;
+        case 0x04E: return GRAPL_VK_KP_ADD;
+        case 0x11C: return GRAPL_VK_KP_ENTER;
+        case 0x059: return GRAPL_VK_KP_EQUAL;
+
+        case 0x02A: return GRAPL_VK_LEFT_SHIFT;
+        case 0x01D: return GRAPL_VK_LEFT_CONTROL;
+        case 0x038: return GRAPL_VK_LEFT_ALT;
+        case 0x15B: return GRAPL_VK_LEFT_SUPER;
+
+        case 0x036: return GRAPL_VK_RIGHT_SHIFT;
+        case 0x11D: return GRAPL_VK_RIGHT_CONTROL;
+        case 0x138: return GRAPL_VK_RIGHT_ALT;
+        case 0x15C: return GRAPL_VK_LEFT_SUPER;
+
+        case 0x110: return GRAPL_VK_MEDIA_PREVIOUS;
+        case 0x119: return GRAPL_VK_MEDIA_NEXT;
+        case 0x122: return GRAPL_VK_MEDIA_PAUSE;
+
+        case 0x130: return GRAPL_VK_VOLUME_UP;
+        case 0x12E: return GRAPL_VK_VOLUME_DOWN;
+        case 0x120: return GRAPL_VK_VOLUME_MUTE;
     }
     return -1;
 }
@@ -269,7 +187,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     if (!wrappers.count(hwnd))
         return DefWindowProc(hwnd, msg, wParam, lParam);
 
-    WindowWrapper* wrapper = wrappers[hwnd];
+    WinWindowCallbackContainer* wrapper = wrappers[hwnd];
     JNIEnv* env = wrapper->env;
 
     switch (msg){
@@ -482,7 +400,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _hwnd, jobject callbackObject) {
     HWND hwnd = (HWND)_hwnd;
-    wrappers[hwnd] = new WindowWrapper(env, hwnd, callbackObject);
+    wrappers[hwnd] = new WinWindowCallbackContainer(env, hwnd, callbackObject);
 }
 
 jni_win_window(void, nPostQuit)(JNIEnv* env, jobject, jlong hwnd) {
