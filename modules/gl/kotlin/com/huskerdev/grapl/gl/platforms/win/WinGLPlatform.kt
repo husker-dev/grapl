@@ -15,7 +15,7 @@ class WinGLPlatform: GLPlatform() {
             minorVersion: Int
         ): LongArray
 
-        @JvmStatic private external fun nSwapBuffers(hwnd: Long)
+        @JvmStatic private external fun nSwapBuffers(dc: Long)
         @JvmStatic private external fun nSwapInterval(hwnd: Long, value: Int)
     }
 
@@ -42,6 +42,6 @@ class WinGLPlatform: GLPlatform() {
         }
     }
 
-    override fun swapBuffers(window: GLWindow) = nSwapBuffers(window.peer.handle)
+    override fun swapBuffers(window: GLWindow) = nSwapBuffers((window.context as WGLContext).dc)
     override fun setSwapInterval(window: GLWindow, value: Int) = nSwapInterval(window.peer.handle, value)
 }

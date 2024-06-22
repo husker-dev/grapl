@@ -198,6 +198,7 @@ jni_win_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong monitor
             int width = ((dataEDID[68] & 0xF0) << 4) + dataEDID[66];
             int height = ((dataEDID[68] & 0x0F) << 8) + dataEDID[67];
 
+            RegCloseKey(hEDIDRegKey);
             return createIntArray(env, { width, height });
         }
         RegCloseKey(hEDIDRegKey);

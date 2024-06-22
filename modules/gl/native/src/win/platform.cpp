@@ -50,9 +50,9 @@ jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isC
     });
 }
 
-jni_win_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong hwnd) {
+jni_win_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _dc) {
     glFlush();
-    SwapBuffers(GetDC((HWND)hwnd));
+    SwapBuffers((HDC)_dc);
 }
 
 jni_win_platform(void, nSwapInterval)(JNIEnv* env, jobject, jlong hwnd, jint value) {
