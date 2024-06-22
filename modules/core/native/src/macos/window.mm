@@ -17,34 +17,39 @@ static JNIEnv* env;
 }
 @end
 
+/* ====================
+    Callback container
+   ==================== */
+class MacWindowCallbackContainer: public WindowCallbackContainer {
+public:
+    MacWindowCallbackContainer(JNIEnv* env, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
+        onResizeCallback = callback("onResizeCallback", "(DD)V");
+        onMoveCallback = callback("onMoveCallback", "(DD)V");
+
+        onPointerMoveCallback = callback("onPointerMoveCallback", "(IDDI)V");
+        onPointerDownCallback = callback("onPointerDownCallback", "(IDDII)V");
+        onPointerUpCallback = callback("onPointerUpCallback", "(IDDII)V");
+        onPointerEnterCallback = callback("onPointerEnterCallback", "(IDDI)V");
+        onPointerLeaveCallback = callback("onPointerLeaveCallback", "(IDDI)V");
+
+        onPointerScrollCallback = callback("onPointerScrollCallback", "(IDDDDI)V");
+
+        onPointerZoomBeginCallback = callback("onPointerZoomBeginCallback", "(IDDI)V");
+        onPointerZoomCallback = callback("onPointerZoomCallback", "(IDDDI)V");
+        onPointerZoomEndCallback = callback("onPointerZoomEndCallback", "(IDDI)V");
+
+        onPointerRotationBeginCallback = callback("onPointerRotationBeginCallback", "(IDDI)V");
+        onPointerRotationCallback = callback("onPointerRotationCallback", "(IDDDI)V");
+        onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IDDI)V");
+    }
+};
+
 
 /* ====================
            View
    ==================== */
 @interface View : NSView <NSWindowDelegate> {
-    jobject object;
-    jmethodID onCloseCallback;
-    jmethodID onResizeCallback;
-    jmethodID onMoveCallback;
-
-    jmethodID onPointerMoveCallback;
-    jmethodID onPointerDownCallback;
-    jmethodID onPointerUpCallback;
-    jmethodID onPointerEnterCallback;
-    jmethodID onPointerLeaveCallback;
-
-    jmethodID onPointerScrollCallback;
-
-    jmethodID onPointerZoomBeginCallback;
-    jmethodID onPointerZoomCallback;
-    jmethodID onPointerZoomEndCallback;
-
-    jmethodID onPointerRotationBeginCallback;
-    jmethodID onPointerRotationCallback;
-    jmethodID onPointerRotationEndCallback;
-
-    jmethodID onKeyDownCallback;
-    jmethodID onKeyUpCallback;
+    MacWindowCallbackContainer callbacks;
 
     float sumScale;
     float sumRotation;
@@ -57,35 +62,11 @@ static JNIEnv* env;
 
 @implementation View
 -(void) bindCallback:(jobject)_callbackObject {
-    object = env->NewGlobalRef(_callbackObject);
-
-    jclass callbackClass = env->GetObjectClass(_callbackObject);
-
-    onCloseCallback = env->GetMethodID(callbackClass, "onCloseCallback", "()V");
-    onResizeCallback = env->GetMethodID(callbackClass, "onResizeCallback", "(DD)V");
-    onMoveCallback = env->GetMethodID(callbackClass, "onMoveCallback", "(DD)V");
-
-    onPointerMoveCallback = env->GetMethodID(callbackClass, "onPointerMoveCallback", "(IDDI)V");
-    onPointerDownCallback = env->GetMethodID(callbackClass, "onPointerDownCallback", "(IDDII)V");
-    onPointerUpCallback = env->GetMethodID(callbackClass, "onPointerUpCallback", "(IDDII)V");
-    onPointerEnterCallback = env->GetMethodID(callbackClass, "onPointerEnterCallback", "(IDDI)V");
-    onPointerLeaveCallback = env->GetMethodID(callbackClass, "onPointerLeaveCallback", "(IDDI)V");
-
-    onPointerScrollCallback = env->GetMethodID(callbackClass, "onPointerScrollCallback", "(IDDDDI)V");
-
-    onPointerZoomBeginCallback = env->GetMethodID(callbackClass, "onPointerZoomBeginCallback", "(IDDI)V");
-    onPointerZoomCallback = env->GetMethodID(callbackClass, "onPointerZoomCallback", "(IDDDI)V");
-    onPointerZoomEndCallback = env->GetMethodID(callbackClass, "onPointerZoomEndCallback", "(IDDI)V");
-
-    onPointerRotationBeginCallback = env->GetMethodID(callbackClass, "onPointerRotationBeginCallback", "(IDDI)V");
-    onPointerRotationCallback = env->GetMethodID(callbackClass, "onPointerRotationCallback", "(IDDDI)V");
-    onPointerRotationEndCallback = env->GetMethodID(callbackClass, "onPointerRotationEndCallback", "(IDDI)V");
-
-    onKeyDownCallback = env->GetMethodID(callbackClass, "onKeyDownCallback", "(IILjava/lang/String;I)V");
-    onKeyUpCallback = env->GetMethodID(callbackClass, "onKeyUpCallback", "(IILjava/lang/String;I)V");
+    callbacks = new MacWindowCallbackContainer(env, _callbackObject);
 }
 -(void) dealloc {
     [super dealloc];
+    delete callbacks;
     // Cause crash for some reason...
 	//env->DeleteGlobalRef(object);
 }
@@ -247,84 +228,84 @@ static JNIEnv* env;
    ==================== */
 
 -(void) windowWillClose:(NSNotification*)notification {
-    env->CallVoidMethod(object, onCloseCallback);
+    callbacks->onCloseCallback->call();
 }
 
 -(void) windowDidResize:(NSNotification*)notification {
     NSSize size = [self window].frame.size;
-	env->CallVoidMethod(object, onResizeCallback, size.width, size.height);
+	callbacks->onResizeCallback->call(size.width, size.height);
 }
 
 -(void) windowDidMove:(NSNotification*)notification {
     NSPoint origin = [self window].frame.origin;
-	env->CallVoidMethod(object, onMoveCallback, origin.x, origin.y);
+	callbacks->onMoveCallback->call(origin.x, origin.y);
 }
 
 /* ====================
        Mouse events
    ==================== */
 
--(void) sendMouseEvent:(NSEvent*)event callback:(jmethodID)callback {
+-(void) sendMouseEvent:(NSEvent*)event callback:(Callback*)callback {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
-    env->CallVoidMethod(object, callback, 0, pos.x, size.height - pos.y, [self getModifierKeys]);
+    callback->call(0, pos.x, size.height - pos.y, [self getModifierKeys]);
 }
 
--(void) sendMouseButtonEvent:(NSEvent*)event callback:(jmethodID)callback button:(int)button {
+-(void) sendMouseButtonEvent:(NSEvent*)event callback:(Callback*)callback button:(int)button {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
-    env->CallVoidMethod(object, callback, event.pointingDeviceID, pos.x, size.height - pos.y, button, [self getModifierKeys]);
+    callback->call(event.pointingDeviceID, pos.x, size.height - pos.y, button, [self getModifierKeys]);
 }
 
 -(void) mouseEntered:(NSEvent*)event {
-    [self sendMouseEvent:event callback:onPointerEnterCallback];
+    [self sendMouseEvent:event callback:callbacks->onPointerEnterCallback];
 }
 
 -(void) mouseMoved:(NSEvent*)event {
-    [self sendMouseEvent:event callback:onPointerMoveCallback];
+    [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
 }
 
 -(void) mouseExited:(NSEvent*)event {
-    env->CallVoidMethod(object, onPointerLeaveCallback, 0, 0, 0, [self getModifierKeys]);
+    callbacks->onPointerLeaveCallback->call(0, 0, 0, [self getModifierKeys]);
 }
 
 // Left button
 -(void) mouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:1];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:1];
 }
 
 -(void) mouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback];
+    [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
 }
 
 -(void) mouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:1];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:1];
 }
 
 // Right button
 -(void) rightMouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:3];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:3];
 }
 
 -(void) rightMouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback];
+    [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
 }
 
 -(void) rightMouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:3];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:3];
 }
 
 // Other button
 -(void) otherMouseDown:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerDownCallback button:(int)[event buttonNumber]+1];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:(int)[event buttonNumber]+1];
 }
 
 -(void) otherMouseDragged:(NSEvent*)event{
-    [self sendMouseEvent:event callback:onPointerMoveCallback];
+    [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
 }
 
 -(void) otherMouseUp:(NSEvent*)event{
-    [self sendMouseButtonEvent:event callback:onPointerUpCallback button:(int)[event buttonNumber]+1];
+    [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:(int)[event buttonNumber]+1];
 }
 
 // Gestures
@@ -333,10 +314,10 @@ static JNIEnv* env;
     const NSSize size = [self window].contentView.frame.size;
     if ([event phase] == NSEventPhaseBegan){
         sumScale = 1;
-        [self sendMouseEvent:event callback:onPointerZoomBeginCallback];
+        [self sendMouseEvent:event callback:callbacks->onPointerZoomBeginCallback];
     }
     sumScale += [event magnification];
-    env->CallVoidMethod(object, onPointerZoomCallback,
+    callbacks->onPointerZoomCallback->call(
             0,
             pos.x,
             size.height - pos.y,
@@ -354,7 +335,7 @@ static JNIEnv* env;
         [self sendMouseEvent:event callback:onPointerRotationBeginCallback];
     }
     sumRotation += [event rotation];
-    env->CallVoidMethod(object, onPointerRotationCallback,
+    callbacks->onPointerRotationCallback->call(
             0,
             pos.x,
             size.height - pos.y,
@@ -367,8 +348,7 @@ static JNIEnv* env;
 - (void) scrollWheel:(NSEvent *)event {
     const NSPoint pos = [event locationInWindow];
     const NSSize size = [self window].contentView.frame.size;
-
-    env->CallVoidMethod(object, onPointerScrollCallback,
+    callbacks->onPointerScrollCallback->call(
             0,
             pos.x,
             size.height - pos.y,
@@ -427,7 +407,7 @@ static JNIEnv* env;
    ==================== */
 
 -(void) keyDown:(NSEvent*)event{
-    env->CallVoidMethod(object, onKeyDownCallback,
+    callbacks->onKeyDownCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
         toJString(env, event.characters),
@@ -440,14 +420,14 @@ static JNIEnv* env;
     const unsigned int modifierFlags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
 
     if(key & modifierFlags)
-        env->CallVoidMethod(object, onKeyDownCallback,
+        callbacks->onKeyDownCallback->call(
             [self translateKey:event.keyCode],
             event.keyCode,
             0,
             [self getModifierKeys]
         );
     else
-        env->CallVoidMethod(object, onKeyUpCallback,
+        callbacks->onKeyUpCallback->call(
             [self translateKey:event.keyCode],
             event.keyCode,
             0,
@@ -456,7 +436,7 @@ static JNIEnv* env;
 }
 
 -(void) keyUp:(NSEvent*)event{
-    env->CallVoidMethod(object, onKeyUpCallback,
+    callbacks->onKeyUpCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
         toJString(env, event.characters),
