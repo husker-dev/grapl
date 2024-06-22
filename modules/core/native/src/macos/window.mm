@@ -239,7 +239,7 @@ static JNIEnv* env;
         case kVK_Command:           return GRAPL_VK_LEFT_COMMAND;
         case kVK_RightCommand:      return GRAPL_VK_RIGHT_COMMAND;
     }
-    return -1;
+    return GRAPL_VK_UNKNOWN;
 }
 
 /* ====================

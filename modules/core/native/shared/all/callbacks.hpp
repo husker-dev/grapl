@@ -111,7 +111,7 @@ public:
         delete onKeyDownCallback;
         delete onKeyUpCallback;
     }
-private:
+
     Callback* callback(const char* name, const char* params){
         return new Callback(env, env->GetMethodID(callbackClass, name, params), callbackObject);
     }

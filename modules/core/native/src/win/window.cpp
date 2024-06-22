@@ -14,7 +14,7 @@ public:
     Callback* getCursorCallback;
     Callback* getMinMaxBounds;
 
-    WinCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
+    WinWindowCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
         this->hwnd = hwnd;
 
         touchpadManager = new TouchpadManager(hwnd);
@@ -23,8 +23,7 @@ public:
         getCursorCallback = callback("getCursorCallback", "()I");
         getMinMaxBounds = callback("getMinMaxBounds", "()[I");
     }
-}
-
+};
 
 static std::map<HWND, WinWindowCallbackContainer*> wrappers;
 
@@ -149,8 +148,8 @@ jint translateKey(WPARAM key){
         case 0x04B: return GRAPL_VK_KP_4;
         case 0x04C: return GRAPL_VK_KP_5;
         case 0x04D: return GRAPL_VK_KP_6;
-        case 0x047: return GRAPL_VK_;
-        case 0x048: return GRAPL_VK_KP_7;
+        case 0x047: return GRAPL_VK_KP_7;
+        case 0x048: return GRAPL_VK_KP_8;
         case 0x049: return GRAPL_VK_KP_9;
         case 0x053: return GRAPL_VK_KP_DECIMAL;
         case 0x135: return GRAPL_VK_KP_DIVIDE;
@@ -178,7 +177,7 @@ jint translateKey(WPARAM key){
         case 0x12E: return GRAPL_VK_VOLUME_DOWN;
         case 0x120: return GRAPL_VK_VOLUME_MUTE;
     }
-    return -1;
+    return GRAPL_VK_UNKNOWN;
 }
 
 

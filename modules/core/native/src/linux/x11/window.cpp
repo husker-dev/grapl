@@ -42,7 +42,7 @@ int translateModifiers(int state){
 
 int translateKeyCode(int code){
     if (!keyMap.count(code))
-        return -1;
+        return GRAPL_VK_UNKNOWN;
     return keyMap[code];
 }
 
