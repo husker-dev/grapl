@@ -47,10 +47,10 @@ abstract class Window(
     val pointerDragListeners: HashSet<(PointerMoveEvent) -> Unit>
         get() = peer.pointerDragListeners
 
-    val pointerDownListeners: HashSet<(PointerEvent) -> Unit>
+    val pointerDownListeners: HashSet<(PointerPressEvent) -> Unit>
         get() = peer.pointerPressListeners
 
-    val pointerUpListeners: HashSet<(PointerEvent) -> Unit>
+    val pointerUpListeners: HashSet<(PointerReleaseEvent) -> Unit>
         get() = peer.pointerReleaseListeners
 
     val pointerClickListeners: HashSet<(PointerClickEvent) -> Unit>

@@ -23,9 +23,22 @@ open class PointerEvent(
     modifiers: Int
 ): InputEvent(modifiers)
 
+open class PointerPressEvent(
+    pointer: Pointer,
+    modifiers: Int,
+    val button: Int
+): PointerEvent(pointer, modifiers)
+
+open class PointerReleaseEvent(
+    pointer: Pointer,
+    modifiers: Int,
+    val button: Int
+): PointerEvent(pointer, modifiers)
+
 open class PointerClickEvent(
     pointer: Pointer,
     modifiers: Int,
+    val button: Int,
     val clicks: Int
 ): PointerEvent(pointer, modifiers)
 

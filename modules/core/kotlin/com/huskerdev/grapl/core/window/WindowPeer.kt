@@ -52,8 +52,8 @@ abstract class WindowPeer() {
     val pointerMoveListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
     val pointerDragListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
 
-    val pointerPressListeners = hashSetOf<(PointerEvent) -> Unit>()
-    val pointerReleaseListeners = hashSetOf<(PointerEvent) -> Unit>()
+    val pointerPressListeners = hashSetOf<(PointerPressEvent) -> Unit>()
+    val pointerReleaseListeners = hashSetOf<(PointerReleaseEvent) -> Unit>()
     val pointerClickListeners = hashSetOf<(PointerClickEvent) -> Unit>()
 
     val pointerEnterListeners = hashSetOf<(PointerEvent) -> Unit>()
@@ -257,10 +257,10 @@ abstract class WindowPeer() {
                 clicks = if(isClick) clicks + 1 else 1
             }
 
-            PointerEvent(pointer, modifiers).apply { pointerPressListeners.forEach { it(this) } }
+            PointerPressEvent(pointer, modifiers, button).apply { pointerPressListeners.forEach { it(this) } }
 
             if(isClick)
-                PointerClickEvent(pointer, modifiers, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
+                PointerClickEvent(pointer, modifiers, button, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
         }
 
         open fun onPointerUpCallback(
@@ -288,11 +288,11 @@ abstract class WindowPeer() {
                 lastReleaseTime = System.currentTimeMillis()
             }
 
-            PointerEvent(pointer, modifiers)
+            PointerReleaseEvent(pointer, modifiers, button)
                 .apply { pointerReleaseListeners.forEach { it(this) } }
 
             if(isClick)
-                PointerClickEvent(pointer, modifiers, pointer.clicks)
+                PointerClickEvent(pointer, modifiers, button, pointer.clicks)
                     .apply { pointerClickListeners.forEach { it(this) } }
 
             pointer.buttons -= button

@@ -12,7 +12,7 @@ sourceSets {
 }
 
 dependencies {
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation subprojects
 }

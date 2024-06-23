@@ -286,12 +286,15 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
         case WM_MOUSEWHEEL:
         case WM_MOUSEHWHEEL: {
+            POINT p = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+            ScreenToClient(hwnd, &p);
+
             wrapper->onPointerScrollCallback->call(
                 GetMessageExtraInfo() & 0x7F,
-                GET_X_LPARAM(lParam),
-                GET_Y_LPARAM(lParam),
-                (msg == WM_MOUSEWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+                p.x,
+                p.y,
                 (msg == WM_MOUSEHWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+                (msg == WM_MOUSEWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
                 getModifierKeys()
             );
             break;
