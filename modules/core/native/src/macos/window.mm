@@ -23,24 +23,7 @@ static JNIEnv* env;
 class MacWindowCallbackContainer: public WindowCallbackContainer {
 public:
     MacWindowCallbackContainer(JNIEnv* env, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
-        onResizeCallback = callback("onResizeCallback", "(DD)V");
-        onMoveCallback = callback("onMoveCallback", "(DD)V");
 
-        onPointerMoveCallback = callback("onPointerMoveCallback", "(IDDI)V");
-        onPointerDownCallback = callback("onPointerDownCallback", "(IDDII)V");
-        onPointerUpCallback = callback("onPointerUpCallback", "(IDDII)V");
-        onPointerEnterCallback = callback("onPointerEnterCallback", "(IDDI)V");
-        onPointerLeaveCallback = callback("onPointerLeaveCallback", "(IDDI)V");
-
-        onPointerScrollCallback = callback("onPointerScrollCallback", "(IDDDDI)V");
-
-        onPointerZoomBeginCallback = callback("onPointerZoomBeginCallback", "(IDDI)V");
-        onPointerZoomCallback = callback("onPointerZoomCallback", "(IDDDI)V");
-        onPointerZoomEndCallback = callback("onPointerZoomEndCallback", "(IDDI)V");
-
-        onPointerRotationBeginCallback = callback("onPointerRotationBeginCallback", "(IDDI)V");
-        onPointerRotationCallback = callback("onPointerRotationCallback", "(IDDDI)V");
-        onPointerRotationEndCallback = callback("onPointerRotationEndCallback", "(IDDI)V");
     }
 };
 
@@ -58,17 +41,23 @@ public:
     NSCursor* cursor;
     NSTrackingArea* trackingArea;
 }
+- (instancetype)initWithRect:(NSRect)rect;
 @end
 
 @implementation View
+- (instancetype)initWithRect:(NSRect)rect {
+    self = [super initWithFrame:rect];
+
+    self->cursor = [NSCursor arrowCursor];
+    [self updateTrackingAreas];
+}
+
 -(void) bindCallback:(jobject)_callbackObject {
     callbacks = new MacWindowCallbackContainer(env, _callbackObject);
 }
 -(void) dealloc {
     [super dealloc];
     delete callbacks;
-    // Cause crash for some reason...
-	//env->DeleteGlobalRef(object);
 }
 
 -(jint) getModifierKeys {
@@ -232,13 +221,13 @@ public:
 }
 
 -(void) windowDidResize:(NSNotification*)notification {
-    NSSize size = [self window].frame.size;
-	callbacks->onResizeCallback->call(size.width, size.height);
+    NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
+	callbacks->onResizeCallback->call((jint)size.width, (jint)size.height);
 }
 
 -(void) windowDidMove:(NSNotification*)notification {
-    NSPoint origin = [self window].frame.origin;
-	callbacks->onMoveCallback->call(origin.x, origin.y);
+    NSPoint origin = [self convertPointToBacking:[self window].frame.origin];
+	callbacks->onMoveCallback->call((jint)origin.x, (jint)origin.y);
 }
 
 /* ====================
@@ -246,15 +235,15 @@ public:
    ==================== */
 
 -(void) sendMouseEvent:(NSEvent*)event callback:(Callback*)callback {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
-    callback->call(0, pos.x, size.height - pos.y, [self getModifierKeys]);
+    const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
+    const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
+    callback->call(0, (jint)pos.x, (jint)(size.height - pos.y), [self getModifierKeys]);
 }
 
 -(void) sendMouseButtonEvent:(NSEvent*)event callback:(Callback*)callback button:(int)button {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
-    callback->call(event.pointingDeviceID, pos.x, size.height - pos.y, button, [self getModifierKeys]);
+    const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
+    const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
+    callback->call(event.pointingDeviceID, (jint)pos.x, (jint)(size.height - pos.y), button, [self getModifierKeys]);
 }
 
 -(void) mouseEntered:(NSEvent*)event {
@@ -263,10 +252,12 @@ public:
 
 -(void) mouseMoved:(NSEvent*)event {
     [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
+    [self->cursor set];
 }
 
 -(void) mouseExited:(NSEvent*)event {
     callbacks->onPointerLeaveCallback->call(0, 0, 0, [self getModifierKeys]);
+    [[NSCursor arrowCursor] set];
 }
 
 // Left button
@@ -310,8 +301,8 @@ public:
 
 // Gestures
 - (void) magnifyWithEvent:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
+    const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
+    const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     if ([event phase] == NSEventPhaseBegan){
         sumScale = 1;
         [self sendMouseEvent:event callback:callbacks->onPointerZoomBeginCallback];
@@ -319,8 +310,8 @@ public:
     sumScale += [event magnification];
     callbacks->onPointerZoomCallback->call(
             0,
-            pos.x,
-            size.height - pos.y,
+            (jint)pos.x,
+            (jint)(size.height - pos.y),
             (jdouble)sumScale,
             [self getModifierKeys]);
     if ([event phase] == NSEventPhaseEnded)
@@ -328,8 +319,8 @@ public:
 }
 
 - (void) rotateWithEvent:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
+    const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
+    const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     if ([event phase] == NSEventPhaseBegan){
         sumRotation = 0;
         [self sendMouseEvent:event callback:callbacks->onPointerRotationBeginCallback];
@@ -337,8 +328,8 @@ public:
     sumRotation += [event rotation];
     callbacks->onPointerRotationCallback->call(
             0,
-            pos.x,
-            size.height - pos.y,
+            (jint)pos.x,
+            (jint)(size.height - pos.y),
             (jdouble)sumRotation,
             [self getModifierKeys]);
     if ([event phase] == NSEventPhaseEnded)
@@ -346,14 +337,14 @@ public:
 }
 
 - (void) scrollWheel:(NSEvent *)event {
-    const NSPoint pos = [event locationInWindow];
-    const NSSize size = [self window].contentView.frame.size;
+    const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
+    const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callbacks->onPointerScrollCallback->call(
             0,
-            pos.x,
-            size.height - pos.y,
-            (jdouble)[event deltaX],
-            (jdouble)[event deltaY],
+            (jint)pos.x,
+            (jint)(size.height - pos.y),
+            -(jdouble)[event deltaX] * 6,
+            -(jdouble)[event deltaY] * 6,
             [self getModifierKeys]);
 }
 
@@ -374,8 +365,8 @@ public:
 }
 
 -(void) cursorUpdate:(NSEvent*)event{
-    if(cursor != nil)
-        [cursor set];
+    if(self->cursor != nil)
+        [self->cursor set];
     else
         [[NSCursor arrowCursor] set];
 }
@@ -484,7 +475,7 @@ jni_macos_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObj
         [window setRestorable:NO];
         [window setReleasedWhenClosed: NO];
 
-        View* view = [[[View alloc] initWithFrame:windowRect] autorelease];
+        View* view = [[[View alloc] initWithRect:windowRect] autorelease];
         [view bindCallback:callbackObject];
         [window setContentView:view];
         [window setDelegate:view];
@@ -556,25 +547,20 @@ jni_macos_window(void, nSetMaxSize)(JNIEnv* env, jobject, jlong _windowPtr, jint
 }
 
 jni_macos_window(void, nSetCursor)(JNIEnv* env, jobject, jlong _windowPtr, jint index) {
-    ON_MAIN_THREAD(
-        NSWindow* window = (NSWindow*)_windowPtr;
-        View* view = [window contentView];
+    NSWindow* window = (NSWindow*)_windowPtr;
+    View* view = [window contentView];
 
-        if(index == 0)       view->cursor = [NSCursor arrowCursor];
-        else if(index == 1)  view->cursor = [NSCursor pointingHandCursor];
-        else if(index == 2)  view->cursor = [NSCursor IBeamCursor];
-        //else if(index == 3)
-        //else if(index == 4)
-        else if(index == 5)  view->cursor = [NSCursor crosshairCursor];
-        else if(index == 6)  view->cursor = [NSCursor operationNotAllowedCursor];
-        //else if(index == 7)
-        else if(index == 8)  view->cursor = [NSCursor resizeLeftRightCursor];
-        else if(index == 9)  view->cursor = [NSCursor resizeUpDownCursor];
-        else if(index == 10) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
-        else if(index == 11) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
-        else if(index == 12) view->cursor = [NSCursor openHandCursor];
-        else                 view->cursor = [NSCursor arrowCursor];
-    );
+    if(index == 0)       view->cursor = [NSCursor arrowCursor];
+    else if(index == 1)  view->cursor = [NSCursor pointingHandCursor];
+    else if(index == 2)  view->cursor = [NSCursor IBeamCursor];
+    else if(index == 5)  view->cursor = [NSCursor crosshairCursor];
+    else if(index == 6)  view->cursor = [NSCursor operationNotAllowedCursor];
+    else if(index == 8)  view->cursor = [NSCursor resizeLeftRightCursor];
+    else if(index == 9)  view->cursor = [NSCursor resizeUpDownCursor];
+    else if(index == 10) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
+    else if(index == 11) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
+    else if(index == 12) view->cursor = [NSCursor openHandCursor];
+    else                 view->cursor = [NSCursor arrowCursor];
 }
 
 jni_macos_window(jlong, nGetScreen)(JNIEnv* env, jobject, jlong _windowPtr) {

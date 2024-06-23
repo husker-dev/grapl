@@ -79,19 +79,7 @@ jni_macos_display(jdoubleArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _s
 
 jni_macos_display(jdouble, nGetDpi)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
-    CGDirectDisplayID displayId = getDisplayID(screen);
-
-    CFArrayRef modes = getDisplayModes(displayId);
-
-    int actualWidth = 0;
-    for(int i = 0; i < CFArrayGetCount(modes); i++){
-        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(modes, i);
-
-        int width = CGDisplayModeGetPixelWidth(mode);
-        if(width == CGDisplayModeGetWidth(mode) && actualWidth < width)
-            actualWidth = width;
-    }
-    return (double)actualWidth / CGDisplayPixelsWide(displayId);
+    return [screen backingScaleFactor];
 }
 
 jni_macos_display(jdouble, nGetFrequency)(JNIEnv* env, jobject, jlong _screen) {

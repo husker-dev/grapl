@@ -36,7 +36,7 @@ open class MacWindowPeer : WindowPeer() {
     }
 
     init {
-        handle = nCreateWindow(MacWindowCallback())
+        handle = nCreateWindow(DefaultWindowCallback())
     }
 
     override fun destroy() = nCloseWindow(handle)
@@ -56,53 +56,6 @@ open class MacWindowPeer : WindowPeer() {
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
 
-
     override val display: Display
         get() = Display(MacDisplayPeer(nGetScreen(handle)))
-
-    inner class MacWindowCallback: DefaultWindowCallback(){
-        fun onResizeCallback(width: Double, height: Double) =
-            super.onResizeCallback((width * dpi).toInt(), (height * dpi).toInt())
-
-        fun onMoveCallback(x: Double, y: Double) =
-            super.onMoveCallback((x * dpi).toInt(), (y * dpi).toInt())
-
-
-        fun onPointerMoveCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerMoveCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerDownCallback(pointerId: Int, x: Double, y: Double,button: Int, modifiers: Int) =
-            super.onPointerDownCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), button, modifiers)
-
-        fun onPointerUpCallback(pointerId: Int, x: Double, y: Double, button: Int, modifiers: Int) =
-            super.onPointerUpCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), button, modifiers)
-
-        fun onPointerEnterCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerEnterCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerLeaveCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerLeaveCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerScrollCallback(pointerId: Int, x: Double, y: Double, deltaX: Double, deltaY: Double, modifiers: Int) =
-            super.onPointerScrollCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), deltaX, deltaY, modifiers)
-
-        fun onPointerZoomBeginCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerZoomBeginCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerZoomEndCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerZoomEndCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerZoomCallback(pointerId: Int, x: Double, y: Double, zoom: Double, modifiers: Int) =
-            super.onPointerZoomCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), zoom, modifiers)
-
-
-        fun onPointerRotationBeginCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerRotationBeginCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerRotationEndCallback(pointerId: Int, x: Double, y: Double, modifiers: Int) =
-            super.onPointerRotationEndCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), modifiers)
-
-        fun onPointerRotationCallback(pointerId: Int, x: Double, y: Double, angle: Double, modifiers: Int) =
-            super.onPointerRotationCallback(pointerId, (x * dpi).toInt(), (y * dpi).toInt(), angle, modifiers)
-    }
 }

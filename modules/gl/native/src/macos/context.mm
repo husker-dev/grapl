@@ -75,4 +75,11 @@ jni_macos_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong context) {
     checkError(CGLDestroyContext((CGLContextObj)context));
 }
 
+jni_macos_context(void, nSetBackingSize)(JNIEnv* env, jobject, jlong _context, jint width, jint height) {
+    CGLContextObj context = (CGLContextObj)_context;
+    GLint dim[2] = { width, height};
+    CGLSetParameter(context, kCGLCPSurfaceBackingSize, dim);
+    CGLEnable(context, kCGLCESurfaceBackingSize);
+}
+
 
