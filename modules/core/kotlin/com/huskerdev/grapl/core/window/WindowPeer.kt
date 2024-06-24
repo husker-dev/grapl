@@ -10,10 +10,7 @@ import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler.Companion.useHandler
 import com.huskerdev.grapl.core.platform.Platform
-import com.huskerdev.grapl.core.util.Property
-import com.huskerdev.grapl.core.util.LinkedProperty
-import com.huskerdev.grapl.core.util.ReadOnlyProperty
-import com.huskerdev.grapl.core.util.observer
+import com.huskerdev.grapl.core.util.*
 import kotlin.math.hypot
 
 
@@ -27,9 +24,16 @@ abstract class WindowPeer() {
     var handle = 0L
         protected set
 
+    private val closeNotifier = Object()
+
     var shouldClose by observer(false) {
+        if(!it)
+            return@observer
         if(useHandler)
             BackgroundMessageHandler.removePeer(this)
+        synchronized(closeNotifier){
+            closeNotifier.notifyAll()
+        }
         Platform.current.postEmptyMessage()
     }
 
@@ -49,29 +53,29 @@ abstract class WindowPeer() {
             field = value
         }
 
-    val pointerMoveListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
-    val pointerDragListeners = hashSetOf<(PointerMoveEvent) -> Unit>()
+    val pointerMoveListeners = listenerSetOf<PointerMoveEvent>()
+    val pointerDragListeners = listenerSetOf<PointerMoveEvent>()
 
-    val pointerPressListeners = hashSetOf<(PointerPressEvent) -> Unit>()
-    val pointerReleaseListeners = hashSetOf<(PointerReleaseEvent) -> Unit>()
-    val pointerClickListeners = hashSetOf<(PointerClickEvent) -> Unit>()
+    val pointerPressListeners = listenerSetOf<PointerPressEvent>()
+    val pointerReleaseListeners = listenerSetOf<PointerReleaseEvent>()
+    val pointerClickListeners = listenerSetOf<PointerClickEvent>()
 
-    val pointerEnterListeners = hashSetOf<(PointerEvent) -> Unit>()
-    val pointerLeaveListeners = hashSetOf<(PointerEvent) -> Unit>()
+    val pointerEnterListeners = listenerSetOf<PointerEvent>()
+    val pointerLeaveListeners = listenerSetOf<PointerEvent>()
 
-    val pointerScrollListeners = hashSetOf<(PointerScrollEvent) -> Unit>()
+    val pointerScrollListeners = listenerSetOf<PointerScrollEvent>()
 
-    val pointerZoomBeginListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
-    val pointerZoomListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
-    val pointerZoomEndListeners = hashSetOf<(PointerZoomEvent) -> Unit>()
+    val pointerZoomBeginListeners = listenerSetOf<PointerZoomEvent>()
+    val pointerZoomListeners = listenerSetOf<PointerZoomEvent>()
+    val pointerZoomEndListeners = listenerSetOf<PointerZoomEvent>()
 
-    val pointerRotationBeginListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
-    val pointerRotationListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
-    val pointerRotationEndListeners = hashSetOf<(PointerRotationEvent) -> Unit>()
+    val pointerRotationBeginListeners = listenerSetOf<PointerRotationEvent>()
+    val pointerRotationListeners = listenerSetOf<PointerRotationEvent>()
+    val pointerRotationEndListeners = listenerSetOf<PointerRotationEvent>()
 
-    val keyPressedListeners = hashSetOf<(KeyEvent) -> Unit>()
-    val keyReleasedListeners = hashSetOf<(KeyEvent) -> Unit>()
-    val keyTypedListeners = hashSetOf<(KeyEvent) -> Unit>()
+    val keyPressedListeners = listenerSetOf<KeyEvent>()
+    val keyReleasedListeners = listenerSetOf<KeyEvent>()
+    val keyTypedListeners = listenerSetOf<KeyEvent>()
 
 
     val displayStateProperty = Property<WindowDisplayState>(WindowDisplayState.Windowed()) {
@@ -134,6 +138,12 @@ abstract class WindowPeer() {
     }
 
     protected fun isFullscreen() = displayStateProperty.value is WindowDisplayState.Fullscreen
+
+    fun waitForDestroy(delay: Long = 0){
+        synchronized(closeNotifier){
+            closeNotifier.wait(delay)
+        }
+    }
 
     abstract fun destroy()
 
@@ -224,9 +234,9 @@ abstract class WindowPeer() {
 
             val event = PointerMoveEvent(pointer, modifiers, oldX / dpi, oldY / dpi, oldX, oldY)
             if(pointer.buttons.isNotEmpty())
-                pointerDragListeners.forEach { it(event) }
+                pointerDragListeners.dispatch(event)
             else
-                pointerMoveListeners.forEach { it(event) }
+                pointerMoveListeners.dispatch(event)
         }
 
         open fun onPointerDownCallback(
@@ -257,10 +267,10 @@ abstract class WindowPeer() {
                 clicks = if(isClick) clicks + 1 else 1
             }
 
-            PointerPressEvent(pointer, modifiers, button).apply { pointerPressListeners.forEach { it(this) } }
+            PointerPressEvent(pointer, modifiers, button).apply { pointerPressListeners.dispatch(this) }
 
             if(isClick)
-                PointerClickEvent(pointer, modifiers, button, pointer.clicks).apply { pointerClickListeners.forEach { it(this) } }
+                PointerClickEvent(pointer, modifiers, button, pointer.clicks).apply { pointerClickListeners.dispatch(this) }
         }
 
         open fun onPointerUpCallback(
@@ -289,11 +299,11 @@ abstract class WindowPeer() {
             }
 
             PointerReleaseEvent(pointer, modifiers, button)
-                .apply { pointerReleaseListeners.forEach { it(this) } }
+                .apply { pointerReleaseListeners.dispatch(this) }
 
             if(isClick)
                 PointerClickEvent(pointer, modifiers, button, pointer.clicks)
-                    .apply { pointerClickListeners.forEach { it(this) } }
+                    .apply { pointerClickListeners.dispatch(this) }
 
             pointer.buttons -= button
 
@@ -314,7 +324,7 @@ abstract class WindowPeer() {
             pointers[pointerId] = pointer
 
             PointerEvent(pointer, modifiers)
-                .apply { pointerEnterListeners.forEach { it(this) } }
+                .apply { pointerEnterListeners.dispatch(this) }
         }
 
         open fun onPointerLeaveCallback(
@@ -329,7 +339,7 @@ abstract class WindowPeer() {
             pointers.remove(pointerId)
 
             PointerEvent(pointer, modifiers)
-                .apply { pointerLeaveListeners.forEach { it(this) } }
+                .apply { pointerLeaveListeners.dispatch(this) }
         }
 
         open fun onPointerScrollCallback(
@@ -344,7 +354,7 @@ abstract class WindowPeer() {
             (pointer as WrappedPointer).updatePosition(x, y)
 
             PointerScrollEvent(pointer, modifiers, deltaX, deltaY)
-                .apply { pointerScrollListeners.forEach { it(this) } }
+                .apply { pointerScrollListeners.dispatch(this) }
         }
 
         open fun onPointerZoomBeginCallback(
@@ -359,7 +369,7 @@ abstract class WindowPeer() {
                 lastZoom = 0.0
             }
             PointerZoomEvent(pointer, modifiers, 0.0, 0.0)
-                .apply { pointerZoomBeginListeners.forEach { it(this) } }
+                .apply { pointerZoomBeginListeners.dispatch(this) }
         }
 
         open fun onPointerZoomEndCallback(
@@ -373,7 +383,7 @@ abstract class WindowPeer() {
             pointer.updatePosition(x, y)
 
             PointerZoomEvent(pointer, modifiers, pointer.lastZoom, 0.0)
-                .apply { pointerZoomEndListeners.forEach { it(this) } }
+                .apply { pointerZoomEndListeners.dispatch(this) }
         }
 
         open fun onPointerZoomCallback(
@@ -391,7 +401,7 @@ abstract class WindowPeer() {
             pointer.lastZoom = zoom
 
             PointerZoomEvent(pointer, modifiers, pointer.lastZoom, delta)
-                .apply { pointerZoomListeners.forEach { it(this) } }
+                .apply { pointerZoomListeners.dispatch(this) }
         }
 
         open fun onPointerRotationBeginCallback(
@@ -406,7 +416,7 @@ abstract class WindowPeer() {
                 lastAngle = 0.0
             }
             PointerRotationEvent(pointer, modifiers, 0.0, 0.0)
-                .apply { pointerRotationBeginListeners.forEach { it(this) } }
+                .apply { pointerRotationBeginListeners.dispatch(this) }
         }
 
         open fun onPointerRotationEndCallback(
@@ -420,7 +430,7 @@ abstract class WindowPeer() {
             pointer.updatePosition(x, y)
 
             PointerRotationEvent(pointer, modifiers, pointer.lastAngle, 0.0)
-                .apply { pointerRotationEndListeners.forEach { it(this) } }
+                .apply { pointerRotationEndListeners.dispatch(this) }
         }
 
         open fun onPointerRotationCallback(
@@ -438,7 +448,7 @@ abstract class WindowPeer() {
             pointer.lastAngle = angle
 
             PointerRotationEvent(pointer, modifiers, pointer.lastAngle, delta)
-                .apply { pointerRotationListeners.forEach { it(this) } }
+                .apply { pointerRotationListeners.dispatch(this) }
         }
 
         open fun onKeyDownCallback(
@@ -453,9 +463,9 @@ abstract class WindowPeer() {
 
             keys.add(key)
 
-            keyPressedListeners.forEach { it(event) }
+            keyPressedListeners.dispatch(event)
             if(unicodeChars.isNotEmpty())
-                keyTypedListeners.forEach { it(event)}
+                keyTypedListeners.dispatch(event)
         }
 
         open fun onKeyUpCallback(
@@ -470,7 +480,7 @@ abstract class WindowPeer() {
 
             keys.remove(key)
 
-            keyReleasedListeners.forEach { it(event) }
+            keyReleasedListeners.dispatch(event)
         }
 
     }

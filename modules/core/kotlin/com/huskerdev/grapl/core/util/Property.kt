@@ -5,12 +5,12 @@ import kotlin.reflect.KMutableProperty0
 open class ReadOnlyProperty<T>(
     defaultValue: T
 ) {
-    val listeners = hashSetOf<() -> Unit>()
+    val listeners = listenerSet()
 
     open var internalValue: T = defaultValue
         set(value) {
             field = value
-            listeners.forEach { it() }
+            listeners.dispatch()
         }
 
     open val value: T
@@ -39,6 +39,6 @@ open class LinkedProperty<T>(
         get() = property.get()
         set(value) {
             property.set(value)
-            listeners.forEach { it() }
+            listeners.dispatch()
         }
 }

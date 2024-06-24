@@ -5,6 +5,8 @@ import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.grapl.core.util.ListenerArgSet
+import com.huskerdev.grapl.core.util.ListenerSet
 
 import com.huskerdev.grapl.core.x
 
@@ -26,68 +28,68 @@ abstract class Window(
         get() = peer.onInit
         set(value) { peer.onInit = value }
 
-    val moveListeners: HashSet<() -> Unit>
+    val moveListeners: ListenerSet
         get() = peer.positionProperty.listeners
 
-    val resizeListeners: HashSet<() -> Unit>
+    val resizeListeners: ListenerSet
         get() = peer.sizeProperty.listeners
 
-    val visibleListeners: HashSet<() -> Unit>
+    val visibleListeners: ListenerSet
         get() = peer.visibleProperty.listeners
 
-    val displayStateListeners: HashSet<() -> Unit>
+    val displayStateListeners: ListenerSet
         get() = peer.displayStateProperty.listeners
 
-    val focusedListener: HashSet<() -> Unit>
+    val focusedListener: ListenerSet
         get() = peer.focusProperty.listeners
 
-    val pointerMoveListeners: HashSet<(PointerMoveEvent) -> Unit>
+    val pointerMoveListeners: ListenerArgSet<PointerMoveEvent>
         get() = peer.pointerMoveListeners
 
-    val pointerDragListeners: HashSet<(PointerMoveEvent) -> Unit>
+    val pointerDragListeners: ListenerArgSet<PointerMoveEvent>
         get() = peer.pointerDragListeners
 
-    val pointerDownListeners: HashSet<(PointerPressEvent) -> Unit>
+    val pointerDownListeners: ListenerArgSet<PointerPressEvent>
         get() = peer.pointerPressListeners
 
-    val pointerUpListeners: HashSet<(PointerReleaseEvent) -> Unit>
+    val pointerUpListeners: ListenerArgSet<PointerReleaseEvent>
         get() = peer.pointerReleaseListeners
 
-    val pointerClickListeners: HashSet<(PointerClickEvent) -> Unit>
+    val pointerClickListeners: ListenerArgSet<PointerClickEvent>
         get() = peer.pointerClickListeners
 
-    val pointerEnterListeners: HashSet<(PointerEvent) -> Unit>
+    val pointerEnterListeners: ListenerArgSet<PointerEvent>
         get() = peer.pointerEnterListeners
 
-    val pointerLeaveListeners: HashSet<(PointerEvent) -> Unit>
+    val pointerLeaveListeners: ListenerArgSet<PointerEvent>
         get() = peer.pointerLeaveListeners
 
-    val pointerScrollListeners: HashSet<(PointerScrollEvent) -> Unit>
+    val pointerScrollListeners: ListenerArgSet<PointerScrollEvent>
         get() = peer.pointerScrollListeners
 
-    val pointerZoomBeginListeners: HashSet<(PointerZoomEvent) -> Unit>
+    val pointerZoomBeginListeners: ListenerArgSet<PointerZoomEvent>
         get() = peer.pointerZoomBeginListeners
 
-    val pointerZoomListeners: HashSet<(PointerZoomEvent) -> Unit>
+    val pointerZoomListeners: ListenerArgSet<PointerZoomEvent>
         get() = peer.pointerZoomListeners
 
-    val pointerZoomEndListeners: HashSet<(PointerZoomEvent) -> Unit>
+    val pointerZoomEndListeners: ListenerArgSet<PointerZoomEvent>
         get() = peer.pointerZoomEndListeners
 
-    val pointerRotationBeginListeners: HashSet<(PointerRotationEvent) -> Unit>
+    val pointerRotationBeginListeners: ListenerArgSet<PointerRotationEvent>
         get() = peer.pointerRotationBeginListeners
 
-    val pointerRotationListeners: HashSet<(PointerRotationEvent) -> Unit>
+    val pointerRotationListeners: ListenerArgSet<PointerRotationEvent>
         get() = peer.pointerRotationListeners
 
-    val pointerRotationEndListeners: HashSet<(PointerRotationEvent) -> Unit>
+    val pointerRotationEndListeners: ListenerArgSet<PointerRotationEvent>
         get() = peer.pointerRotationEndListeners
 
-    val keyPressedListeners: HashSet<(KeyEvent) -> Unit>
+    val keyPressedListeners: ListenerArgSet<KeyEvent>
         get() = peer.keyPressedListeners
-    val keyReleasedListeners: HashSet<(KeyEvent) -> Unit>
+    val keyReleasedListeners: ListenerArgSet<KeyEvent>
         get() = peer.keyReleasedListeners
-    val keyTypedListeners: HashSet<(KeyEvent) -> Unit>
+    val keyTypedListeners: ListenerArgSet<KeyEvent>
         get() = peer.keyTypedListeners
 
     val shouldClose: Boolean
@@ -216,6 +218,9 @@ abstract class Window(
         val displaySize = Display.primary.absoluteSize
         absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)
     }
+
+    @JvmOverloads
+    fun waitForDestroy(delay: Long = 0) = peer.waitForDestroy(delay)
 
     fun destroy() = peer.destroy()
 

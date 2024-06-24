@@ -14,6 +14,8 @@ class GLWindow(
 
     val context by (peer as GLWindowPeer)::context
 
+    constructor(profile: GLProfile): this(0L, profile)
+
     // TODO: Implement ScaledFullscreen via shader
 
     companion object {
