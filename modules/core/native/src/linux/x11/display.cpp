@@ -31,15 +31,15 @@ jni_x11_display(jlongArray, nGetAllScreens)(JNIEnv* env, jobject, jlong _display
     int actualCount = 0;
     for(int i = 0; i < count; i++){
         XRROutputInfo* oi = XRRGetOutputInfo(display, sr, sr->outputs[i]);
-        if(!oi->connection)
+        if(oi->crtc && !oi->connection)
             actualCount++;
         XRRFreeOutputInfo(oi);
     }
 
     jlong* screens = new jlong[actualCount];
-    for(int i = 0,r = 0; i < count; i++){
+    for(int i = 0, r = 0; i < count; i++){
         XRROutputInfo* oi = XRRGetOutputInfo(display, sr, sr->outputs[i]);
-        if(!oi->connection)
+        if(oi->crtc && !oi->connection)
             screens[r++] = i;
         XRRFreeOutputInfo(oi);
     }

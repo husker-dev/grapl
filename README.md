@@ -41,3 +41,17 @@ context.makeCurrent()
 ```kotlin
 GLContext.clear()
 ```
+
+## Linux deps
+Add i386
+- sudo dpkg --add-architecture i386
+
+Install g++ multilib
+- g++-multilib
+
+Install (+ with :i386)
+- libx11-dev
+- libwayland-dev
+- libxrandr-dev
+- libxcursor-dev
+- libgl1-mesa-dev

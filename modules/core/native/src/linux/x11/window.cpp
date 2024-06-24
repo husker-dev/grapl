@@ -25,7 +25,8 @@ public:
     Window window;
     XIC xic;
 
-    X11WindowCallbackContainer(JNIEnv* env, Window window, XIC xic, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
+    X11WindowCallbackContainer(JNIEnv* env, Window window, XIC xic, jobject callbackObject):
+                                                        WindowCallbackContainer(env, callbackObject) {
         this->window = window;
         this->xic = xic;
     }
@@ -53,7 +54,6 @@ void dispatchEvent(XEvent event){
     if (!wrappers.count(window))
         return;
     X11WindowCallbackContainer* wrapper = wrappers[window];
-    JNIEnv* env = wrapper->env;
 
     int keycode = 0;
     if (event.type == KeyPress || event.type == KeyRelease)
@@ -163,7 +163,7 @@ void dispatchEvent(XEvent event){
         case KeyRelease: {
             const int key = translateKeyCode(keycode);
             const int mods = translateModifiers(event.xkey.state);
-            wrapper->onKeyUpCallback->call(key, keycode, toJString(env, ""), mods);
+            wrapper->onKeyUpCallback->call(key, keycode, toJString(env, (char*)""), mods);
             break;
         }
     }
