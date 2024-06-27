@@ -25,8 +25,7 @@ class MacGLPlatform: GLPlatform() {
     override fun swapBuffers(window: GLWindow) =
         (window.context as NSGLContext).flushBuffer()
 
-    override fun setSwapInterval(window: GLWindow, value: Int) {
-
-    }
+    override fun setSwapInterval(window: GLWindow, value: Int) =
+        (window.context as NSGLContext).setSwapInterval(value)
 
 }

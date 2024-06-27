@@ -15,6 +15,8 @@ class NSGLContext(
         @JvmStatic private external fun nMakeCurrentContext(nsgl: Long): Boolean
         @JvmStatic private external fun nReleaseContext(nsgl: Long)
 
+        @JvmStatic private external fun nSetSwapInterval(nsgl: Long, swapInterval: Int)
+
         fun createAttached(peer: MacWindowPeer, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
             create(profile, shareWith, majorVersion, minorVersion).run {
                 NSGLContext(nAttachToWindow(peer.handle, this.handle), this)
@@ -22,7 +24,12 @@ class NSGLContext(
 
     }
 
-    override fun delete() = nReleaseContext(nsglHandle)
+    override fun delete() =
+        nReleaseContext(nsglHandle)
 
-    fun flushBuffer() = nFlushBuffer(nsglHandle)
+    fun flushBuffer() =
+        nFlushBuffer(nsglHandle)
+
+    fun setSwapInterval(swapInterval: Int) =
+        nSetSwapInterval(nsglHandle, swapInterval)
 }

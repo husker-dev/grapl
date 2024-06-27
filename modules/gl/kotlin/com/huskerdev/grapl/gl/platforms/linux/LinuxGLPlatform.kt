@@ -12,7 +12,7 @@ class LinuxGLPlatform: GLPlatform() {
     companion object {
         @JvmStatic private external fun nCreateWindow(display: Long): LongArray
         @JvmStatic private external fun nSwapBuffers(display: Long, window: Long)
-        @JvmStatic private external fun nSwapInterval(display: Long, window: Long, value: Int)
+        @JvmStatic private external fun nSetSwapInterval(display: Long, window: Long, context: Long, value: Int)
     }
 
     override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
@@ -35,6 +35,9 @@ class LinuxGLPlatform: GLPlatform() {
         }
     }
 
-    override fun swapBuffers(window: GLWindow) = nSwapBuffers((window.peer as X11WindowPeer).xDisplay, window.peer.handle)
-    override fun setSwapInterval(window: GLWindow, value: Int) = nSwapInterval((window.peer as X11WindowPeer).xDisplay, window.peer.handle, value)
+    override fun swapBuffers(window: GLWindow) =
+        nSwapBuffers((window.peer as X11WindowPeer).xDisplay, window.peer.handle)
+
+    override fun setSwapInterval(window: GLWindow, value: Int) =
+        nSetSwapInterval((window.peer as X11WindowPeer).xDisplay, window.peer.handle, window.context.handle, value)
 }

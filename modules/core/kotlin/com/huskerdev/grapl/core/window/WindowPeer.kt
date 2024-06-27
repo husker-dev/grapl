@@ -26,16 +26,18 @@ abstract class WindowPeer() {
 
     private val closeNotifier = Object()
 
-    var shouldClose by observer(false) {
-        if(!it)
-            return@observer
-        if(useHandler)
-            BackgroundMessageHandler.removePeer(this)
-        synchronized(closeNotifier){
-            closeNotifier.notifyAll()
+    var shouldClose = false
+        set(value) {
+            field = value
+            if(!value)
+                return
+            if (useHandler)
+                BackgroundMessageHandler.removePeer(this)
+            synchronized(closeNotifier) {
+                closeNotifier.notifyAll()
+            }
+            Platform.current.postEmptyMessage()
         }
-        Platform.current.postEmptyMessage()
-    }
 
     abstract val display: Display?
 

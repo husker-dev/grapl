@@ -41,3 +41,11 @@ jni_linux_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _display, jlo
 
     glXSwapBuffers(display, window);
 }
+
+jni_linux_platform(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong _display, jlong _window, jlong _context, jint swapInterval) {
+    Display* display = (Display*)_display;
+    Window window = (Window)_window;
+    GLXContext context = (GLXContext)_context;
+
+    glXSwapIntervalEXT(display, window, swapInterval);
+}

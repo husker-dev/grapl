@@ -38,9 +38,11 @@ class GLWindow(
         ) = GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion)
     }
 
-    var swapInterval by observer(1) {
-        GLPlatform.current.setSwapInterval(this, it)
-    }
+    var swapInterval = 0
+        set(value) {
+            GLPlatform.current.setSwapInterval(this, value)
+            field = value
+        }
 
     fun swapBuffers() = GLPlatform.current.swapBuffers(this)
 }

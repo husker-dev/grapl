@@ -17,10 +17,22 @@ fun main(){
 
         onInit = {
             context.makeCurrent()
+            swapInterval = 1
             GL.createCapabilities()
             glClearColor(1f, 0f, 0f, 1f)
         }
+        var lastTime = System.currentTimeMillis()
+        var counter = 0
+
         onUpdate = {
+            val current = System.currentTimeMillis()
+            if(current - lastTime >= 1000){
+                println("FPS: $counter")
+                counter = 0
+                lastTime = current
+            }
+            counter++
+
             glClear(GL_COLOR_BUFFER_BIT)
             swapBuffers()
         }

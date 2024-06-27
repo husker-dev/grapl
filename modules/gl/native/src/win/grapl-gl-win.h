@@ -18,6 +18,7 @@
 #define WGL_STENCIL_BITS_ARB                        0x2023
 #define WGL_FULL_ACCELERATION_ARB                   0x2027
 #define WGL_TYPE_RGBA_ARB                           0x202B
+#define WGL_DOUBLE_BUFFER_ARB                       0x2011
 
 #define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
 #define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
@@ -106,6 +107,7 @@ static int* createPixelAttributes(){
     int pixel_attributes[] = {
             WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
             WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
+            WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
             WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
             WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
             WGL_COLOR_BITS_ARB,         32,
