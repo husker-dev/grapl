@@ -88,11 +88,9 @@ class MavenPublishPlugin implements Plugin<Project> {
             password = project.properties["ossrhPassword"].toString()
         }
 
-        /*
         project.signing {
             sign project.publishing.publications.mavenJava
         }
-         */
     }
 }
 apply plugin: MavenPublishPlugin

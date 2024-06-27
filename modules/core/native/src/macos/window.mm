@@ -343,8 +343,8 @@ public:
             0,
             (jint)pos.x,
             (jint)(size.height - pos.y),
-            -(jdouble)[event deltaX] * 6,
-            -(jdouble)[event deltaY] * 6,
+            (jdouble)[event deltaX] * 6,
+            (jdouble)[event deltaY] * 6,
             [self getModifierKeys]);
 }
 

@@ -44,16 +44,10 @@ abstract class WindowPeer() {
     val dpi: Double
         get() = display?.dpi ?: 1.0
 
-    private var newInit = true
     /**
      * Called only if useBackgroundMessageHandler is true
      */
-    var onUpdate: () -> Unit = {}
-    var onInit: () -> Unit = {}
-        set(value) {
-            newInit = true
-            field = value
-        }
+    var eventConsumer: WindowEventConsumer? = null
 
     val pointerMoveListeners = listenerSetOf<PointerMoveEvent>()
     val pointerDragListeners = listenerSetOf<PointerMoveEvent>()
@@ -161,12 +155,8 @@ abstract class WindowPeer() {
     protected abstract fun setMinimizableImpl(value: Boolean)
     protected abstract fun setMaximizableImpl(value: Boolean)
 
-    internal open fun dispatchUpdate(){
-        if(newInit) {
-            newInit = false
-            onInit()
-        }
-        onUpdate()
+    open fun dispatchUpdate(){
+        eventConsumer?.dispatchUpdate()
     }
 
     open inner class DefaultWindowCallback {

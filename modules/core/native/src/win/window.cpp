@@ -293,8 +293,8 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                 GetMessageExtraInfo() & 0x7F,
                 p.x,
                 p.y,
-                (msg == WM_MOUSEHWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
-                (msg == WM_MOUSEWHEEL) ? (jdouble)GET_WHEEL_DELTA_WPARAM(wParam) : 0,
+                (msg == WM_MOUSEHWHEEL) ? ((jdouble)GET_WHEEL_DELTA_WPARAM(wParam) / 10) : 0,
+                (msg == WM_MOUSEWHEEL) ? ((jdouble)GET_WHEEL_DELTA_WPARAM(wParam) / 10) : 0,
                 getModifierKeys()
             );
             break;

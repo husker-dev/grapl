@@ -20,13 +20,9 @@ abstract class Window(
         fun postEmptyMessage() = Platform.current.postEmptyMessage()
     }
 
-    var onUpdate: () -> Unit
-        get() = peer.onUpdate
-        set(value) { peer.onUpdate = value }
-
-    var onInit: () -> Unit
-        get() = peer.onInit
-        set(value) { peer.onInit = value }
+    var eventConsumer: WindowEventConsumer?
+        get() = peer.eventConsumer
+        set(value) { peer.eventConsumer = value }
 
     val moveListeners: ListenerSet
         get() = peer.positionProperty.listeners
