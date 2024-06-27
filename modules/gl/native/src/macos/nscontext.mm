@@ -17,17 +17,13 @@ jni_macos_nscontext(jlong, nAttachToWindow)(JNIEnv* env, jobject, jlong _windowP
 }
 
 jni_macos_nscontext(void, nFlushBuffer)(JNIEnv* env, jobject, jlong _nsgl) {
-    ON_MAIN_THREAD(
-        NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
-        [nsgl flushBuffer];
-    );
+    NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
+    [nsgl flushBuffer];
 }
 
 jni_macos_nscontext(jboolean, nMakeCurrentContext)(JNIEnv* env, jobject, jlong _nsgl) {
-    ON_MAIN_THREAD(
-        NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
-        [nsgl makeCurrentContext];
-    );
+    NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
+    [nsgl makeCurrentContext];
     return true;
 }
 
@@ -35,9 +31,7 @@ jni_macos_nscontext(void, nReleaseContext)(JNIEnv* env, jobject, jlong context) 
     CGLReleaseContext((CGLContextObj)context);
 }
 
-jni_macos_nscontext(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong context, jint swapInterval) {
-    ON_MAIN_THREAD(
-        NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
-        [nsgl setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
-    );
+jni_macos_nscontext(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong _nsgl, jint swapInterval) {
+    NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
+    [nsgl setValues:&swapInterval forParameter:NSOpenGLCPSwapInterval];
 }
