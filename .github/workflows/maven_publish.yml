@@ -21,8 +21,8 @@ jobs:
           sudo apt-get install libx11-dev:amd64 libx11-dev:i386
           sudo apt-get install libwayland-dev:amd64 libwayland-dev:i386
           sudo apt-get install libxrandr-dev:amd64 libxrandr-dev:i386
+          sudo apt-get install libxcursor-dev:amd64 libxcursor-dev:i386
           sudo apt-get install libgl1-mesa-dev:amd64 libgl1-mesa-dev:i386
-          sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
 
       - name: "Building and publishing"
         env:
