@@ -1,0 +1,6 @@
+[
+  {"name": "com.huskerdev.grapl.core.window.WindowPeer$DefaultWindowCallback", "allPublicMethods": true},
+  {"name": "com.huskerdev.grapl.core.window.impl.WinWindowPeer$WinWindowCallback", "allPublicMethods": true},
+  {"name": "com.huskerdev.grapl.core.window.impl.MacWindowPeer$MacWindowCallback", "allPublicMethods": true},
+  {"name": "com.huskerdev.grapl.core.window.impl.X11WindowPeer$X11WindowCallback", "allPublicMethods": true}
+]

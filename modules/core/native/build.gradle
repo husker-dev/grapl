@@ -1,0 +1,31 @@
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_nativeCompilation)
+
+
+compilation {
+    baseName = "lib"
+    classpath = "com.huskerdev.grapl.core.native"
+
+    sharedDir file("shared/all")
+
+    windows {
+        libs = ["user32", "gdi32", "setupapi", "advapi32", "ole32"]
+    }
+    macos {
+        frameworks = ["Cocoa"]
+        sharedDir file("shared/macos")
+    }
+    linux {
+        libs = ["wayland-client", "X11", "Xrandr", "Xcursor"]
+    }
+}
+
+maven {
+    name = artifactId = "$projectName-${project.ext.shortOS}"
+    description = "$projectName core module (native for $project.ext.shortOS)"
+}
+
+dependencies {
+    api parent
+}

@@ -1,0 +1,14 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+}
+
+apply from: addon(addons_testing)
+
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    test.java.srcDirs = ['test']
+}
+
+dependencies {
+    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}

@@ -1,0 +1,30 @@
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_nativeCompilation)
+
+
+compilation {
+    baseName = "lib"
+    classpath = "com.huskerdev.grapl.gl.native"
+    sharedDir project(":modules:core:native").file("shared/all")
+
+    windows {
+        libs = ["user32", "gdi32"]
+    }
+    macos {
+        frameworks = ["OpenGL", "Cocoa"]
+        sharedDir project(":modules:core:native").file("shared/macos")
+    }
+    linux {
+        libs = ["GL", "X11"]
+    }
+}
+
+maven {
+    name = artifactId = "$projectName-gl-${project.ext.shortOS}"
+    description = "$projectName gl module (native for $project.ext.shortOS)"
+}
+
+dependencies {
+    api parent
+}

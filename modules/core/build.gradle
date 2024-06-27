@@ -1,0 +1,30 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+}
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_propertyClass)
+apply from: addon(addons_testing)
+
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    main.resources.srcDirs = ['resources']
+}
+
+dependencies {
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    testImplementation subprojects
+}
+
+maven {
+    name = artifactId = projectName
+    description = "$projectName core module"
+}
+
+properties {
+    name = "GraplInfo"
+    classpath = "com.huskerdev.grapl"
+
+    field("VERSION", version)
+}

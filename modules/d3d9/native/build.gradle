@@ -1,0 +1,33 @@
+plugins {
+    id 'java-library'
+}
+
+apply from: addon(addons_mavenPublisher)
+apply from: addon(addons_nativeCompilation)
+
+compilation {
+    baseName = "grapl"
+    classpath = "com.huskerdev.grapl"
+
+    windows {
+        src = ["src/gl/windows.cpp"]
+        libs = ["opengl32"]
+    }
+}
+
+dependencies {
+    api parent
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = "$projectName-d3d9-${project.extensions["shortOS"]}"
+
+            pom {
+                name = "$projectName-d3d9-${project.extensions["shortOS"]}"
+                description = 'D3D9 native module'
+            }
+        }
+    }
+}

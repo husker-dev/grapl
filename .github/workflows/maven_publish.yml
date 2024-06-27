@@ -1,0 +1,34 @@
+name: Maven Central publishing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publishing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: "Importing GPG key"
+        run: |
+          sudo echo ${{ secrets.GPG_PASSPHRASE }} | gpg --batch --yes --passphrase-fd 0 gradle/secring.gpg
+
+      - name: "Install build dependencies"
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get install g++-multilib
+          sudo apt-get install libx11-dev:amd64 libx11-dev:i386
+          sudo apt-get install libwayland-dev:amd64 libwayland-dev:i386
+          sudo apt-get install libxrandr-dev:amd64 libxrandr-dev:i386
+          sudo apt-get install libgl1-mesa-dev:amd64 libgl1-mesa-dev:i386
+          sudo apt-get install mesa-common-dev:amd64 mesa-common-dev:i386
+
+      - name: "Building and publishing"
+        env:
+          ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.SONATYPE_USERNAME }}
+          ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.SONATYPE_PASSWORD }}
+          ORG_GRADLE_PROJECT_signing.password: ${{ secrets.GPG_PASSPHRASE }}
+          ORG_GRADLE_PROJECT_signing.secretKeyRingFile: ${{ env.GITHUB_WORKSPACE }}/gradle/secring.gpg
+        run: |
+          chmod +x ./gradlew
+          ./gradlew publish
