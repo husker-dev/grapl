@@ -16,6 +16,7 @@ jobs:
       - name: "Install build dependencies"
         run: |
           sudo dpkg --add-architecture i386
+          sudo apt-get update
           sudo apt-get install g++-multilib
           sudo apt-get install libx11-dev:amd64 libx11-dev:i386
           sudo apt-get install libwayland-dev:amd64 libwayland-dev:i386
