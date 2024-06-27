@@ -45,7 +45,15 @@ jni_linux_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _display, jlo
 jni_linux_platform(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong _display, jlong _window, jlong _context, jint swapInterval) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
-    GLXContext context = (GLXContext)_context;
 
-    glXSwapIntervalEXT(display, window, swapInterval);
+    glXSwapIntervalEXTPtr glXSwapIntervalEXT;
+    glXSwapIntervalMESAPtr glXSwapIntervalMESA;
+    glXSwapIntervalMESAPtr glXSwapIntervalSGI;
+
+    if (glXSwapIntervalEXT = (glXSwapIntervalEXTPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalEXT"))
+        glXSwapIntervalEXT(display, window, swapInterval);
+    else if(glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalMESA"))
+        glXSwapIntervalMESA(swapInterval);
+    else if(glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalSGI"))
+        glXSwapIntervalSGI(swapInterval);
 }

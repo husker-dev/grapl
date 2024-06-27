@@ -54,6 +54,7 @@ void dispatchEvent(XEvent event){
     if (!wrappers.count(window))
         return;
     X11WindowCallbackContainer* wrapper = wrappers[window];
+    JNIEnv* env = wrapper->env;
 
     int keycode = 0;
     if (event.type == KeyPress || event.type == KeyRelease)
