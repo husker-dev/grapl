@@ -29,7 +29,7 @@ jobs:
           ORG_GRADLE_PROJECT_ossrhUsername: ${{ secrets.SONATYPE_USERNAME }}
           ORG_GRADLE_PROJECT_ossrhPassword: ${{ secrets.SONATYPE_PASSWORD }}
           ORG_GRADLE_PROJECT_signing.password: ${{ secrets.GPG_PASSPHRASE }}
-          ORG_GRADLE_PROJECT_signing.secretKeyRingFile: ${{ env.GITHUB_WORKSPACE }}/gradle/secring.gpg
+          ORG_GRADLE_PROJECT_signing.secretKeyRingFile: ${{ GITHUB_WORKSPACE }}/gradle/secring.gpg
         run: |
           chmod +x ./gradlew
           ./gradlew publish
