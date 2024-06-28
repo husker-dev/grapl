@@ -2,8 +2,6 @@
 
 <img src="./.github/resources/logo.png" alt="boosty">
 
-<br>
-<br>
 <a href="https://boosty.to/husker-dev/donate">
     <img width="145" src="./.github/resources/boosty.svg" alt="boosty">
 </a>
@@ -11,54 +9,113 @@
 <a href="LICENSE"><img src="https://img.shields.io/github/license/husker-dev/offscreen-jgl?style=flat-square"></a>
 <a href="https://github.com/husker-dev/offscreen-jgl/releases/latest"><img src="https://img.shields.io/github/v/release/husker-dev/offscreen-jgl?style=flat-square"></a>
 
-Java tool for creating thread-independent offscreen OpenGL contexts
+# About
 
-## Features
+Java\Kotlin tool for managing OpenGL related stuff, like contexts and windows.
 
-- Thread independent
-- Doesn't create a window if possible
+- [Dependency](#dependency)
+- [Usage](#usage)
+  - [Contexts](#contexts)
+  - [Windows](#windows)
 
-## Usage
-
-```kotlin
-val context = GLContext.create()
+# Dependency
+```groovy
+dependencies {
+    implementation 'com.huskerdev:grapl-gl-windows:2.0'
+    implementation 'com.huskerdev:grapl-gl-macos:2.0'
+    implementation 'com.huskerdev:grapl-gl-linux:2.0'
+}
 ```
 
-#### Create shared
+Available modules:
+  - ```grapl``` - core library
+    - ```grapl-windows```
+    - ```grapl-macos```
+    - ```grapl-linux```
+  - ```grapl-gl``` - OpenGL module
+    - ```grapl-gl-windows```
+    - ```grapl-gl-macos```
+    - ```grapl-gl-linux```
+
+# Usage
+
+Grapl can oparate openGL contexts separatly from window
+
+## Contexts
+
+- ```kotlin
+  val context = GLContext.create(..)
+  ```
+  Creates new opengl context with requesterd parameters (doesn't make current)
+
+  - ```shareWith``` - Shared context handle
+      - ***type***: GLContext/Long
+      - **default**: 0L
+  - ```coreProfile``` - Core/Compatibility opengl profile
+      - ***type***: GLProfile
+      - **default**: GLProfile.CORE
+  - ```majorVersion``` - Requested major opengl version
+      - ***type***: Int
+      - **default**: -1
+  - ```minorVersion``` - Requested minor opengl version
+      - ***type***: Int
+      - **default**: -1
+
+
+- ```kotlin
+  context.makeCurrent()
+  ```
+  Makes context current in running thread
+
+
+- ```kotlin
+  context.delete()
+  ```
+  Deletes context (does not require to be current)
+
+## Windows
+
+Example usage:
 ```kotlin
-val context = GLContext.create(anotherContext)
+GLWindow().apply {
+    title = "My application"
+    size = 100 x 100
+    alignToCenter()
+
+    eventConsumer = windowEventConsumer {
+        onInit {
+            context.makeCurrent()
+            swapInterval = 1
+            GL.createCapabilities()
+            glClearColor(1f, 0f, 1f, 1f)
+        }
+        onUpdate {
+            glClear(GL_COLOR_BUFFER_BIT)
+            swapBuffers()
+        }
+    }
+
+    keyTypedListeners += { e ->
+        println("key typed: ${e.key.char}")
+    }
+
+    visible = true
+}
 ```
 
-#### Create with Core profile
+To take control of window event handling:
 ```kotlin
-val context = GLContext.create(true)
+// Disable built-in message handling
+BackgroundMessageHandler.useHandler = false
+
+val window = GLWindow().apply {
+    size = 100 x 100
+    alignToCenter()
+    visible = true
+}
+
+// Handle events
+while(!window.shouldClose)
+    Window.waitMessages() // or peekMessages
+
 ```
-
-#### Get current
-```kotlin
-val context = GLContext.current()
-```
-
-#### Make current
-```kotlin
-context.makeCurrent()
-```
-
-#### Clear current
-```kotlin
-GLContext.clear()
-```
-
-## Linux deps
-Add i386
-- sudo dpkg --add-architecture i386
-
-Install g++ multilib
-- g++-multilib
-
-Install (+ with :i386)
-- libx11-dev
-- libwayland-dev
-- libxrandr-dev
-- libxcursor-dev
-- libgl1-mesa-dev
