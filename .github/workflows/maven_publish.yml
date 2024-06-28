@@ -43,7 +43,6 @@ jobs:
 
       - name: "Importing GPG key"
         run: |
-          choco install gnupg
           gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
 
       - name: "Building and publishing"
