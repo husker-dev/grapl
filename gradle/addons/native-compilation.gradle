@@ -153,7 +153,7 @@ enum Compiler {
         def varsDir = platformConfig.varsDir.getOrElse(findVCVarsDir())
         def sdkDir = platformConfig.varsDir.getOrElse(findWinSDKDir())
 
-        def sdkVersion = new File(sdkDir, "Lib").listFiles()[0].name
+        def sdkVersion = findWinSDKVersion()
 
         includeDirs += "${sdkDir}/Include/${sdkVersion}/ucrt"
         includeDirs += "${sdkDir}/Include/${sdkVersion}/um"
@@ -351,6 +351,13 @@ enum Compiler {
             }
         }
         throw new GradleException("Cant find any Windows SDK 10")
+    }
+
+    static private String findWinSDKVersion(){
+        for(dir in new File(findWinSDKDir(), "Lib").listFiles())
+            if(new File(dir, "um").exists() && new File(dir, "ucrt").exists())
+                return dir.name
+        throw new GradleException("Cant find any version of Windows SDK 10")
     }
 
     interface CompileAction{
