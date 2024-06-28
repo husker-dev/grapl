@@ -11,7 +11,7 @@
 
 # About
 
-Java\Kotlin tool for managing OpenGL related stuff, like contexts and windows.
+Java\Kotlin tool for managing OpenGL contexts and windows.
 
 - [Dependency](#dependency)
 - [Usage](#usage)
