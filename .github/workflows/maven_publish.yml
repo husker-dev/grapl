@@ -24,14 +24,17 @@ jobs:
           sudo apt-get install libxcursor-dev:amd64 libxcursor-dev:i386
           sudo apt-get install libgl1-mesa-dev:amd64 libgl1-mesa-dev:i386
 
-      - name: "Building and publishing"
+      - name: "Prepare"
         run: |
           chmod +x ./gradlew
-          ./gradlew publish \ 
-            -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }} \
-            -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg \
-            -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }} \
-            -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
+
+      - name: "Building and publishing"
+        run: >
+          ./gradlew publish
+          -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
+          -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
+          -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
+          -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
 
   windows:
     runs-on: windows-latest
@@ -44,13 +47,12 @@ jobs:
           gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
 
       - name: "Building and publishing"
-        run: |
-          chmod +x ./gradlew
-          ./gradlew publishNatives \ 
-            -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }} \
-            -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg \
-            -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }} \
-            -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
+        run: >
+          ./gradlew publishNatives
+          -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
+          -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
+          -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
+          -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
 
   macos:
     runs-on: macos-latest
@@ -62,11 +64,14 @@ jobs:
           brew install gnupg
           gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
 
-      - name: "Building and publishing"
+      - name: "Prepare"
         run: |
           chmod +x ./gradlew
-          ./gradlew publishNatives \ 
-            -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }} \
-            -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg \
-            -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }} \
-            -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
+
+      - name: "Building and publishing"
+        run: >
+          ./gradlew publish
+          -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
+          -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
+          -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
+          -Dorg.gradle.project.ossrhPassword=${{ secrets.SONATYPE_PASSWORD }}
