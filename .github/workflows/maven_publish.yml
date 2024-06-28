@@ -61,7 +61,6 @@ jobs:
 
       - name: "Importing GPG key"
         run: |
-          brew install gnupg
           gpg --batch --passphrase ${{ secrets.GPG_PASSPHRASE }} --import gradle/secring.gpg
 
       - name: "Prepare"
@@ -70,7 +69,7 @@ jobs:
 
       - name: "Building and publishing"
         run: >
-          ./gradlew publish
+          ./gradlew publishNatives
           -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
           -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
           -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
