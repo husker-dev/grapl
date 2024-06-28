@@ -11,6 +11,9 @@ sourceSets {
     main.resources.srcDirs = ['resources']
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
