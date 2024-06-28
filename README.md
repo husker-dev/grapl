@@ -39,7 +39,7 @@ Available modules:
 
 # Usage
 
-Grapl can oparate openGL contexts separatly from window
+Grapl can oparate OpenGL contexts separatly from window
 
 ## Contexts
 
@@ -51,13 +51,13 @@ Grapl can oparate openGL contexts separatly from window
   - ```shareWith``` - Shared context handle
       - ***type***: GLContext/Long
       - **default**: 0L
-  - ```coreProfile``` - Core/Compatibility opengl profile
+  - ```coreProfile``` - Core/Compatibility profile
       - ***type***: GLProfile
       - **default**: GLProfile.CORE
-  - ```majorVersion``` - Requested major opengl version
+  - ```majorVersion``` - Requested major version
       - ***type***: Int
       - **default**: -1
-  - ```minorVersion``` - Requested minor opengl version
+  - ```minorVersion``` - Requested minor version
       - ***type***: Int
       - **default**: -1
 
