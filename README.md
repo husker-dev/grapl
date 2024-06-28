@@ -21,9 +21,9 @@ Java\Kotlin tool for managing OpenGL related stuff, like contexts and windows.
 # Dependency
 ```groovy
 dependencies {
-    implementation 'com.huskerdev:grapl-gl-windows:2.0'
-    implementation 'com.huskerdev:grapl-gl-macos:2.0'
-    implementation 'com.huskerdev:grapl-gl-linux:2.0'
+    implementation 'com.huskerdev:grapl-gl-windows:2.0.2'
+    implementation 'com.huskerdev:grapl-gl-macos:2.0.2'
+    implementation 'com.huskerdev:grapl-gl-linux:2.0.2'
 }
 ```
 
