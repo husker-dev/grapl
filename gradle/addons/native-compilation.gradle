@@ -394,7 +394,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
         config.version = project.version
         config.classpath = ""
         config.type = OutputType.SHARED
-        config.jdk = new File(java.lang.ProcessHandle.current().info().command().orElseThrow()).parentFile.parentFile
+        config.jdk = new File(System.getProperty("java.home"))
         config.jvmInclude = new File(config.jdk.asFile.get(), "include")
 
         config.windows.srcDirs = [ project.file("src/win") ]
