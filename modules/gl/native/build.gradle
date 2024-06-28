@@ -27,4 +27,5 @@ maven {
 
 dependencies {
     api parent
+    api rootProject.project("modules:core:native")
 }
