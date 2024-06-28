@@ -416,6 +416,13 @@ class NativeCompilationPlugin implements Plugin<Project> {
             }
         }
 
+        project.pluginManager.withPlugin('maven-publish') {
+            project.tasks.register('publishNatives') {
+                group "publishing"
+                dependsOn "publish"
+            }
+        }
+
         project.tasks.register('compileNatives') {
             group "compilation"
 
