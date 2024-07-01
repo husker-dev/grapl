@@ -113,16 +113,16 @@ void dispatchEvent(XEvent event){
 
             if (event.xbutton.button <= 3)
                 wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button, mods);
-            if (event.xbutton.button > 7)
+            else if (event.xbutton.button > 7)
                 wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button - 4, mods);
             else if (event.xbutton.button == 4)
-                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, 1.0, mods);
+                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, 10.0, mods);
             else if (event.xbutton.button == 5)
-                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, -1.0, mods);
+                wrapper->onPointerScrollCallback->call(1, x, y, 0.0, -10.0, mods);
             else if (event.xbutton.button == 6)
-                wrapper->onPointerScrollCallback->call(1, x, y, 1.0, 0.0, mods);
+                wrapper->onPointerScrollCallback->call(1, x, y, 10.0, 0.0, mods);
             else if (event.xbutton.button == 7)
-                wrapper->onPointerScrollCallback->call(1, x, y, -1.0, 0.0, mods);
+                wrapper->onPointerScrollCallback->call(1, x, y, -10.0, 0.0, mods);
             break;
         }
         case ButtonRelease: {
@@ -131,9 +131,9 @@ void dispatchEvent(XEvent event){
             const int mods = translateModifiers(event.xbutton.state);
 
             if (event.xbutton.button <= 3)
-                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button, mods);
+                wrapper->onPointerUpCallback->call(1, x, y, event.xbutton.button, mods);
             if (event.xbutton.button > 7)
-                wrapper->onPointerDownCallback->call(1, x, y, event.xbutton.button - 4, mods);
+                wrapper->onPointerUpCallback->call(1, x, y, event.xbutton.button - 4, mods);
             break;
         }
         case EnterNotify: {
