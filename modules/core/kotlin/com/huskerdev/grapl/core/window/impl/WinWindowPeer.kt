@@ -26,6 +26,7 @@ open class WinWindowPeer(
         @JvmStatic private external fun nTrackMouseEvent(hwnd: Long)
         @JvmStatic private external fun nSetMinimizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nSetMaximizable(hwnd: Long, value: Boolean)
+        @JvmStatic private external fun nGetDpi(hwnd: Long): Float
     }
 
     init {
@@ -77,6 +78,7 @@ open class WinWindowPeer(
 
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
+    override fun getDpiImpl() = nGetDpi(handle).toDouble()
 
     inner class WinWindowCallback: DefaultWindowCallback(){
 

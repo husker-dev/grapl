@@ -230,6 +230,11 @@ public:
 	callbacks->onMoveCallback->call((jint)origin.x, (jint)origin.y);
 }
 
+-(void) windowDidChangeBackingProperties:(NSNotification*)notification {
+	callbacks->onDpiChanged->call((jfloat)[self backingScaleFactor]);
+}
+
+
 /* ====================
        Mouse events
    ==================== */
@@ -586,4 +591,9 @@ jni_macos_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _windowPtr, 
         if(value) [window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorManaged];
         else      [window setCollectionBehavior: 0];
     );
+}
+
+jni_macos_window(jfloat, nGetDPi)(JNIEnv* env, jobject, jlong _windowPtr) {
+    NSWindow* window = (NSWindow*)_windowPtr;
+    (jfloat)[window backingScaleFactor]
 }

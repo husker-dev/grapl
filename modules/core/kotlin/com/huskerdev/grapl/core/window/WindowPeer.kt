@@ -41,9 +41,6 @@ abstract class WindowPeer() {
 
     abstract val display: Display?
 
-    val dpi: Double
-        get() = display?.dpi ?: 1.0
-
     /**
      * Called only if useBackgroundMessageHandler is true
      */
@@ -124,6 +121,8 @@ abstract class WindowPeer() {
 
     val maximizable = Property(true, ::setMaximizableImpl)
 
+    val dpiProperty = ReadOnlyProperty(::getDpiImpl)
+
     constructor(handle: Long): this() {
         this.handle = handle
     }
@@ -155,6 +154,8 @@ abstract class WindowPeer() {
     protected abstract fun setMinimizableImpl(value: Boolean)
     protected abstract fun setMaximizableImpl(value: Boolean)
 
+    protected abstract fun getDpiImpl(): Double
+
     open fun dispatchUpdate(){
         eventConsumer?.dispatchUpdate()
     }
@@ -180,8 +181,8 @@ abstract class WindowPeer() {
             fun updatePosition(absoluteX: Int, absoluteY: Int){
                 this.absoluteX = absoluteX
                 this.absoluteY = absoluteX
-                this.x = absoluteX / dpi
-                this.y = absoluteY / dpi
+                this.x = absoluteX / dpiProperty.value
+                this.y = absoluteY / dpiProperty.value
             }
         }
 
@@ -202,6 +203,10 @@ abstract class WindowPeer() {
             focusProperty.internalValue = focused
         }
 
+        open fun onDpiChanged(newDpi: Float){
+            dpiProperty.internalValue = newDpi.toDouble()
+        }
+
         open fun onPointerMoveCallback(
             pointerId: Int,
             x: Int,
@@ -218,7 +223,7 @@ abstract class WindowPeer() {
             if(x == pointer.absoluteX && y == pointer.absoluteY)
                 return
 
-            val dpi = dpi
+            val dpi = dpiProperty.value
             val oldX = pointer.absoluteX.toDouble()
             val oldY = pointer.absoluteY.toDouble()
 

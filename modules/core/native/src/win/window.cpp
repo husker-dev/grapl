@@ -391,6 +391,17 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
             break;
         }
+        case WM_DPICHANGED: {
+            RECT* rect = (RECT*)lParam;
+            SetWindowPos(hwnd, NULL,
+                rect->left,
+                rect->top,
+                rect->right - rect->left,
+                rect->bottom - rect->top,
+                SWP_NOZORDER);
+
+            wrapper->onDpiChanged->call((jfloat)LOWORD(wParam) / (jfloat)USER_DEFAULT_SCREEN_DPI);
+        }
     }
     return CallWindowProcA(wrapper->prevProc, hwnd, msg, wParam, lParam);
 }
@@ -519,5 +530,9 @@ jni_win_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _hwnd, jboolea
     if(value) style |= WS_MAXIMIZEBOX;
     else      style &= ~WS_MAXIMIZEBOX;
     SetWindowLong(hwnd, GWL_STYLE, style);
+}
+
+jni_win_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _hwnd) {
+    return (jfloat)GetDpiForWindow((HWND)_hwnd) / (jfloat)USER_DEFAULT_SCREEN_DPI;
 }
 

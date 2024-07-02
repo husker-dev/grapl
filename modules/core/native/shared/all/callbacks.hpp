@@ -40,6 +40,7 @@ public:
     Callback* onResizeCallback;
     Callback* onMoveCallback;
     Callback* onFocusCallback;
+    Callback* onDpiChanged;
 
     Callback* onPointerMoveCallback;
     Callback* onPointerDownCallback;
@@ -67,6 +68,7 @@ public:
         onResizeCallback = callback("onResizeCallback", "(II)V");
         onMoveCallback = callback("onMoveCallback", "(II)V");
         onFocusCallback = callback("onFocusCallback", "(Z)V");
+        onDpiChanged = callback("onDpiChanged", "(F)V");
 
         onPointerMoveCallback = callback("onPointerMoveCallback", "(IIII)V");
         onPointerDownCallback = callback("onPointerDownCallback", "(IIIII)V");
@@ -93,6 +95,8 @@ public:
         delete onResizeCallback;
         delete onMoveCallback;
         delete onFocusCallback;
+        delete onDpiChanged;
+
         delete onPointerMoveCallback;
         delete onPointerDownCallback;
         delete onPointerUpCallback;

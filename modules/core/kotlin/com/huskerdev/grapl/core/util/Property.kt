@@ -3,18 +3,25 @@ package com.huskerdev.grapl.core.util
 import kotlin.reflect.KMutableProperty0
 
 open class ReadOnlyProperty<T>(
-    defaultValue: T
+    private val defaultValueGetter: () -> T
 ) {
     val listeners = listenerSet()
 
-    open var internalValue: T = defaultValue
+    constructor(defaultValue: T) : this({ defaultValue })
+
+    open var internalValue: T? = null
+        get() {
+            if(field == null)
+                field = defaultValueGetter()
+            return field
+        }
         set(value) {
             field = value
             listeners.dispatch()
         }
 
     open val value: T
-        get() = internalValue
+        get() = internalValue!!
 }
 
 
@@ -35,10 +42,10 @@ open class LinkedProperty<T>(
     onExternalSet: (T) -> Unit
 ): Property<T>(property.get(), onExternalSet){
 
-    override var internalValue: T
+    override var internalValue: T?
         get() = property.get()
         set(value) {
-            property.set(value)
+            property.set(value!!)
             listeners.dispatch()
         }
 }

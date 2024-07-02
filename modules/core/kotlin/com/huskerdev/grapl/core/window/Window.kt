@@ -88,6 +88,9 @@ abstract class Window(
     val keyTypedListeners: ListenerArgSet<KeyEvent>
         get() = peer.keyTypedListeners
 
+    val dpiChangedListener: ListenerSet
+        get() = peer.dpiProperty.listeners
+
     val shouldClose: Boolean
         get() = peer.shouldClose
 
@@ -191,7 +194,7 @@ abstract class Window(
         get() = peer.display
 
     val dpi: Double
-        get() = peer.dpi
+        get() = peer.dpiProperty.value
 
     val focused: Boolean
         get() = peer.focusProperty.value

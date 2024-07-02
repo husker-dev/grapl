@@ -116,6 +116,7 @@ open class X11WindowPeer(
     override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value)
 
     override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value)
+    override fun getDpiImpl() = display?.dpi ?: 1.0
 
     inner class X11WindowCallback: DefaultWindowCallback(){
         override fun onCloseCallback() {
