@@ -1,4 +1,6 @@
 
+import com.huskerdev.grapl.core.display.manufacturerID
+import com.huskerdev.grapl.core.display.manufacturerName
 import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.window.windowEventConsumer
 import com.huskerdev.grapl.core.x
@@ -25,6 +27,8 @@ fun main(){
                 swapBuffers()
             }
         }
+
+        println("Display manufacturer: ${display.manufacturerName} (${display.manufacturerID})")
 
         visible = true
     }

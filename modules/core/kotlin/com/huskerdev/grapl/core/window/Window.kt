@@ -33,6 +33,9 @@ abstract class Window(
     val visibleListeners: ListenerSet
         get() = peer.visibleProperty.listeners
 
+    val displayListeners: ListenerSet
+        get() = peer.displayProperty.listeners
+
     val displayStateListeners: ListenerSet
         get() = peer.displayStateProperty.listeners
 
@@ -190,8 +193,8 @@ abstract class Window(
         get() = peer.cursorProperty.value
         set(value) { peer.cursorProperty.value = value }
 
-    val display: Display?
-        get() = peer.display
+    val display: Display
+        get() = peer.displayProperty.value
 
     val dpi: Double
         get() = peer.dpiProperty.value

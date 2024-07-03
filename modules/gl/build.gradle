@@ -25,6 +25,7 @@ dependencies {
     // Testing
     testImplementation subprojects
     testImplementation rootProject.project("modules:core:native")
+    testImplementation rootProject.project("modules:ext-display")
 
     testImplementation platform("org.lwjgl:lwjgl-bom:3.3.3")
     for(module in ["", "-opengl"]){

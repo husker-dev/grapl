@@ -1,0 +1,27 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+}
+
+apply from: addon(addons_mavenPublish)
+apply from: addon(addons_testing)
+
+sourceSets {
+    main.java.srcDirs = ['kotlin']
+    main.resources.srcDirs = ['resources']
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+
+dependencies {
+    api rootProject.project("modules:core")
+    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+maven {
+    name = artifactId = projectName
+    description = "$projectName display extension module"
+}

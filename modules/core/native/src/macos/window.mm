@@ -231,7 +231,7 @@ public:
 }
 
 -(void) windowDidChangeBackingProperties:(NSNotification*)notification {
-	callbacks->onDpiChanged->call((jfloat)[self backingScaleFactor]);
+	callbacks->onDpiChanged->call();
 }
 
 

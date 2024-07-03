@@ -11,17 +11,17 @@ public:
     WNDPROC prevProc;
     TouchpadManager* touchpadManager;
 
-    Callback* getCursorCallback;
-    Callback* getMinMaxBounds;
+    HCURSOR cursor = NULL;
+    POINT minSize = { -1, -1 };
+    POINT maxSize = { -1, -1 };
+    boolean trackingMouse = false;
+    HMONITOR lastMonitor = NULL;
 
     WinWindowCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
         this->hwnd = hwnd;
 
         touchpadManager = new TouchpadManager(hwnd);
         prevProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
-
-        getCursorCallback = callback("getCursorCallback", "()I");
-        getMinMaxBounds = callback("getMinMaxBounds", "()[I");
     }
 };
 
@@ -200,23 +200,25 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
         case WM_MOVE: {
             wrapper->onMoveCallback->call(LOWORD(lParam), HIWORD(lParam));
+            HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+            if(wrapper->lastMonitor != monitor){
+                wrapper->lastMonitor = monitor;
+                wrapper->onDisplayChanged->call();
+            }
             break;
         }
         case WM_SETCURSOR: {
-            jint cursor = wrapper->getCursorCallback->callInt();
-            SetCursor(LoadCursor(NULL, MAKEINTRESOURCE(cursor)));
+            SetCursor(wrapper->cursor);
             break;
         }
         case WM_GETMINMAXINFO: {
-            jobject result = wrapper->getMinMaxBounds->callObject();
-            jintArray* boundsArray = (jintArray*)&result;
-            jint* bounds = env->GetIntArrayElements(*boundsArray, NULL);
-
             LPMINMAXINFO info = (LPMINMAXINFO)lParam;
-            if(bounds[0] != -1) info->ptMinTrackSize.x = bounds[0];
-            if(bounds[1] != -1) info->ptMinTrackSize.y = bounds[1];
-            if(bounds[2] != -1) info->ptMaxTrackSize.x = bounds[2];
-            if(bounds[3] != -1) info->ptMaxTrackSize.y = bounds[3];
+            POINT minSize = wrapper->minSize;
+            POINT maxSize = wrapper->maxSize;
+            if(minSize.x != -1) info->ptMinTrackSize.x = minSize.x;
+            if(minSize.y != -1) info->ptMinTrackSize.y = minSize.y;
+            if(maxSize.x != -1) info->ptMaxTrackSize.x = maxSize.x;
+            if(maxSize.y != -1) info->ptMaxTrackSize.y = maxSize.y;
             break;
         }
         case WM_KILLFOCUS:
@@ -229,6 +231,7 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_MOUSELEAVE: {
+            wrapper->trackingMouse = false;
             wrapper->onPointerLeaveCallback->call(
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
@@ -238,6 +241,22 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
             break;
         }
         case WM_MOUSEMOVE: {
+            if(!wrapper->trackingMouse){
+                // Track mouse enter/exit events using TrackMouseEvent
+                TRACKMOUSEEVENT tme = {};
+                tme.cbSize = sizeof(tme);
+                tme.dwFlags = TME_LEAVE;
+                tme.hwndTrack = hwnd;
+                TrackMouseEvent(&tme);
+
+                wrapper->onPointerEnterCallback->call(
+                    GetMessageExtraInfo() & 0x7F,
+                    GET_X_LPARAM(lParam),
+                    GET_Y_LPARAM(lParam),
+                    getModifierKeys()
+                );
+                wrapper->trackingMouse = true;
+            }
             wrapper->onPointerMoveCallback->call(
                 GetMessageExtraInfo() & 0x7F,
                 GET_X_LPARAM(lParam),
@@ -424,6 +443,11 @@ jni_win_window(void, nSetVisible)(JNIEnv* env, jobject, jlong hwnd, jboolean val
     ShowWindow((HWND)hwnd, value ? SW_SHOW : SW_HIDE);
 }
 
+jni_win_window(void, nSetCursor)(JNIEnv* env, jobject, jlong hwnd, jint cursor) {
+    WinWindowCallbackContainer* wrapper = wrappers[(HWND)hwnd];
+    wrapper->cursor = LoadCursor(NULL, MAKEINTRESOURCE(cursor));
+}
+
 jni_win_window(void, nSetPosition)(JNIEnv* env, jobject, jlong hwnd, jint x, jint y) {
     SetWindowPos((HWND)hwnd, 0, x, y, 0, 0, SWP_NOSIZE);
     UpdateWindow((HWND)hwnd);
@@ -438,6 +462,18 @@ jni_win_window(void, nSetSize)(JNIEnv* env, jobject, jlong _hwnd, jint width, ji
     AdjustWindowRectEx(&rect, style, 0, exStyle);
     SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
     UpdateWindow(hwnd);
+}
+
+jni_win_window(void, nSetMinSize)(JNIEnv* env, jobject, jlong hwnd, jint minWidth, jint minHeight) {
+    WinWindowCallbackContainer* wrapper = wrappers[(HWND)hwnd];
+    POINT p = { minWidth, minHeight };
+    wrapper->minSize = p;
+}
+
+jni_win_window(void, nSetMaxSize)(JNIEnv* env, jobject, jlong hwnd, jint maxWidth, jint maxHeight) {
+    WinWindowCallbackContainer* wrapper = wrappers[(HWND)hwnd];
+    POINT p = { maxWidth, maxHeight };
+    wrapper->maxSize = p;
 }
 
 jni_win_window(void, nSetTitle)(JNIEnv* env, jobject, jlong hwnd, jobject _title) {
@@ -506,14 +542,6 @@ jni_win_window(jint, nUpdateDisplayState)(JNIEnv* env, jobject, jlong hwnd, jboo
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         return 0;
     }
-}
-
-jni_win_window(void, nTrackMouseEvent)(JNIEnv* env, jobject, jlong hwnd) {
-    TRACKMOUSEEVENT tme = {};
-    tme.cbSize = sizeof(tme);
-    tme.dwFlags = TME_LEAVE;
-    tme.hwndTrack = (HWND)hwnd;
-    TrackMouseEvent(&tme);
 }
 
 jni_win_window(void, nSetMinimizable)(JNIEnv* env, jobject, jlong _hwnd, jboolean value) {

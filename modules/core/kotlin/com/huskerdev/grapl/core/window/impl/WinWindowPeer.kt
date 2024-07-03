@@ -6,6 +6,7 @@ import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
+import com.huskerdev.grapl.core.exceptions.DisplayModeChangingException
 import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
@@ -18,12 +19,14 @@ open class WinWindowPeer(
         @JvmStatic private external fun nPostQuit(hwnd: Long)   // Pushes WM_QUIT
 
         @JvmStatic private external fun nSetVisible(hwnd: Long, value: Boolean)
+        @JvmStatic private external fun nSetCursor(hwnd: Long, cursor: Int)
         @JvmStatic private external fun nSetPosition(hwnd: Long, x: Int, y: Int)
         @JvmStatic private external fun nSetSize(hwnd: Long, width: Int, height: Int)
+        @JvmStatic private external fun nSetMinSize(hwnd: Long, minWidth: Int, minHeight: Int)
+        @JvmStatic private external fun nSetMaxSize(hwnd: Long, maxWidth: Int, maxHeight: Int)
         @JvmStatic private external fun nSetTitle(hwnd: Long, title: ByteBuffer)
         @JvmStatic private external fun nGetMonitor(hwnd: Long): Long
         @JvmStatic private external fun nUpdateDisplayState(hwnd: Long, fullscreen: Boolean, monitor: Long, width: Int, height: Int, bits: Int, frequency: Int): Int
-        @JvmStatic private external fun nTrackMouseEvent(hwnd: Long)
         @JvmStatic private external fun nSetMinimizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nSetMaximizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nGetDpi(hwnd: Long): Float
@@ -33,18 +36,19 @@ open class WinWindowPeer(
         nHookWindow(hwnd, WinWindowCallback())
     }
 
-    override val display: Display
-        get() = Display(WinDisplayPeer(nGetMonitor(handle)))
-
     override fun destroy() = nPostQuit(handle)
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
-    override fun setCursorImpl(cursor: Cursor) = Unit // Updates from callback
+    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.toWin32())
     override fun setSizeImpl(size: Size) = nSetSize(handle, size.width.toInt(), size.height.toInt())
-    override fun setMinSizeImpl(size: Size) = Unit // Updates from callback
-    override fun setMaxSizeImpl(size: Size) = Unit // Updates from callback
+    override fun setMinSizeImpl(size: Size) = nSetMinSize(handle, size.width.toInt(), size.height.toInt())
+    override fun setMaxSizeImpl(size: Size) = nSetMaxSize(handle, size.width.toInt(), size.height.toInt())
     override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x.toInt(), position.y.toInt())
+    override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
+    override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
+    override fun getDpiImpl() = nGetDpi(handle).toDouble()
+    override fun getDisplayImpl() = Display(WinDisplayPeer(nGetMonitor(handle)))
 
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         val mode = when(state) {
@@ -76,81 +80,39 @@ open class WinWindowPeer(
         }
     }
 
-    override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
-    override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
-    override fun getDpiImpl() = nGetDpi(handle).toDouble()
-
     inner class WinWindowCallback: DefaultWindowCallback(){
-
-        private var mouseEntered = false
-
         override fun onResizeCallback(width: Int, height: Int) {
             super.onResizeCallback(width, height)
             dispatchUpdate()
         }
+    }
 
-        override fun onPointerMoveCallback(
-            pointerId: Int,
-            x: Int,
-            y: Int,
-            modifiers: Int
-        ) {
-            if(!mouseEntered){
-                mouseEntered = true
-                nTrackMouseEvent(handle)
-                onPointerEnterCallback(pointerId, x, y, modifiers)
-            }
-            super.onPointerMoveCallback(pointerId, x, y, modifiers)
-        }
-
-        override fun onPointerLeaveCallback(
-            pointerId: Int,
-            x: Int,
-            y: Int,
-            modifiers: Int
-        ) {
-            mouseEntered = false
-            super.onPointerLeaveCallback(pointerId, x, y, modifiers)
-        }
-
-        /** Mapped from
-         * [learn.microsoft.com](https://learn.microsoft.com/en-us/windows/win32/menurc/about-cursors) */
-        fun getCursorCallback() = when(cursorProperty.value){
-            Cursor.DEFAULT -> 32512         // IDC_ARROW
-            Cursor.HAND -> 32649            // IDC_HAND
-            Cursor.TEXT -> 32513            // IDC_IBEAM
-            Cursor.WAIT -> 32514            // IDC_WAIT
-            Cursor.PROGRESS -> 32650        // IDC_APPSTARTING
-            Cursor.CROSSHAIR -> 32515       // IDC_CROSS
-            Cursor.NOT_ALLOWED -> 32648     // IDC_NO
-            Cursor.HELP -> 32651            // IDC_HELP
-            Cursor.SIZE_W,
-            Cursor.SIZE_E,
-            Cursor.SIZE_HORIZONTAL_DOUBLE -> 32644 // IDC_SIZEWE
-            Cursor.SIZE_N,
-            Cursor.SIZE_S,
-            Cursor.SIZE_VERTICAL_DOUBLE -> 32645   // IDC_SIZENS
-            Cursor.SIZE_NE -> 32643         // IDC_SIZENESW
-            Cursor.SIZE_SE -> 32642         // IDC_SIZENWSE
-            Cursor.MOVE -> 32646            // IDC_SIZEALL
-            Cursor.SCROLL_ALL -> 32654
-            Cursor.SCROLL_UP -> 32655
-            Cursor.SCROLL_DOWN -> 32656
-            Cursor.SCROLL_LEFT -> 32657
-            Cursor.SCROLL_RIGHT -> 32658
-            Cursor.SCROLL_TOP_LEFT -> 32659
-            Cursor.SCROLL_TOP_RIGHT -> 32660
-            Cursor.SCROLL_BOTTOM_LEFT -> 32661
-            Cursor.SCROLL_BOTTOM_RIGHT -> 32662
-        }
-
-        fun getMinMaxBounds() = if (!isFullscreen())
-            intArrayOf(
-                minSizeProperty.value.width.toInt(),
-                minSizeProperty.value.height.toInt(),
-                maxSizeProperty.value.width.toInt(),
-                maxSizeProperty.value.height.toInt()
-            )
-        else intArrayOf(-1, -1, -1, -1)
+    private fun Cursor.toWin32() = when(this){
+        Cursor.DEFAULT                -> 32512 // IDC_ARROW
+        Cursor.HAND                   -> 32649 // IDC_HAND
+        Cursor.TEXT                   -> 32513 // IDC_IBEAM
+        Cursor.WAIT                   -> 32514 // IDC_WAIT
+        Cursor.PROGRESS               -> 32650 // IDC_APPSTARTING
+        Cursor.CROSSHAIR              -> 32515 // IDC_CROSS
+        Cursor.NOT_ALLOWED            -> 32648 // IDC_NO
+        Cursor.HELP                   -> 32651 // IDC_HELP
+        Cursor.SIZE_W,
+        Cursor.SIZE_E,
+        Cursor.SIZE_HORIZONTAL_DOUBLE -> 32644 // IDC_SIZEWE
+        Cursor.SIZE_N,
+        Cursor.SIZE_S,
+        Cursor.SIZE_VERTICAL_DOUBLE   -> 32645 // IDC_SIZENS
+        Cursor.SIZE_NE                -> 32643 // IDC_SIZENESW
+        Cursor.SIZE_SE                -> 32642 // IDC_SIZENWSE
+        Cursor.MOVE                   -> 32646 // IDC_SIZEALL
+        Cursor.SCROLL_ALL             -> 32654
+        Cursor.SCROLL_UP              -> 32655
+        Cursor.SCROLL_DOWN            -> 32656
+        Cursor.SCROLL_LEFT            -> 32657
+        Cursor.SCROLL_RIGHT           -> 32658
+        Cursor.SCROLL_TOP_LEFT        -> 32659
+        Cursor.SCROLL_TOP_RIGHT       -> 32660
+        Cursor.SCROLL_BOTTOM_LEFT     -> 32661
+        Cursor.SCROLL_BOTTOM_RIGHT    -> 32662
     }
 }

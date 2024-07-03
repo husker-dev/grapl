@@ -5,7 +5,6 @@ import com.huskerdev.grapl.core.Dimension
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
 import com.huskerdev.grapl.core.display.Display
-import com.huskerdev.grapl.core.display.DisplayMode
 import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler.Companion.useHandler
@@ -14,7 +13,7 @@ import com.huskerdev.grapl.core.util.*
 import kotlin.math.hypot
 
 
-abstract class WindowPeer() {
+abstract class WindowPeer {
     companion object {
         init {
             GraplNatives.load()
@@ -39,7 +38,9 @@ abstract class WindowPeer() {
             Platform.current.postEmptyMessage()
         }
 
-    abstract val display: Display?
+    /* ================================= *\
+    |     Listeners for special events    |
+    \* ================================= */
 
     /**
      * Called only if useBackgroundMessageHandler is true
@@ -70,6 +71,11 @@ abstract class WindowPeer() {
     val keyReleasedListeners = listenerSetOf<KeyEvent>()
     val keyTypedListeners = listenerSetOf<KeyEvent>()
 
+    /* ================================= *\
+    |              Properties             |
+    \* ================================= */
+
+    val displayProperty = ReadOnlyProperty(::getDisplayImpl)
 
     val displayStateProperty = Property<WindowDisplayState>(WindowDisplayState.Windowed()) {
         setDisplayStateImpl(it)
@@ -123,14 +129,17 @@ abstract class WindowPeer() {
 
     val dpiProperty = ReadOnlyProperty(::getDpiImpl)
 
-    constructor(handle: Long): this() {
-        this.handle = handle
-    }
+    /* ================================= *\
+    |            Constructors             |
+    \* ================================= */
 
-    init {
+    constructor(handle: Long) {
+        this.handle = handle
         if(useHandler)
             BackgroundMessageHandler.addPeer(this)
     }
+
+    constructor(): this(0L)
 
     protected fun isFullscreen() = displayStateProperty.value is WindowDisplayState.Fullscreen
 
@@ -139,6 +148,14 @@ abstract class WindowPeer() {
             closeNotifier.wait(delay)
         }
     }
+
+    open fun dispatchUpdate(){
+        eventConsumer?.dispatchUpdate()
+    }
+
+    /* ================================= *\
+    |           Platform methods          |
+    \* ================================= */
 
     abstract fun destroy()
 
@@ -155,11 +172,13 @@ abstract class WindowPeer() {
     protected abstract fun setMaximizableImpl(value: Boolean)
 
     protected abstract fun getDpiImpl(): Double
+    protected abstract fun getDisplayImpl(): Display
 
-    open fun dispatchUpdate(){
-        eventConsumer?.dispatchUpdate()
-    }
+    /* ================================= *\
+    |              Callbacks              |
+    \* ================================= */
 
+    @Suppress("unused")
     open inner class DefaultWindowCallback {
 
         inner class WrappedPointer(id: Int): Pointer(id) {
@@ -203,8 +222,12 @@ abstract class WindowPeer() {
             focusProperty.internalValue = focused
         }
 
-        open fun onDpiChanged(newDpi: Float){
-            dpiProperty.internalValue = newDpi.toDouble()
+        open fun onDpiChanged(){
+            dpiProperty.internalValue = getDpiImpl()
+        }
+
+        open fun onDisplayChanged(){
+            displayProperty.internalValue = getDisplayImpl()
         }
 
         open fun onPointerMoveCallback(
@@ -481,14 +504,4 @@ abstract class WindowPeer() {
         }
 
     }
-
-    class DisplayModeChangingException(
-        displayMode: DisplayMode?,
-        errorText: String
-    ): UnsupportedOperationException(
-        "Unable to set display mode " +
-                "${displayMode?.size?.width?.toInt()}x${displayMode?.size?.height?.toInt()}x${displayMode?.bits} " +
-                "@${displayMode?.frequency} - " +
-                errorText
-    )
 }

@@ -57,7 +57,5 @@ open class MacWindowPeer : WindowPeer() {
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
-
-    override val display: Display
-        get() = Display(MacDisplayPeer(nGetScreen(handle)))
+    override fun getDisplayImpl() = Display(MacDisplayPeer(nGetScreen(handle)))
 }

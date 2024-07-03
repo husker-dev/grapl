@@ -54,6 +54,39 @@ static jdoubleArray createDoubleArray(JNIEnv* env, std::vector<jdouble> array){
     return createDoubleArray(env, array.size(), array.data());
 }
 
+// Char
+
+static jcharArray createCharArray(JNIEnv* env, int size, jchar* array){
+    jcharArray result = env->NewCharArray(size);
+    env->SetCharArrayRegion(result, 0, size, array);
+    return result;
+}
+
+static jcharArray createCharArray(JNIEnv* env, std::initializer_list<jchar> array){
+    return createCharArray(env, (int)array.size(), (jchar*)array.begin());
+}
+
+static jcharArray createCharArray(JNIEnv* env, std::vector<jchar> array){
+    return createCharArray(env, array.size(), array.data());
+}
+
+// Byte
+
+static jbyteArray createByteArray(JNIEnv* env, int size, jbyte* array){
+    jbyteArray result = env->NewByteArray(size);
+    env->SetByteArrayRegion(result, 0, size, array);
+    return result;
+}
+
+static jbyteArray createByteArray(JNIEnv* env, std::initializer_list<jbyte> array){
+    return createByteArray(env, (int)array.size(), (jbyte*)array.begin());
+}
+
+static jbyteArray createByteArray(JNIEnv* env, std::vector<jbyte> array){
+    return createByteArray(env, array.size(), array.data());
+}
+
+
 #define GRAPL_VK_UNKNOWN -1
 
 #define GRAPL_VK_SPACE 32

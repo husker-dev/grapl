@@ -21,6 +21,7 @@ class WinDisplayPeer(
         @JvmStatic private external fun nGetPhysicalSize(monitor: Long): IntArray
         @JvmStatic private external fun nGetDisplayModes(monitor: Long): IntArray
         @JvmStatic private external fun nGetCurrentDisplayMode(monitor: Long): IntArray
+        @JvmStatic private external fun nGetEDID(monitor: Long): ByteArray
 
         val primary: DisplayPeer
             get() = WinDisplayPeer(nGetPrimaryMonitor())
@@ -67,5 +68,8 @@ class WinDisplayPeer(
                 this[3]
             )
         }
+
+    override val edid: ByteArray
+        get() = nGetEDID(handle)
 
 }

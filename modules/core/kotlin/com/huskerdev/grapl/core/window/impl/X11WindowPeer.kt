@@ -11,6 +11,7 @@ import com.huskerdev.grapl.core.util.c_str
 import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
 import java.nio.ByteBuffer
+import kotlin.math.hypot
 
 open class X11WindowPeer(
     handle: Long = nCreateWindow((LinuxPlatform.windowingSystem as X11).display)
@@ -33,28 +34,6 @@ open class X11WindowPeer(
     init {
         nHookWindow(xDisplay, handle, X11WindowCallback())
     }
-
-    override val display: Display?
-        get() {
-            val displays = X11DisplayPeer.list(xDisplay)
-
-            // Searching by center point
-            val center = Position(
-                positionProperty.value.x + sizeProperty.value.width / 2,
-                positionProperty.value.y + sizeProperty.value.height / 2
-            )
-            displays.firstOrNull {
-                center in it.dimension
-            }?.let { return Display(it) }
-
-            // Searching by intersection
-            val windowDimension = this.dimension
-            displays.firstOrNull {
-                it.dimension.intersect(windowDimension)
-            }?.let { return Display(it) }
-
-            return null
-        }
 
     override fun destroy() = nDestroyWindow(xDisplay, handle)
 
@@ -116,12 +95,69 @@ open class X11WindowPeer(
     override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value)
 
     override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value)
-    override fun getDpiImpl() = display?.dpi ?: 1.0
+
+    override fun getDpiImpl() = displayProperty.value.dpi
+
+    override fun getDisplayImpl(): Display {
+        val displays = X11DisplayPeer.list(xDisplay)
+
+        // Searching by center point
+        val center = Position(
+            positionProperty.value.x + sizeProperty.value.width / 2,
+            positionProperty.value.y + sizeProperty.value.height / 2
+        )
+        displays.firstOrNull {
+            center in it.dimension
+        }?.let { return Display(it) }
+
+        // Searching by intersection
+        val windowDimension = this.dimension
+        displays.firstOrNull {
+            it.dimension.intersect(windowDimension)
+        }?.let { return Display(it) }
+
+        // Searching by minimum distance
+        val x1 = windowDimension.x
+        val y1 = windowDimension.y
+        val x2 = windowDimension.x + windowDimension.width
+        val y2 = windowDimension.y + windowDimension.height
+        return Display(displays.minBy {
+            val dimension = it.dimension
+            val x1b = dimension.x
+            val y1b = dimension.y
+            val x2b = dimension.x + dimension.width
+            val y2b = dimension.y + dimension.height
+
+            val left = x2b < x1
+            val right = x1b < x2
+            val bottom = y2b < y1
+            val top = y1b < y2
+
+            if(top && left)          hypot(x1 - x2b, y2 - y1b)
+            else if(left && bottom)  hypot(x1 - x2b, y1 - y2b)
+            else if(bottom && right) hypot(x1b - x2, y1 - y2b)
+            else if(right && top)    hypot(x1b - x2, y1b - y2)
+            else if(left)            x1 - x2b
+            else if(right)           x2 - x1b
+            else if(bottom)          y1 - y2b
+            else                     y2 - y1b
+        })
+    }
 
     inner class X11WindowCallback: DefaultWindowCallback(){
+        private var lastDisplay = getDisplayImpl()
+
         override fun onCloseCallback() {
             super.onCloseCallback()
             nDestroyWindow(xDisplay, handle)
+        }
+
+        override fun onMoveCallback(x: Int, y: Int) {
+            if(lastDisplay != getDisplayImpl()){
+                lastDisplay = getDisplayImpl()
+                onDisplayChanged()
+            }
+            super.onMoveCallback(x, y)
         }
     }
 }

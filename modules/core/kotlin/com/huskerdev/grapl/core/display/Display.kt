@@ -68,6 +68,9 @@ class Display(
     val mode: DisplayMode
         get() = peer.mode
 
+    val edid: ByteArray
+        get() = peer.edid
+
     override fun toString(): String {
         return "Display[" +
                 "absoluteSize:$absoluteSize, " +
