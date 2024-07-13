@@ -8,6 +8,7 @@ import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.MacDisplayPeer
 import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
+import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 
 open class MacWindowPeer : WindowPeer() {
@@ -41,6 +42,9 @@ open class MacWindowPeer : WindowPeer() {
     }
 
     override fun destroy() = nCloseWindow(handle)
+    override fun requestFocus() {
+        TODO("Not yet implemented")
+    }
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
@@ -58,4 +62,11 @@ open class MacWindowPeer : WindowPeer() {
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(MacDisplayPeer(nGetScreen(handle)))
+    override fun setEnabledImpl(enabled: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setStyle(style: WindowStyle) {
+        TODO("Not yet implemented")
+    }
 }

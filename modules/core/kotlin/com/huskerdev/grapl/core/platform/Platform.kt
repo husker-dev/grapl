@@ -47,6 +47,7 @@ abstract class Platform {
             var fileName = path.replace("/", "-")
             if(fileName.startsWith("-"))
                 fileName = fileName.substring(1)
+            fileName = System.currentTimeMillis().toString() + "#" + fileName
 
             val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
             try {

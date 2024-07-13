@@ -29,13 +29,6 @@ class Display(
     val absoluteY: Double
         get() = peer.position.y
 
-    val physicalSize: Size
-        get() = peer.physicalSize
-    val physicalWidth: Double
-        get() = peer.physicalSize.width
-    val physicalHeight: Double
-        get() = peer.physicalSize.height
-
     val size: Size
         get() = absoluteSize / peer.dpi
     val width: Double
@@ -56,9 +49,6 @@ class Display(
     val frequency: Int
         get() = peer.frequency
 
-    val name: String
-        get() = peer.name
-
     val systemName: String
         get() = peer.systemName
 
@@ -68,7 +58,8 @@ class Display(
     val mode: DisplayMode
         get() = peer.mode
 
-    val edid: ByteArray
+    @ExperimentalUnsignedTypes
+    val edid: UByteArray
         get() = peer.edid
 
     override fun toString(): String {
@@ -77,10 +68,8 @@ class Display(
                 "absolutePosition:$absolutePosition, " +
                 "size:$size, " +
                 "position:$position, " +
-                "physicalSize:$physicalSize, d" +
-                "pi:$dpi, " +
+                "dpi:$dpi, " +
                 "frequency:$frequency, " +
-                "name:\"$name\", " +
                 "systemName:\"$systemName\"" +
                 "]"
     }

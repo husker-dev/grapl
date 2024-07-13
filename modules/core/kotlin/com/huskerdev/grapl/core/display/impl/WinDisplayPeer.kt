@@ -69,7 +69,8 @@ class WinDisplayPeer(
             )
         }
 
-    override val edid: ByteArray
-        get() = nGetEDID(handle)
+    @ExperimentalUnsignedTypes
+    override val edid: UByteArray
+        get() = nGetEDID(handle).toUByteArray()
 
 }

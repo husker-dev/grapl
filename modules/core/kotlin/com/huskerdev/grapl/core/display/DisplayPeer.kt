@@ -23,7 +23,9 @@ abstract class DisplayPeer(
     abstract val systemName: String
     abstract val modes: Array<DisplayMode>
     abstract val mode: DisplayMode
-    abstract val edid: ByteArray
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    abstract val edid: UByteArray
 
     val dimension: Dimension
         get() = Dimension(position, size)

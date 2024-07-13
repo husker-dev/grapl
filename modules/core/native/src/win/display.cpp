@@ -19,7 +19,7 @@ struct MonitorEnum{
     }
 };
 
-static bool getEDID(HMONITOR monitor, BYTE* dataEDID, int dataLength){
+static int getEDID(HMONITOR monitor, BYTE* dataEDID, int dataLength){
     MONITORINFOEXW info;
     info.cbSize = sizeof(info);
     GetMonitorInfoW((HMONITOR)monitor, &info);
@@ -93,7 +93,7 @@ static bool getEDID(HMONITOR monitor, BYTE* dataEDID, int dataLength){
         DWORD sizeOfDataEDID = dataLength;
         if(RegQueryValueExW(hEDIDRegKey, L"EDID", NULL, NULL, dataEDID, &sizeOfDataEDID) == ERROR_SUCCESS){
             RegCloseKey(hEDIDRegKey);
-            return true;
+            return sizeOfDataEDID;
         }
         RegCloseKey(hEDIDRegKey);
     }
@@ -246,8 +246,9 @@ jni_win_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong m
 }
 
 jni_win_display(jbyteArray, nGetEDID)(JNIEnv* env, jobject, jlong monitor) {
-    jbyte edid[1024];
-    if(getEDID((HMONITOR)monitor, (BYTE*)edid, sizeof(edid)))
-        return createByteArray(env, sizeof(edid), edid);
+    BYTE edid[4096];
+    int size = getEDID((HMONITOR)monitor, edid, sizeof(edid));
+    if(size > 0)
+        return createByteArray(env, size, (jbyte*)edid);
     return createByteArray(env, {});
 }

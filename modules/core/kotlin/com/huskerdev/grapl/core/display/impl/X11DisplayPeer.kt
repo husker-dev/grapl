@@ -71,7 +71,9 @@ class X11DisplayPeer(
                 this[3]
             )
         }
-    override val edid: ByteArray
-        get() = byteArrayOf()
+
+    @ExperimentalUnsignedTypes
+    override val edid: UByteArray
+        get() = byteArrayOf().toUByteArray()
 
 }

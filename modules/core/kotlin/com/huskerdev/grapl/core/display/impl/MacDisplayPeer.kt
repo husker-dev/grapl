@@ -68,8 +68,10 @@ class MacDisplayPeer(
                 this[3]
             )
         }
-    override val edid: ByteArray
-        get() = byteArrayOf()
+
+    @ExperimentalUnsignedTypes
+    override val edid: UByteArray
+        get() = byteArrayOf().toUByteArray()
 
     private fun scaledSize(width: Double, height: Double): Size {
         val dpi = dpi

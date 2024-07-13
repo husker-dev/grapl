@@ -129,6 +129,10 @@ abstract class WindowPeer {
 
     val dpiProperty = ReadOnlyProperty(::getDpiImpl)
 
+    val enabledProperty = Property(true, ::setEnabledImpl)
+
+    val styleProperty = Property(WindowStyle.DEFAULT, ::setStyle)
+
     /* ================================= *\
     |            Constructors             |
     \* ================================= */
@@ -150,7 +154,11 @@ abstract class WindowPeer {
     }
 
     open fun dispatchUpdate(){
-        eventConsumer?.dispatchUpdate()
+        try {
+            eventConsumer?.dispatchUpdate()
+        }catch (e: Exception){
+            e.printStackTrace()
+        }
     }
 
     /* ================================= *\
@@ -158,6 +166,7 @@ abstract class WindowPeer {
     \* ================================= */
 
     abstract fun destroy()
+    abstract fun requestFocus()
 
     protected abstract fun setTitleImpl(title: String)
     protected abstract fun setVisibleImpl(visible: Boolean)
@@ -173,6 +182,8 @@ abstract class WindowPeer {
 
     protected abstract fun getDpiImpl(): Double
     protected abstract fun getDisplayImpl(): Display
+    protected abstract fun setEnabledImpl(enabled: Boolean)
+    protected abstract fun setStyle(style: WindowStyle)
 
     /* ================================= *\
     |              Callbacks              |

@@ -16,6 +16,7 @@ public:
     POINT maxSize = { -1, -1 };
     boolean trackingMouse = false;
     HMONITOR lastMonitor = NULL;
+    int style = 0;
 
     WinWindowCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
         this->hwnd = hwnd;
@@ -421,6 +422,24 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
             wrapper->onDpiChanged->call((jfloat)LOWORD(wParam) / (jfloat)USER_DEFAULT_SCREEN_DPI);
         }
+        case WM_NCCALCSIZE: {
+            int style = wrapper->style;
+
+            if (wParam == TRUE && style != 0) {
+                auto& params = *reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+
+                if (IsMaximized(hwnd)) {
+                    MONITORINFO info {};
+                    info.cbSize = sizeof(MONITORINFO);
+                    GetMonitorInfo(MonitorFromRect(params.rgrc, MONITOR_DEFAULTTONEAREST), &info);
+
+                    params.rgrc[0] = info.rcWork;
+                } else if(style == 2)
+                    params.rgrc[0].right -= 1;
+                return 0;
+            }
+            break;
+        }
     }
     return CallWindowProcA(wrapper->prevProc, hwnd, msg, wParam, lParam);
 }
@@ -562,5 +581,26 @@ jni_win_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _hwnd, jboolea
 
 jni_win_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _hwnd) {
     return (jfloat)GetDpiForWindow((HWND)_hwnd) / (jfloat)USER_DEFAULT_SCREEN_DPI;
+}
+
+jni_win_window(void, nSetEnabled)(JNIEnv* env, jobject, jlong _hwnd, jboolean enabled) {
+    EnableWindow((HWND)_hwnd, enabled);
+}
+
+jni_win_window(void, nRequestFocus)(JNIEnv* env, jobject, jlong _hwnd) {
+    SetWindowPos((HWND)_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}
+
+jni_win_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _hwnd, jint style) {
+    HWND hwnd = (HWND)_hwnd;
+    WinWindowCallbackContainer* wrapper = wrappers[hwnd];
+    wrapper->style = style;
+
+    RECT window;
+    GetWindowRect(hwnd, &window);
+    int width = window.right - window.left;
+    int height = window.bottom - window.top;
+    SetWindowPos(hwnd, nullptr, 0, 0, width + 1, height, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
+    SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
 }
 

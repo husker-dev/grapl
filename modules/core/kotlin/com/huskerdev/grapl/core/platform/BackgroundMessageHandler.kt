@@ -73,11 +73,7 @@ class BackgroundMessageHandler {
                                 platform.waitMessages()
 
                             activePeers.forEach {
-                                try {
-                                    it.dispatchUpdate()
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                }
+                                it.dispatchUpdate()
                             }
                         }
                     }

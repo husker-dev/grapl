@@ -1,6 +1,5 @@
 package com.huskerdev.grapl.gl
 
-import com.huskerdev.grapl.core.util.observer
 import com.huskerdev.grapl.core.window.Window
 
 class GLWindow(

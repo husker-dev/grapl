@@ -10,6 +10,7 @@ import com.huskerdev.grapl.core.platform.impl.X11
 import com.huskerdev.grapl.core.util.c_str
 import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
+import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 import kotlin.math.hypot
 
@@ -36,6 +37,9 @@ open class X11WindowPeer(
     }
 
     override fun destroy() = nDestroyWindow(xDisplay, handle)
+    override fun requestFocus() {
+        TODO("Not yet implemented")
+    }
 
     override fun setTitleImpl(title: String) = nSetTitle(xDisplay, handle, title.c_str)
 
@@ -142,6 +146,14 @@ open class X11WindowPeer(
             else if(bottom)          y1 - y2b
             else                     y2 - y1b
         })
+    }
+
+    override fun setEnabledImpl(enabled: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setStyle(style: WindowStyle) {
+        TODO("Not yet implemented")
     }
 
     inner class X11WindowCallback: DefaultWindowCallback(){

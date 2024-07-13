@@ -199,6 +199,10 @@ abstract class Window(
     val dpi: Double
         get() = peer.dpiProperty.value
 
+    var enabled: Boolean
+        get() = peer.enabledProperty.value
+        set(value) { peer.enabledProperty.value = value }
+
     val focused: Boolean
         get() = peer.focusProperty.value
 
@@ -216,6 +220,10 @@ abstract class Window(
     val keys: Set<Key>
         get() = peer.keys
 
+    var style: WindowStyle
+        get() = peer.styleProperty.value
+        set(value) { peer.styleProperty.value = value }
+
     fun alignToCenter(){
         val displaySize = Display.primary.absoluteSize
         absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)
@@ -225,6 +233,8 @@ abstract class Window(
     fun waitForDestroy(delay: Long = 0) = peer.waitForDestroy(delay)
 
     fun destroy() = peer.destroy()
+
+    fun requestFocus() = peer.requestFocus()
 
     init {
         size = 800.0 x 600.0

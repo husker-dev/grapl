@@ -9,6 +9,7 @@ import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
 import com.huskerdev.grapl.core.exceptions.DisplayModeChangingException
 import com.huskerdev.grapl.core.window.WindowDisplayState
 import com.huskerdev.grapl.core.window.WindowPeer
+import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 
 open class WinWindowPeer(
@@ -30,6 +31,9 @@ open class WinWindowPeer(
         @JvmStatic private external fun nSetMinimizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nSetMaximizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nGetDpi(hwnd: Long): Float
+        @JvmStatic private external fun nSetEnabled(hwnd: Long, enabled: Boolean)
+        @JvmStatic private external fun nRequestFocus(hwnd: Long)
+        @JvmStatic private external fun nSetStyle(hwnd: Long, style: Int)
     }
 
     init {
@@ -37,10 +41,11 @@ open class WinWindowPeer(
     }
 
     override fun destroy() = nPostQuit(handle)
+    override fun requestFocus() = nRequestFocus(handle)
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_wstr)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
-    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.toWin32())
+    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.toNative())
     override fun setSizeImpl(size: Size) = nSetSize(handle, size.width.toInt(), size.height.toInt())
     override fun setMinSizeImpl(size: Size) = nSetMinSize(handle, size.width.toInt(), size.height.toInt())
     override fun setMaxSizeImpl(size: Size) = nSetMaxSize(handle, size.width.toInt(), size.height.toInt())
@@ -49,6 +54,8 @@ open class WinWindowPeer(
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(WinDisplayPeer(nGetMonitor(handle)))
+    override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(handle, enabled)
+    override fun setStyle(style: WindowStyle) = nSetStyle(handle, style.toNative())
 
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         val mode = when(state) {
@@ -87,7 +94,13 @@ open class WinWindowPeer(
         }
     }
 
-    private fun Cursor.toWin32() = when(this){
+    private fun WindowStyle.toNative() = when(this){
+        WindowStyle.DEFAULT     -> 0
+        WindowStyle.UNDECORATED -> 1
+        WindowStyle.NO_TITLEBAR -> 2
+    }
+
+    private fun Cursor.toNative() = when(this){
         Cursor.DEFAULT                -> 32512 // IDC_ARROW
         Cursor.HAND                   -> 32649 // IDC_HAND
         Cursor.TEXT                   -> 32513 // IDC_IBEAM
