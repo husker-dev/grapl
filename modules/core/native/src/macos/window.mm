@@ -593,7 +593,7 @@ jni_macos_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _windowPtr, 
     );
 }
 
-jni_macos_window(jfloat, nGetDPi)(JNIEnv* env, jobject, jlong _windowPtr) {
+jni_macos_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _windowPtr) {
     NSWindow* window = (NSWindow*)_windowPtr;
-    (jfloat)[window backingScaleFactor]
+    return (jfloat)[window backingScaleFactor];
 }
