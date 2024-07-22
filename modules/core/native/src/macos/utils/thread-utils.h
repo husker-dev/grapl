@@ -1,12 +1,12 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface ThreadUtilities : NSObject { }
+@interface ThreadUtilities_Core : NSObject { }
 + (void)performOnMainThread:(BOOL)wait block:(void (^)())block;
 @end
 
 #define ON_MAIN_THREAD(...) \
-[ThreadUtilities performOnMainThread:YES block:^() { \
+[ThreadUtilities_Core performOnMainThread:YES block:^() { \
     @autoreleasepool { \
         __VA_ARGS__ \
     }; \

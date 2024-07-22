@@ -127,6 +127,10 @@ abstract class WindowPeer {
 
     val maximizable = Property(true, ::setMaximizableImpl)
 
+    val closable = Property(true, ::setClosable)
+
+    val resizable = Property(true, ::setResizable)
+
     val dpiProperty = ReadOnlyProperty(::getDpiImpl)
 
     val enabledProperty = Property(true, ::setEnabledImpl)
@@ -179,6 +183,8 @@ abstract class WindowPeer {
     protected abstract fun setDisplayStateImpl(state: WindowDisplayState)
     protected abstract fun setMinimizableImpl(value: Boolean)
     protected abstract fun setMaximizableImpl(value: Boolean)
+    protected abstract fun setClosable(value: Boolean)
+    protected abstract fun setResizable(value: Boolean)
 
     protected abstract fun getDpiImpl(): Double
     protected abstract fun getDisplayImpl(): Display

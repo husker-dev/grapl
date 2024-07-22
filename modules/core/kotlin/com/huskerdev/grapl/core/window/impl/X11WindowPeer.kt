@@ -99,6 +99,13 @@ open class X11WindowPeer(
     override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value)
 
     override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value)
+    override fun setClosable(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setResizable(value: Boolean) {
+        TODO("Not yet implemented")
+    }
 
     override fun getDpiImpl() = displayProperty.value.dpi
 

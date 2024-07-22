@@ -214,6 +214,14 @@ abstract class Window(
         get() = peer.minimizable.value
         set(value) { peer.minimizable.value = value }
 
+    var closable: Boolean
+        get() = peer.closable.value
+        set(value) { peer.closable.value = value }
+
+    var resizable: Boolean
+        get() = peer.resizable.value
+        set(value) { peer.resizable.value = value }
+
     val pointer: Set<Pointer>
         get() = peer.pointers.values.toSet()
 

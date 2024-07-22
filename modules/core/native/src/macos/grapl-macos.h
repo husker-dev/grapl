@@ -1,6 +1,7 @@
 #import <grapl.h>
 #import <callbacks.hpp>
-#import <thread-utils.h>
+
+#import "utils/thread-utils.h"
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>

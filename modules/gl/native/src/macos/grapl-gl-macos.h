@@ -1,8 +1,14 @@
+#define GL_SILENCE_DEPRECATION
+
 #include "../grapl-gl.h"
+#import "utils/thread-utils.h"
+
+
+#import <Cocoa/Cocoa.h>
+#import <OpenGL/OpenGL.h>
 
 #include <jni.h>
 #include <iostream>
-#include <OpenGL/OpenGL.h>
 
 #include <dlfcn.h>
 static void* libGL;

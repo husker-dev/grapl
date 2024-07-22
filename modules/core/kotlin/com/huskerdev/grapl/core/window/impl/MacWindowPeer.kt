@@ -28,7 +28,10 @@ open class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nGetScreen(windowPtr: Long): Long
         @JvmStatic private external fun nSetMinimizable(windowPtr: Long, value: Boolean)
         @JvmStatic private external fun nSetMaximizable(windowPtr: Long, value: Boolean)
+        @JvmStatic private external fun nSetClosable(windowPtr: Long, value: Boolean)
+        @JvmStatic private external fun nSetResizable(windowPtr: Long, value: Boolean)
         @JvmStatic private external fun nGetDpi(windowPtr: Long): Float
+        @JvmStatic private external fun nSetStyle(windowPtr: Long, style: Int)
 
         fun create() = MacWindowPeer()
 
@@ -60,13 +63,20 @@ open class MacWindowPeer : WindowPeer() {
 
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
+    override fun setClosable(value: Boolean) = nSetClosable(handle, value)
+    override fun setResizable(value: Boolean) = nSetResizable(handle, value)
+
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(MacDisplayPeer(nGetScreen(handle)))
     override fun setEnabledImpl(enabled: Boolean) {
         TODO("Not yet implemented")
     }
 
-    override fun setStyle(style: WindowStyle) {
-        TODO("Not yet implemented")
+    override fun setStyle(style: WindowStyle) = nSetStyle(handle, style.toNative())
+
+    private fun WindowStyle.toNative() = when (this) {
+        WindowStyle.DEFAULT     -> 0
+        WindowStyle.UNDECORATED -> 1
+        WindowStyle.NO_TITLEBAR -> 2
     }
 }

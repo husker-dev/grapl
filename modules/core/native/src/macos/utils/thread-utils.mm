@@ -5,7 +5,7 @@
     https://github.com/openjdk/jdk/blob/master/src/java.desktop/macosx/native/libosxapp/ThreadUtilities.m
 */
 
-@implementation ThreadUtilities
+@implementation ThreadUtilities_Core
 static NSArray<NSString*> *javaModes = [[NSArray alloc] initWithObjects:
         NSDefaultRunLoopMode, NSModalPanelRunLoopMode, NSEventTrackingRunLoopMode, @"grapl", nil];
 
@@ -20,14 +20,11 @@ static NSArray<NSString*> *javaModes = [[NSArray alloc] initWithObjects:
 
 + (void)performOnMainThread:(BOOL)wait block:(void (^)())block {
     if (![NSThread isMainThread]){
-        [self
-            performSelectorOnMainThread:    wait == YES ? @selector(invokeBlock:) : @selector(invokeBlockCopy:)
-            withObject:                     wait == YES ? block : Block_copy(block)
-            waitUntilDone:                  wait
-            modes:                          javaModes
-        ];
-    } else
-        block();
+        [self performSelectorOnMainThread: wait == YES ? @selector(invokeBlock:) : @selector(invokeBlockCopy:)
+                               withObject: wait == YES ? block : Block_copy(block)
+                            waitUntilDone: wait
+                                    modes: javaModes];
+    } else block();
 }
 @end
 

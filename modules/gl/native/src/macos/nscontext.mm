@@ -1,6 +1,4 @@
 #import "grapl-gl-macos.h"
-#import <thread-utils.h>
-#import <Cocoa/Cocoa.h>
 
 jni_macos_nscontext(jlong, nAttachToWindow)(JNIEnv* env, jobject, jlong _windowPtr, jlong _ctx) {
     __block NSOpenGLContext* nsgl;

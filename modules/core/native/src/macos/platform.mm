@@ -8,7 +8,7 @@ jni_macos_platform(void, nInvokeOnMainThread)(JNIEnv* env, jobject, jobject runn
     jclass runnableClass = env->GetObjectClass(runnableGlobal);
     jmethodID runMethod = env->GetMethodID(runnableClass, "run", "()V");
 
-    [ThreadUtilities performOnMainThread:(wait ? YES : NO) block:^() {
+    [ThreadUtilities_Core performOnMainThread:(wait ? YES : NO) block:^() {
         JNIEnv* env;
         jvm->AttachCurrentThread((void**)&env, NULL);
         env->CallVoidMethod(runnableGlobal, runMethod);
@@ -43,7 +43,7 @@ jni_macos_platform(void, nWaitMessage)(JNIEnv* env, jobject, jint timeout) {
         [NSApp sendEvent:event];
         for (;;) {
             event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                      buntilDate:[NSDate distantPast]
+                                       untilDate:[NSDate distantPast]
                                           inMode:NSDefaultRunLoopMode
                                          dequeue:YES];
             if (event == nil)

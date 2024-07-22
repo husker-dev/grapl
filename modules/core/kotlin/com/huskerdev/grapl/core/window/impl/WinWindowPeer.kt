@@ -52,6 +52,14 @@ open class WinWindowPeer(
     override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x.toInt(), position.y.toInt())
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
+    override fun setClosable(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setResizable(value: Boolean) {
+        TODO("Not yet implemented")
+    }
+
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(WinDisplayPeer(nGetMonitor(handle)))
     override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(handle, enabled)

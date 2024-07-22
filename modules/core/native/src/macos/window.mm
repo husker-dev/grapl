@@ -50,6 +50,7 @@ public:
 
     self->cursor = [NSCursor arrowCursor];
     [self updateTrackingAreas];
+    return self;
 }
 
 -(void) bindCallback:(jobject)_callbackObject {
@@ -474,7 +475,6 @@ jni_macos_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObj
         [windowController autorelease];
 
         [window setCollectionBehavior: NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorManaged];
-        //[window autorelease];
 
         [window setAcceptsMouseMovedEvents:YES];
         [window setRestorable:NO];
@@ -593,7 +593,49 @@ jni_macos_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _windowPtr, 
     );
 }
 
+jni_macos_window(void, nSetClosable)(JNIEnv* env, jobject, jlong _windowPtr, jboolean value) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        if(value) window.styleMask |= NSWindowStyleMaskClosable;
+        else      window.styleMask &= ~NSWindowStyleMaskClosable;
+    );
+}
+
+jni_macos_window(void, nSetResizable)(JNIEnv* env, jobject, jlong _windowPtr, jboolean value) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        if(value) window.styleMask |= NSWindowStyleMaskResizable;
+        else      window.styleMask &= ~NSWindowStyleMaskResizable;
+    );
+}
+
 jni_macos_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _windowPtr) {
     NSWindow* window = (NSWindow*)_windowPtr;
     return (jfloat)[window backingScaleFactor];
+}
+
+jni_macos_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _windowPtr, jint style) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+
+        window.styleMask &= ~NSWindowStyleMaskBorderless;
+        window.styleMask |= NSWindowStyleMaskTitled;
+        window.styleMask &= ~NSWindowStyleMaskFullSizeContentView;
+        window.titleVisibility = NSWindowTitleVisible;
+        window.titlebarAppearsTransparent = false;
+
+        if(style == 1) {
+            window.styleMask |= NSWindowStyleMaskBorderless;
+            window.styleMask &= ~NSWindowStyleMaskTitled;
+        } else if(style == 2) {
+            window.styleMask |= NSWindowStyleMaskFullSizeContentView;
+            window.titleVisibility = NSWindowTitleHidden;
+            window.titlebarAppearsTransparent = true;
+        }
+
+        BOOL hideButtons = style == 2;
+        [[window standardWindowButton:NSWindowCloseButton] setHidden:hideButtons];
+        [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:hideButtons];
+        [[window standardWindowButton:NSWindowZoomButton] setHidden:hideButtons];
+    );
 }
