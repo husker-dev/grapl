@@ -2,6 +2,17 @@
 
 #import <IOKit/graphics/IOGraphicsLib.h>
 
+#import <Foundation/Foundation.h>
+#import <IOKit/IOKitLib.h>
+
+#include <cstring>
+
+extern "C" {
+    typedef CFTypeRef IOAVServiceRef;
+    extern IOAVServiceRef IOAVServiceCreateWithService(CFAllocatorRef allocator, io_service_t service);
+    extern IOReturn IOAVServiceCopyEDID(IOAVServiceRef service, CFDataRef* edidData);
+}
+
 static CGDirectDisplayID getDisplayID(NSScreen* screen){
     NSDictionary *description = [screen deviceDescription];
     return (CGDirectDisplayID)[[description objectForKey:@"NSScreenNumber"] unsignedIntValue];
@@ -87,75 +98,6 @@ jni_macos_display(jdouble, nGetFrequency)(JNIEnv* env, jobject, jlong _screen) {
     return [screen maximumFramesPerSecond];
 }
 
-jni_macos_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _screen) {
-    NSScreen* screen = (NSScreen*)_screen;
-
-    if ([screen respondsToSelector:@selector(localizedName)]){
-        NSString* name = [screen valueForKey:@"localizedName"];
-        if (name)
-            return env->NewStringUTF((const char*)[name UTF8String]);
-    }
-
-#ifndef TARGET_CPU_ARM64
-
-    CGDirectDisplayID displayId = getDisplayID(screen);
-
-    io_iterator_t it;
-    io_service_t service;
-    CFDictionaryRef info;
-
-    // This may happen if a desktop Mac is running headless
-    if (IOServiceGetMatchingServices(MACH_PORT_NULL, IOServiceMatching("IODisplayConnect"), &it) != 0)
-        return env->NewStringUTF("Display");
-
-    while ((service = IOIteratorNext(it)) != 0){
-        info = IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
-
-        CFNumberRef vendorIDRef = (CFNumberRef)CFDictionaryGetValue(info, CFSTR(kDisplayVendorID));
-        CFNumberRef productIDRef = (CFNumberRef)CFDictionaryGetValue(info, CFSTR(kDisplayProductID));
-        if (!vendorIDRef || !productIDRef) {
-            CFRelease(info);
-            continue;
-        }
-
-        unsigned int vendorID, productID;
-        CFNumberGetValue(vendorIDRef, kCFNumberIntType, &vendorID);
-        CFNumberGetValue(productIDRef, kCFNumberIntType, &productID);
-
-        // Info dictionary is used and freed below
-        if (CGDisplayVendorNumber(displayId) == vendorID &&
-            CGDisplayModelNumber(displayId) == productID
-        ) break;
-
-        CFRelease(info);
-    }
-    IOObjectRelease(it);
-
-    if (!service)
-        return env->NewStringUTF("Display");
-
-    CFDictionaryRef names = (CFDictionaryRef)CFDictionaryGetValue(info, CFSTR(kDisplayProductName));
-    CFStringRef nameRef;
-
-    // This may happen if a desktop Mac is running headless
-    if (!names || !CFDictionaryGetValueIfPresent(names, CFSTR("en_US"), (const void**) &nameRef)){
-        CFRelease(info);
-        return env->NewStringUTF("Display");
-    }
-
-    const CFIndex size = CFStringGetMaximumSizeForEncoding(CFStringGetLength(nameRef), kCFStringEncodingUTF8);
-    char* name = new char[size + 1];
-    CFStringGetCString(nameRef, name, size, kCFStringEncodingUTF8);
-
-    jstring result = env->NewStringUTF(name);
-
-    CFRelease(info);
-    return result;
-#else
-    return env->NewStringUTF("Display");
-#endif
-}
-
 jni_macos_display(jint, nGetIndex)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
     return (jint)getDisplayID(screen);
@@ -189,4 +131,149 @@ jni_macos_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong
         (jint) getDisplayBitsPerPixel(mode),
         (jint) CGDisplayModeGetRefreshRate(mode)
     });
+}
+
+jni_macos_display(jbyteArray, nGetEDID)(JNIEnv* env, jobject, jlong _screen) {
+    NSScreen* screen = (NSScreen*)_screen;
+    CGDirectDisplayID displayId = getDisplayID(screen);
+
+    if(CGDisplayIsBuiltin(displayId)){
+        // Emulate EDID for built-in display
+
+        char* edid = new char[128];
+        memset(edid, 0, 128);
+
+        // Fixed header pattern
+        edid[1] = 0xFF;
+        edid[2] = 0xFF;
+        edid[3] = 0xFF;
+        edid[4] = 0xFF;
+        edid[5] = 0xFF;
+        edid[6] = 0xFF;
+
+        // Manufacturer ID
+        uint32_t manufacturer = CGDisplayVendorNumber(displayId);
+        edid[9] = manufacturer;
+        edid[8] = manufacturer >> 8;
+
+        // Product ID
+        uint32_t modelNumber = CGDisplayModelNumber(displayId);
+        edid[10] = modelNumber;
+        edid[11] = modelNumber >> 8;
+
+        // Serial number
+        uint32_t serialNumber = CGDisplaySerialNumber(displayId);
+        edid[12] = serialNumber;
+        edid[13] = serialNumber >> 8;
+        edid[14] = serialNumber >> 16;
+        edid[15] = serialNumber >> 24;
+
+        // EDID version
+        edid[18] = 1;
+        edid[19] = 3;
+
+        // Is digital
+        edid[20] = 0b10000000;
+
+        // Size (mm)
+        CGSize displayPhysicalSize = CGDisplayScreenSize(displayId);
+        edid[21] = displayPhysicalSize.width / 10;
+        edid[22] = displayPhysicalSize.height / 10;
+        edid[54] = 1;
+        edid[55] = 1;
+        edid[54 + 12] = displayPhysicalSize.width;
+        edid[54 + 13] = displayPhysicalSize.height;
+        edid[54 + 14] = ((int)displayPhysicalSize.width >> 4) & 0b11110000;
+        edid[54 + 14] |= ((int)displayPhysicalSize.height >> 8) & 0b00001111;
+
+        // Name
+        const char* name = "Built-in";
+        const int len = strlen(name);
+        edid[72 + 3] = 0xFC;
+        for(int i = 0; i < (len > 13 ? 13 : len); i++)
+            edid[72 + 5 + i] = name[i];
+        if(len < 13)
+            edid[72 + 5 + len] = 10;
+        if(len < 12)
+            edid[72 + 5 + len + 1] = ' ';
+
+        return createByteArray(env, 128, (jbyte*)edid);
+    }
+
+    // Iterate over external displays
+
+    uint32_t vendorId = CGDisplayVendorNumber(displayId);
+    uint32_t productId = CGDisplayModelNumber(displayId);
+
+    io_iterator_t iterator;
+    io_service_t service;
+
+#ifndef TARGET_CPU_ARM64    // For x86 (intel)
+
+    CFDictionaryRef info;
+
+    if (IOServiceGetMatchingServices(MACH_PORT_NULL, IOServiceMatching("IODisplayConnect"), &iterator) != 0)
+        return createByteArray(env, 0, (jbyte*)0);
+
+    while ((service = IOIteratorNext(iterator)) != 0){
+        info = IODisplayCreateInfoDictionary(service, kIODisplayOnlyPreferredName);
+
+        CFNumberRef vendorIDRef = (CFNumberRef)CFDictionaryGetValue(info, CFSTR(kDisplayVendorID));
+        CFNumberRef productIDRef = (CFNumberRef)CFDictionaryGetValue(info, CFSTR(kDisplayProductID));
+        if (!vendorIDRef || !productIDRef) {
+            CFRelease(info);
+            continue;
+        }
+
+        unsigned int currentVendorId, currentProductId;
+        CFNumberGetValue(vendorIDRef, kCFNumberIntType, &currentVendorId);
+        CFNumberGetValue(productIDRef, kCFNumberIntType, &currentProductId);
+
+        if (vendorId != currentVendorId || productId != currentProductId) {
+            CFRelease(info);
+            continue;
+        }
+
+        CFDataRef edidData = CFDictionaryGetValue(dict, CFSTR(kIODisplayEDIDKey));
+
+        jbyteArray result = createByteArray(env, CFDataGetLength(edidData), (jbyte*)CFDataGetBytePtr(edidData));
+        CFRelease(info);
+        IOObjectRelease(iterator);
+        return result;
+    }
+
+#else   // For apple-silicon
+
+    if (IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching("DCPAVServiceProxy"), &iterator) != 0)
+        return createByteArray(env, 0, (jbyte*)0);
+
+    while ((service = IOIteratorNext(iterator)) != 0) {
+        CFStringRef location = (CFStringRef)IORegistryEntrySearchCFProperty(service, kIOServicePlane, CFSTR("Location"), kCFAllocatorDefault, kIORegistryIterateRecursively);
+        if (location == NULL || CFStringCompare(CFSTR("External"), location, 0) != 0)
+            continue;
+
+        IOAVServiceRef avService = IOAVServiceCreateWithService(kCFAllocatorDefault, service);
+        if (avService == NULL)
+            continue;
+
+        CFDataRef edidData = NULL;
+        IOReturn edidResult = IOAVServiceCopyEDID(avService, &edidData);
+        if (edidResult != kIOReturnSuccess || edidData == NULL)
+            continue;
+
+        const char* data = (const char*)CFDataGetBytePtr(edidData);
+        int currentVendorId = (int)data[8] << 8 | data[9];
+        int currentProductId = ((int)data[10] & 0xFF) | ((int)data[11] << 8);
+
+        if(currentVendorId != vendorId || currentProductId != productId)
+            continue;
+
+        jbyteArray result = createByteArray(env, CFDataGetLength(edidData), (jbyte*)data);
+        IOObjectRelease(iterator);
+        return result;
+    }
+#endif
+    IOObjectRelease(iterator);
+
+    return createByteArray(env, 0, (jbyte*)0);
 }

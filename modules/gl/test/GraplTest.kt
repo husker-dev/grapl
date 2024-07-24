@@ -19,7 +19,7 @@ fun main(){
         //Files.write(File("./edid_${display.manufacturerId}.bin").toPath(), display.edid.toByteArray())
         println("=====================================================")
         printProperty("manufacturer", "${display.manufacturerName} (${display.manufacturerId})")
-        //printProperty("name", display.name)
+        printProperty("name", display.name)
         printProperty("manufacture year", display.manufactureYear)
         printProperty("manufacture week", display.manufactureWeek)
         printProperty("manufacture date", display.manufactureDate)

@@ -44,9 +44,6 @@ class X11DisplayPeer(
     override val frequency: Int
         get() = nGetFrequency(display, handle)
 
-    override val name: String
-        get() = nGetName(display, handle)
-
     override val systemName: String
         get() = nGetSystemName(display, handle)
 

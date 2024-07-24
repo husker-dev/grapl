@@ -15,7 +15,7 @@ compilation {
         libs = ["user32", "gdi32", "setupapi", "advapi32", "ole32"]
     }
     macos {
-        frameworks = ["Cocoa"]
+        frameworks = ["Cocoa", "IOKit"]
     }
     linux {
         libs = ["wayland-client", "X11", "Xrandr", "Xcursor"]

@@ -19,10 +19,10 @@ class MacDisplayPeer(
         @JvmStatic private external fun nGetPhysicalSize(screen: Long): DoubleArray
         @JvmStatic private external fun nGetDpi(screen: Long): Double
         @JvmStatic private external fun nGetFrequency(screen: Long): Int
-        @JvmStatic private external fun nGetName(screen: Long): String
         @JvmStatic private external fun nGetIndex(screen: Long): Int
         @JvmStatic private external fun nGetDisplayModes(screen: Long): IntArray
         @JvmStatic private external fun nGetCurrentDisplayMode(screen: Long): IntArray
+        @JvmStatic private external fun nGetEDID(screen: Long): ByteArray
 
         val primary: DisplayPeer
             get() = MacDisplayPeer(nGetMainScreen())
@@ -44,7 +44,6 @@ class MacDisplayPeer(
     override val frequency: Int
         get() = nGetFrequency(handle)
 
-    override val name = nGetName(handle)
     override val systemName = "Screen ${nGetIndex(handle)}"
 
     override val modes: Array<DisplayMode>
@@ -71,7 +70,7 @@ class MacDisplayPeer(
 
     @ExperimentalUnsignedTypes
     override val edid: UByteArray
-        get() = byteArrayOf().toUByteArray()
+        get() = nGetEDID(handle).toUByteArray()
 
     private fun scaledSize(width: Double, height: Double): Size {
         val dpi = dpi

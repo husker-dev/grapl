@@ -28,7 +28,7 @@ val manufacturers by lazy {
 val Display.manufacturerId: String
     get() = edid.run {
         val third = (this[9] and 0b00011111u).toInt()
-        val second = (this[8].toInt() and 0b00000011 shl 2) or (this[9].toInt() and 0b11100000 shr 5)
+        val second = (this[8].toInt() and 0b00000011 shl 3) or (this[9].toInt() and 0b11100000 shr 5)
         val first = (this[8].toInt() and 0b01111100 shr 2)
 
         return@run "${(first + 64).toChar()}${(second + 64).toChar()}${(third + 64).toChar()}"
@@ -111,9 +111,27 @@ val Display.edidVersion: String
 val Display.mmSize: Size
     get() = edid.run {
         if(this[54].toInt() != 0 && this[55].toInt() != 0)
-            Size((this[54 + 12].toInt() or (this[54 + 14].toInt() and 0b11110000 shl 4)),
-                 (this[54 + 13].toInt() or (this[54 + 14].toInt() and 0b00001111 shl 8)))
+            Size(intAt(54 + 12) or (intAt(54 + 14) and 0b11110000 shl 4),
+                 intAt(54 + 13) or (intAt(54 + 14) and 0b00001111 shl 8))
         else
             Size(this[21].toInt() * 10,
                  this[22].toInt() * 10)
+    }
+
+val Display.name: String
+    get() = edid.run {
+        for(i in 54..108 step 18){
+            if(intAt(i) == 0 && intAt(i + 1) == 0 && intAt(i + 2) == 0 &&
+                (intAt(i + 3) == 0xFC || intAt(i + 3) == 0xFE)
+            ){
+                var name = ""
+                var r = i + 5
+                while(intAt(r) != 10 && r < i + 18){
+                    name += intAt(r).toChar()
+                    r++
+                }
+                return@run name
+            }
+        }
+        return@run "Display"
     }

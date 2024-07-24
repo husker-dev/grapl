@@ -43,8 +43,6 @@ class WinDisplayPeer(
     override val frequency: Int
         get() = nGetFrequency(handle)
 
-    override val name = nGetName(handle)
-
     override val systemName = nGetSystemName(handle)
 
     override val modes: Array<DisplayMode>
