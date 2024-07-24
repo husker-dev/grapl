@@ -31,7 +31,10 @@ class LinuxGLPlatform: GLPlatform() {
         minorVersion: Int
     ) = BackgroundMessageHandler.invokeWaiting {
         nCreateWindow((LinuxPlatform.windowingSystem as X11).display).run {
-            GLXWindowPeer(this[0]).apply { context = GLXContext(xDisplay, handle, this@run[1], 0, 0) }
+            GLXWindowPeer(this[0]).apply {
+                context = GLXContext(xDisplay, handle, this@run[1], 0, 0)
+                onCreated()
+            }
         }
     }
 

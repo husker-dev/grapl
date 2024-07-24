@@ -20,7 +20,9 @@ class MacGLPlatform: GLPlatform() {
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int
-    ) = MacGLWindowPeer(profile, shareWith, majorVersion, minorVersion)
+    ) = MacGLWindowPeer(profile, shareWith, majorVersion, minorVersion).apply {
+        this.onCreated()
+    }
 
     override fun swapBuffers(window: GLWindow) =
         (window.context as NSGLContext).flushBuffer()

@@ -6,4 +6,10 @@ import com.huskerdev.grapl.gl.GLWindowPeer
 class WinGLWindowPeer(
     hwnd: Long,
     override val context: WGLContext
-): WinWindowPeer(hwnd), GLWindowPeer
+): WinWindowPeer(hwnd), GLWindowPeer {
+
+    override fun dispatchUpdate() {
+        context.makeCurrent()
+        super.dispatchUpdate()
+    }
+}

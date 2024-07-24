@@ -197,6 +197,12 @@ jni_macos_display(jbyteArray, nGetEDID)(JNIEnv* env, jobject, jlong _screen) {
         if(len < 12)
             edid[72 + 5 + len + 1] = ' ';
 
+        // Checksum
+        int sum = 0;
+        for(int i = 0; i < 128; i++)
+            sum += edid[i];
+        edid[127] = 256 - sum % 256;
+
         return createByteArray(env, 128, (jbyte*)edid);
     }
 

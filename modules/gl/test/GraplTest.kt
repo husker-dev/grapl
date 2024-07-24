@@ -40,7 +40,6 @@ fun main(){
 
         eventConsumer = windowEventConsumer {
             onInit {
-                context.makeCurrent()
                 swapInterval = 1
                 GL.createCapabilities()
                 glClearColor(1f, 0f, 0f, 1f)

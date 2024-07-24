@@ -16,6 +16,9 @@ open class CGLContext(
         @JvmStatic private external fun nDeleteContext(context: Long)
         @JvmStatic private external fun nSetBackingSize(context: Long, width: Int, height: Int)
 
+        @JvmStatic private external fun nLockContext(context: Long)
+        @JvmStatic private external fun nUnlockContext(context: Long)
+
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
             nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion).run{ CGLContext(this[0], this[1].toInt(), this[2].toInt()) }
 
@@ -31,4 +34,8 @@ open class CGLContext(
     override fun makeCurrent() = nSetCurrentContext(handle)
 
     override fun delete() = nDeleteContext(handle)
+
+    fun lock() = nLockContext(handle)
+
+    fun unlock() = nUnlockContext(handle)
 }

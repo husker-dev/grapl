@@ -82,4 +82,14 @@ jni_macos_context(void, nSetBackingSize)(JNIEnv* env, jobject, jlong _context, j
     CGLEnable(context, kCGLCESurfaceBackingSize);
 }
 
+jni_macos_context(void, nLockContext)(JNIEnv* env, jobject, jlong _context) {
+    CGLContextObj context = (CGLContextObj)_context;
+    CGLLockContext(context);
+}
+
+jni_macos_context(void, nUnlockContext)(JNIEnv* env, jobject, jlong _context) {
+    CGLContextObj context = (CGLContextObj)_context;
+    CGLUnlockContext(context);
+}
+
 

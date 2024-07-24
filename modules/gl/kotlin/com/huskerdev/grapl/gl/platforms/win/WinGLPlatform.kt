@@ -38,7 +38,7 @@ class WinGLPlatform: GLPlatform() {
             WinGLWindowPeer(
                 this[0],
                 WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt()),
-            )
+            ).apply { this.onCreated() }
         }
     }
 

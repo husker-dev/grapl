@@ -5,4 +5,9 @@ import com.huskerdev.grapl.gl.GLWindowPeer
 
 class GLXWindowPeer(handle: Long): X11WindowPeer(handle), GLWindowPeer {
     override lateinit var context: GLXContext
+
+    override fun dispatchUpdate() {
+        context.makeCurrent()
+        super.dispatchUpdate()
+    }
 }

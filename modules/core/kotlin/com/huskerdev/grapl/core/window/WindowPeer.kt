@@ -143,11 +143,14 @@ abstract class WindowPeer {
 
     constructor(handle: Long) {
         this.handle = handle
-        if(useHandler)
-            BackgroundMessageHandler.addPeer(this)
     }
 
     constructor(): this(0L)
+
+    fun onCreated(){
+        if(useHandler)
+            BackgroundMessageHandler.addPeer(this)
+    }
 
     protected fun isFullscreen() = displayStateProperty.value is WindowDisplayState.Fullscreen
 

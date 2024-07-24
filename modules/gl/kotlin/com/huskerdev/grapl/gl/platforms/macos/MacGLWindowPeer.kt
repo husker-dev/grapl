@@ -12,11 +12,18 @@ class MacGLWindowPeer(
 ): MacWindowPeer(), GLWindowPeer {
     override val context = NSGLContext.createAttached(this, profile, shareWith, majorVersion, minorVersion)
 
-    init{
+    init {
         sizeProperty.listeners += {
             context.setBackingSize(
                 sizeProperty.value.width.toInt(),
                 sizeProperty.value.height.toInt())
         }
+    }
+
+    override fun dispatchUpdate() {
+        context.makeCurrent()
+        context.lock()
+        super.dispatchUpdate()
+        context.unlock()
     }
 }

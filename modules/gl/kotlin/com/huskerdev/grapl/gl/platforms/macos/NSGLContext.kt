@@ -11,8 +11,6 @@ class NSGLContext(
     companion object {
         @JvmStatic private external fun nAttachToWindow(windowPtr: Long, contextPtr: Long): Long
         @JvmStatic private external fun nFlushBuffer(nsgl: Long)
-
-        @JvmStatic private external fun nMakeCurrentContext(nsgl: Long): Boolean
         @JvmStatic private external fun nReleaseContext(nsgl: Long)
 
         @JvmStatic private external fun nSetSwapInterval(nsgl: Long, swapInterval: Int)

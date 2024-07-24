@@ -19,12 +19,6 @@ jni_macos_nscontext(void, nFlushBuffer)(JNIEnv* env, jobject, jlong _nsgl) {
     [nsgl flushBuffer];
 }
 
-jni_macos_nscontext(jboolean, nMakeCurrentContext)(JNIEnv* env, jobject, jlong _nsgl) {
-    NSOpenGLContext* nsgl = (NSOpenGLContext*)_nsgl;
-    [nsgl makeCurrentContext];
-    return true;
-}
-
 jni_macos_nscontext(void, nReleaseContext)(JNIEnv* env, jobject, jlong context) {
     CGLReleaseContext((CGLContextObj)context);
 }
