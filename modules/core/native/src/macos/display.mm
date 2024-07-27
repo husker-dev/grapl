@@ -250,7 +250,7 @@ jni_macos_display(jbyteArray, nGetEDID)(JNIEnv* env, jobject, jlong _screen) {
 
 #else   // For apple-silicon
 
-    if (IOServiceGetMatchingServices(kIOMasterPortDefault, IOServiceMatching("DCPAVServiceProxy"), &iterator) != 0)
+    if (IOServiceGetMatchingServices(MACH_PORT_NULL, IOServiceMatching("DCPAVServiceProxy"), &iterator) != 0)
         return createByteArray(env, 0, (jbyte*)0);
 
     while ((service = IOIteratorNext(iterator)) != 0) {

@@ -40,6 +40,7 @@ public:
     @public
     NSCursor* cursor;
     NSTrackingArea* trackingArea;
+    BOOL enabled;
 }
 - (instancetype)initWithRect:(NSRect)rect;
 @end
@@ -241,12 +242,14 @@ public:
    ==================== */
 
 -(void) sendMouseEvent:(NSEvent*)event callback:(Callback*)callback {
+    if(!enabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callback->call(0, (jint)pos.x, (jint)(size.height - pos.y), [self getModifierKeys]);
 }
 
 -(void) sendMouseButtonEvent:(NSEvent*)event callback:(Callback*)callback button:(int)button {
+    if(!enabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callback->call(event.pointingDeviceID, (jint)pos.x, (jint)(size.height - pos.y), button, [self getModifierKeys]);
@@ -262,6 +265,7 @@ public:
 }
 
 -(void) mouseExited:(NSEvent*)event {
+    if(!enabled) return;
     callbacks->onPointerLeaveCallback->call(0, 0, 0, [self getModifierKeys]);
     [[NSCursor arrowCursor] set];
 }
@@ -343,6 +347,7 @@ public:
 }
 
 - (void) scrollWheel:(NSEvent *)event {
+    if(!enabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callbacks->onPointerScrollCallback->call(
@@ -404,6 +409,7 @@ public:
    ==================== */
 
 -(void) keyDown:(NSEvent*)event{
+    if(!enabled) return;
     callbacks->onKeyDownCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
@@ -413,6 +419,7 @@ public:
 }
 
 - (void)flagsChanged:(NSEvent*)event{
+    if(!enabled) return;
     const NSUInteger key = [self translateKeyToModifierFlag:event.keyCode];
     const unsigned int modifierFlags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
 
@@ -433,6 +440,7 @@ public:
 }
 
 -(void) keyUp:(NSEvent*)event{
+    if(!enabled) return;
     callbacks->onKeyUpCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
@@ -525,6 +533,13 @@ jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jdo
     );
 }
 
+jni_macos_window(void, nSetFocused)(JNIEnv* env, jobject, jlong _windowPtr) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        [window orderFrontRegardless];
+    );
+}
+
 jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jdouble width, jdouble height) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
@@ -558,13 +573,15 @@ jni_macos_window(void, nSetCursor)(JNIEnv* env, jobject, jlong _windowPtr, jint 
     if(index == 0)       view->cursor = [NSCursor arrowCursor];
     else if(index == 1)  view->cursor = [NSCursor pointingHandCursor];
     else if(index == 2)  view->cursor = [NSCursor IBeamCursor];
+    else if(index == 3)  view->cursor = [NSCursor performSelector:@selector(_waitCursor)];
     else if(index == 5)  view->cursor = [NSCursor crosshairCursor];
     else if(index == 6)  view->cursor = [NSCursor operationNotAllowedCursor];
+    else if(index == 7)  view->cursor = [NSCursor performSelector:@selector(_helpCursor)];
     else if(index == 8)  view->cursor = [NSCursor resizeLeftRightCursor];
     else if(index == 9)  view->cursor = [NSCursor resizeUpDownCursor];
-    else if(index == 10) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
-    else if(index == 11) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
-    else if(index == 12) view->cursor = [NSCursor openHandCursor];
+    else if(index == 14) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
+    else if(index == 15) view->cursor = [NSCursor performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
+    else if(index == 16) view->cursor = [NSCursor openHandCursor];
     else                 view->cursor = [NSCursor arrowCursor];
 }
 
@@ -612,6 +629,14 @@ jni_macos_window(void, nSetResizable)(JNIEnv* env, jobject, jlong _windowPtr, jb
 jni_macos_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _windowPtr) {
     NSWindow* window = (NSWindow*)_windowPtr;
     return (jfloat)[window backingScaleFactor];
+}
+
+jni_macos_window(jfloat, nSetEnabled)(JNIEnv* env, jobject, jlong _windowPtr, jboolean enabled) {
+    ON_MAIN_THREAD(
+        NSWindow* window = (NSWindow*)_windowPtr;
+        View* view = [window contentView];
+        view->enabled = enabled;
+    );
 }
 
 jni_macos_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _windowPtr, jint style) {
