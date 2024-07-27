@@ -17,7 +17,6 @@ class WinDisplayPeer(
         @JvmStatic private external fun nGetDpi(monitor: Long): Double
         @JvmStatic private external fun nGetFrequency(monitor: Long): Int
         @JvmStatic private external fun nGetSystemName(monitor: Long): String
-        @JvmStatic private external fun nGetPhysicalSize(monitor: Long): IntArray
         @JvmStatic private external fun nGetDisplayModes(monitor: Long): IntArray
         @JvmStatic private external fun nGetCurrentDisplayMode(monitor: Long): IntArray
         @JvmStatic private external fun nGetEDID(monitor: Long): ByteArray
@@ -33,8 +32,6 @@ class WinDisplayPeer(
         get() = nGetSize(handle).run { Size(this[0], this[1]) }
     override val position: Position
         get() = nGetPosition(handle).run { Position(this[0], this[1]) }
-    override val physicalSize: Size
-        get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
 
     override val dpi: Double
         get() = nGetDpi(handle)

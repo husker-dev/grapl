@@ -51,11 +51,11 @@ open class MacWindowPeer : WindowPeer() {
 
     override fun setTitleImpl(title: String) = nSetTitle(handle, title.c_str)
     override fun setVisibleImpl(visible: Boolean) = nSetVisible(handle, visible)
-    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.toNative()) // Mapped with nSetCursor in window.mm
-    override fun setSizeImpl(size: Size) = nSetSize(handle, size.width / dpiProperty.value, size.height / dpiProperty.value)
+    override fun setCursorImpl(cursor: Cursor) = nSetCursor(handle, cursor.toNative())
+    override fun setSizeImpl(size: Size) = nSetSize(handle, size.width, size.height)
     override fun setMinSizeImpl(size: Size) = nSetMinSize(handle, size.width.toInt(), size.height.toInt())
     override fun setMaxSizeImpl(size: Size) = nSetMaxSize(handle, size.width.toInt(), size.height.toInt())
-    override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x / dpiProperty.value, position.y / dpiProperty.value)
+    override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x, position.y)
 
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         TODO("Not yet implemented")

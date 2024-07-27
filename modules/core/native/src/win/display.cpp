@@ -167,17 +167,6 @@ jni_win_display(jstring, nGetSystemName)(JNIEnv* env, jobject, jlong monitor) {
     return env->NewString((jchar*)info.szDevice, (jsize)wcslen(info.szDevice));
 }
 
-jni_win_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong monitor) {
-    BYTE edid[1024];
-    if(getEDID((HMONITOR)monitor, edid, sizeof(edid))){
-        return createIntArray(env, {
-            ((edid[68] & 0xF0) << 4) + edid[66],
-            ((edid[68] & 0x0F) << 8) + edid[67]
-        });
-    }
-    return createIntArray(env, { 0, 0 });
-}
-
 jni_win_display(jintArray, nGetDisplayModes)(JNIEnv* env, jobject, jlong monitor) {
     MONITORINFOEXW info;
     info.cbSize = sizeof(info);

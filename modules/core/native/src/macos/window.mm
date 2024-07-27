@@ -528,7 +528,7 @@ jni_macos_window(void, nSetTitle)(JNIEnv* env, jobject, jlong _windowPtr, jobjec
 jni_macos_window(void, nSetPosition)(JNIEnv* env, jobject, jlong _windowPtr, jdouble x, jdouble y) {
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
-        NSPoint origin = { x, y };
+        NSPoint origin = [window.contentView convertPointFromBacking:(NSPoint){ x, y }];
         [window setFrameOrigin:origin];
     );
 }
@@ -544,9 +544,11 @@ jni_macos_window(void, nSetSize)(JNIEnv* env, jobject, jlong _windowPtr, jdouble
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
 
+        NSSize newSize = [window.contentView convertSizeFromBacking:NSMakeSize(width, height)];
+
         NSRect contentRect = [window contentRectForFrameRect:[window frame]];
-        contentRect.origin.y += contentRect.size.height - height;
-        contentRect.size = NSMakeSize(width, height);
+        contentRect.origin.y += contentRect.size.height - newSize.height;
+        contentRect.size = newSize;
 
         [window setFrame:[window frameRectForContentRect:contentRect] display:YES animate:YES];
     );

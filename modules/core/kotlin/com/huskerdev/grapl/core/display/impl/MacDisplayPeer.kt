@@ -16,7 +16,6 @@ class MacDisplayPeer(
 
         @JvmStatic private external fun nGetSize(screen: Long): DoubleArray
         @JvmStatic private external fun nGetPosition(screen: Long): DoubleArray
-        @JvmStatic private external fun nGetPhysicalSize(screen: Long): DoubleArray
         @JvmStatic private external fun nGetDpi(screen: Long): Double
         @JvmStatic private external fun nGetFrequency(screen: Long): Int
         @JvmStatic private external fun nGetIndex(screen: Long): Int
@@ -32,11 +31,9 @@ class MacDisplayPeer(
     }
 
     override val size: Size
-        get() = nGetSize(handle).run { scaledSize(this[0], this[1]) }
+        get() = nGetSize(handle).run { Size(this[0], this[1]) }
     override val position: Position
-        get() = nGetPosition(handle).run { scaledPosition(this[0], this[1]) }
-    override val physicalSize: Size
-        get() = nGetPhysicalSize(handle).run { Size(this[0], this[1]) }
+        get() = nGetPosition(handle).run { Position(this[0], this[1]) }
 
     override val dpi: Double
         get() = nGetDpi(handle)
@@ -71,14 +68,4 @@ class MacDisplayPeer(
     @ExperimentalUnsignedTypes
     override val edid: UByteArray
         get() = nGetEDID(handle).toUByteArray()
-
-    private fun scaledSize(width: Double, height: Double): Size {
-        val dpi = dpi
-        return Size((width * dpi).toInt(), (height * dpi).toInt())
-    }
-
-    private fun scaledPosition(width: Double, height: Double): Position {
-        val dpi = dpi
-        return Position((width * dpi).toInt(), (height * dpi).toInt())
-    }
 }

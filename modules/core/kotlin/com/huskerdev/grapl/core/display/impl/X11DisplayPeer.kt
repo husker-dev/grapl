@@ -35,9 +35,6 @@ class X11DisplayPeer(
     override val position: Position
         get() = nGetPosition(display, handle).run { Position(this[0], this[1]) }
 
-    override val physicalSize: Size
-        get() = nGetPhysicalSize(display, handle).run { Size(this[0], this[1]) }
-
     override val dpi: Double
         get() = nGetDpi(display, handle)
 

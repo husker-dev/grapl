@@ -64,27 +64,19 @@ jni_macos_display(jlongArray, nGetScreens)(JNIEnv* env, jobject) {
 
 jni_macos_display(jdoubleArray, nGetSize)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
+    const NSRect rect = [screen convertRectToBacking:screen.frame];
     return createDoubleArray(env, {
-        screen.frame.size.width,
-        screen.frame.size.height
+        rect.size.width,
+        rect.size.height
     });
 }
 
 jni_macos_display(jdoubleArray, nGetPosition)(JNIEnv* env, jobject, jlong _screen) {
     NSScreen* screen = (NSScreen*)_screen;
+    const NSRect rect = [screen convertRectToBacking:screen.frame];
     return createDoubleArray(env, {
-        screen.frame.origin.x,
-        screen.frame.origin.y
-    });
-}
-
-jni_macos_display(jdoubleArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _screen) {
-    NSScreen* screen = (NSScreen*)_screen;
-    CGSize displayPhysicalSize = CGDisplayScreenSize(getDisplayID(screen));
-
-    return createDoubleArray(env, {
-        displayPhysicalSize.width,
-        displayPhysicalSize.height
+        rect.origin.x,
+        rect.origin.y
     });
 }
 

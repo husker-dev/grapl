@@ -16,7 +16,6 @@ abstract class DisplayPeer(
 
     abstract val size: Size
     abstract val position: Position
-    abstract val physicalSize: Size
     abstract val dpi: Double
     abstract val frequency: Int
     abstract val systemName: String
