@@ -159,41 +159,6 @@ jni_win_display(jint, nGetFrequency)(JNIEnv* env, jobject, jlong monitor) {
     return devmode.dmDisplayFrequency;
 }
 
-jni_win_display(jstring, nGetName)(JNIEnv* env, jobject, jlong monitor) {
-    MONITORINFOEXW info;
-    info.cbSize = sizeof(info);
-    GetMonitorInfoW((HMONITOR)monitor, &info);
-
-    UINT32 pathCount, modeCount;
-    GetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &pathCount, &modeCount);
-
-    std::vector<DISPLAYCONFIG_PATH_INFO> paths(pathCount);
-    std::vector<DISPLAYCONFIG_MODE_INFO> modes(modeCount);
-    QueryDisplayConfig(QDC_ONLY_ACTIVE_PATHS, &pathCount, paths.data(), &modeCount, modes.data(), nullptr);
-
-    for (int i = 0; i < paths.size(); i++) {
-        DISPLAYCONFIG_SOURCE_DEVICE_NAME sourceName;
-        sourceName.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_SOURCE_NAME;
-        sourceName.header.size = sizeof(sourceName);
-        sourceName.header.adapterId = paths[i].sourceInfo.adapterId;
-        sourceName.header.id = paths[i].sourceInfo.id;
-        DisplayConfigGetDeviceInfo(&sourceName.header);
-
-        DISPLAYCONFIG_TARGET_DEVICE_NAME targetName;
-        targetName.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
-        targetName.header.size = sizeof(targetName);
-        targetName.header.adapterId = paths[i].sourceInfo.adapterId;
-        targetName.header.id = paths[i].targetInfo.id;
-        DisplayConfigGetDeviceInfo(&targetName.header);
-
-        if (wcscmp(info.szDevice, sourceName.viewGdiDeviceName) == 0) {
-            WCHAR* name = targetName.monitorFriendlyDeviceName;
-            return env->NewString((jchar*)name, (jsize)wcslen(name));
-        }
-    }
-    return env->NewStringUTF("Unknown");
-}
-
 jni_win_display(jstring, nGetSystemName)(JNIEnv* env, jobject, jlong monitor) {
     MONITORINFOEXW info;
     info.cbSize = sizeof(info);
