@@ -30,6 +30,8 @@ open class WinWindowPeer(
         @JvmStatic private external fun nUpdateDisplayState(hwnd: Long, fullscreen: Boolean, monitor: Long, width: Int, height: Int, bits: Int, frequency: Int): Int
         @JvmStatic private external fun nSetMinimizable(hwnd: Long, value: Boolean)
         @JvmStatic private external fun nSetMaximizable(hwnd: Long, value: Boolean)
+        @JvmStatic private external fun nSetClosable(hwnd: Long, closable: Boolean)
+        @JvmStatic private external fun nSetResizable(hwnd: Long, resizable: Boolean)
         @JvmStatic private external fun nGetDpi(hwnd: Long): Float
         @JvmStatic private external fun nSetEnabled(hwnd: Long, enabled: Boolean)
         @JvmStatic private external fun nRequestFocus(hwnd: Long)
@@ -52,14 +54,8 @@ open class WinWindowPeer(
     override fun setPositionImpl(position: Position) = nSetPosition(handle, position.x.toInt(), position.y.toInt())
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
-    override fun setClosable(value: Boolean) {
-        TODO("Not yet implemented")
-    }
-
-    override fun setResizable(value: Boolean) {
-        TODO("Not yet implemented")
-    }
-
+    override fun setClosable(value: Boolean) = nSetClosable(handle, value)
+    override fun setResizable(value: Boolean) = nSetResizable(handle, value);
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(WinDisplayPeer(nGetMonitor(handle)))
     override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(handle, enabled)

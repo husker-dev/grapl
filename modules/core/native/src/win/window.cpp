@@ -579,6 +579,20 @@ jni_win_window(void, nSetMaximizable)(JNIEnv* env, jobject, jlong _hwnd, jboolea
     SetWindowLong(hwnd, GWL_STYLE, style);
 }
 
+jni_win_window(void, nSetClosable)(JNIEnv* env, jobject, jlong _hwnd, jboolean closable) {
+    HWND hwnd = (HWND)_hwnd;
+    EnableMenuItem(GetSystemMenu(hwnd, FALSE), SC_CLOSE,
+                    MF_BYCOMMAND | (closable ? MF_ENABLED : (MF_DISABLED | MF_GRAYED)));
+}
+
+jni_win_window(void, nSetResizable)(JNIEnv* env, jobject, jlong _hwnd, jboolean resizable) {
+    HWND hwnd = (HWND)_hwnd;
+    LONG style = GetWindowLong(hwnd, GWL_STYLE);
+    if(resizable) style |= WS_THICKFRAME;
+    else          style &= ~WS_THICKFRAME;
+    SetWindowLong(hwnd, GWL_STYLE, style);
+}
+
 jni_win_window(jfloat, nGetDpi)(JNIEnv* env, jobject, jlong _hwnd) {
     return (jfloat)GetDpiForWindow((HWND)_hwnd) / (jfloat)USER_DEFAULT_SCREEN_DPI;
 }
