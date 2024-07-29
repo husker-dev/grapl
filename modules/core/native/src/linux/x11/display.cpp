@@ -82,38 +82,6 @@ jni_x11_display(jintArray, nGetSize)(JNIEnv* env, jobject, jlong _display, jlong
     });
 }
 
-jni_x11_display(jintArray, nGetPhysicalSize)(JNIEnv* env, jobject, jlong _display, jlong index) {
-    Display* display = (Display*)_display;
-    Window root = DefaultRootWindow(display);
-
-    XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, root);
-    XRROutputInfo* oi = XRRGetOutputInfo(display, sr, sr->outputs[index]);
-    XRRCrtcInfo* ci = XRRGetCrtcInfo(display, sr, oi->crtc);
-
-    int widthMM, heightMM;
-
-    if (ci->rotation == RR_Rotate_90 || ci->rotation == RR_Rotate_270){
-        widthMM  = oi->mm_height;
-        heightMM = oi->mm_width;
-    } else {
-        widthMM  = oi->mm_width;
-        heightMM = oi->mm_height;
-    }
-    if (widthMM <= 0 || heightMM <= 0) {
-        widthMM  = (int) (ci->width * 25.4f / 96.f);
-        heightMM = (int) (ci->height * 25.4f / 96.f);
-    }
-
-    XRRFreeOutputInfo(oi);
-    XRRFreeScreenResources(sr);
-    XRRFreeCrtcInfo(ci);
-
-    return createIntArray(env, {
-       widthMM,
-       heightMM
-    });
-}
-
 jni_x11_display(jintArray, nGetPosition)(JNIEnv* env, jobject, jlong _display, jlong index) {
     Display* display = (Display*)_display;
     Window root = DefaultRootWindow(display);
@@ -202,53 +170,6 @@ jni_x11_display(jint, nGetFrequency)(JNIEnv* env, jobject, jlong _display, jlong
     return rate;
 }
 
-jni_x11_display(jstring, nGetName)(JNIEnv* env, jobject, jlong _display, jlong index) {
-    Display* display = (Display*)_display;
-    Window root = DefaultRootWindow(display);
-
-    XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, root);
-
-    int nprop = 0;
-    Atom* props = XRRListOutputProperties(display, sr->outputs[index], &nprop);
-
-    for (int i = 0; i < nprop; i++) {
-        char* atom_name = XGetAtomName(display, props[i]);
-        Bool is_edid = strcmp(atom_name, "EDID") == 0;
-
-        if(is_edid){
-            unsigned char* prop;
-            int actual_format;
-            unsigned long nitems, bytes_after;
-            Atom actual_type;
-
-            XRRGetOutputProperty(display, sr->outputs[index], props[i],
-                      0, 100, False, False,
-                      AnyPropertyType,
-                      &actual_type, &actual_format,
-                      &nitems, &bytes_after, &prop);
-
-            for(long unsigned int r = 0; r < nitems - 4; r++){
-                if(prop[r] == 0 && prop[r+1] == 0 && prop[r+2] == 0 && (prop[r+3] == 0xFC || prop[r+3] == 0xFE)){
-                    r += 4;
-                    int a = 0;
-
-                    while((prop[r+a+1] != 10) && (prop[r+a] != 0 || prop[r+a+1] != 0 || prop[r+a+2] != 0))
-                        a++;
-
-                    char* name = new char[a];
-                    memcpy(name, &prop[r+1], a);
-
-                    XRRFreeScreenResources(sr);
-                    return env->NewStringUTF(name);
-                }
-            }
-        }
-    }
-
-    XRRFreeScreenResources(sr);
-    return env->NewStringUTF("Virtual screen");
-}
-
 jni_x11_display(jstring, nGetSystemName)(JNIEnv* env, jobject, jlong _display, jlong index) {
     Display* display = (Display*)_display;
     Window root = DefaultRootWindow(display);
@@ -313,4 +234,38 @@ jni_x11_display(jintArray, nGetCurrentDisplayMode)(JNIEnv* env, jobject, jlong _
     XRRFreeCrtcInfo(ci);
     XRRFreeScreenResources(sr);
     return 0;
+}
+
+jni_x11_display(jbyteArray, nGetEDID)(JNIEnv* env, jobject, jlong _display, jlong index) {
+    Display* display = (Display*)_display;
+    Window root = DefaultRootWindow(display);
+
+    XRRScreenResources* sr = XRRGetScreenResourcesCurrent(display, root);
+
+    int nprop = 0;
+    Atom* props = XRRListOutputProperties(display, sr->outputs[index], &nprop);
+
+    for (int i = 0; i < nprop; i++) {
+        char* atom_name = XGetAtomName(display, props[i]);
+        Bool is_edid = strcmp(atom_name, "EDID") == 0;
+
+        if(is_edid){
+            unsigned char* prop;
+            int actual_format;
+            unsigned long nitems, bytes_after;
+            Atom actual_type;
+
+            XRRGetOutputProperty(display, sr->outputs[index], props[i],
+                      0, 100, False, False,
+                      AnyPropertyType,
+                      &actual_type, &actual_format,
+                      &nitems, &bytes_after, &prop);
+
+            XRRFreeScreenResources(sr);
+            return createByteArray(env, nitems, (jbyte*)prop);
+        }
+    }
+
+    XRRFreeScreenResources(sr);
+    return createByteArray(env, {});
 }

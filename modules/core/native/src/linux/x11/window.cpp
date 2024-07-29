@@ -24,11 +24,13 @@ class X11WindowCallbackContainer: public WindowCallbackContainer {
 public:
     Window window;
     XIC xic;
+    bool disabled;
 
     X11WindowCallbackContainer(JNIEnv* env, Window window, XIC xic, jobject callbackObject):
                                                         WindowCallbackContainer(env, callbackObject) {
         this->window = window;
         this->xic = xic;
+        this->disabled = false;
     }
 };
 static std::map<Window, X11WindowCallbackContainer*> wrappers;
@@ -339,16 +341,45 @@ jni_x11_window(void, nUpdateMinMax)(JNIEnv* env, jobject, jlong _display, jlong 
     XFlush(display);
 }
 
-jni_x11_window(void, nUpdateActions)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean minimizable, jboolean maximizable) {
+jni_x11_window(void, nUpdateActions)(JNIEnv* env, jobject, jlong _display, jlong _window,
+    jboolean minimizable,
+    jboolean maximizable,
+    jboolean resizable,
+    jboolean closable
+) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
 
     struct MwmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS;
-    hints.functions = MWM_FUNC_RESIZE | MWM_FUNC_CLOSE | MWM_FUNC_MOVE;
+    hints.functions = MWM_FUNC_MOVE;
     if(minimizable) hints.functions |= MWM_FUNC_MINIMIZE;
     if(maximizable) hints.functions |= MWM_FUNC_MAXIMIZE;
+    if(resizable)   hints.functions |= MWM_FUNC_RESIZE;
+    if(closable)    hints.functions |= MWM_FUNC_CLOSE;
 
     XChangeProperty(display, window, _MOTIF_WM_HINTS, XA_ATOM, 32, PropModeReplace, (unsigned char*)&hints, 5);
+    XFlush(display);
+}
+
+jni_x11_window(void, nSetEnabled)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean enabled) {
+    Display* display = (Display*)_display;
+    Window window = (Window)_window;
+
+    X11WindowCallbackContainer* wrapper = wrappers[window];
+    wrapper->disabled = !enabled;
+
+    XFlush(display);
+}
+
+jni_x11_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _display, jlong _window, jint style) {
+    Display* display = (Display*)_display;
+    Window window = (Window)_window;
+
+    struct MwmHints hints;
+    hints.flags = MWM_HINTS_DECORATIONS;
+    hints.decorations = style == 0;
+    XChangeProperty(display, window, _MOTIF_WM_HINTS, XA_ATOM, 32, PropModeReplace, (unsigned char*)&hints, 5);
+
     XFlush(display);
 }

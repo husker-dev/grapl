@@ -18,11 +18,10 @@ class X11DisplayPeer(
         @JvmStatic private external fun nGetPosition(display: Long, screen: Long): IntArray
         @JvmStatic private external fun nGetDpi(display: Long, screen: Long): Double
         @JvmStatic private external fun nGetFrequency(display: Long, screen: Long): Int
-        @JvmStatic private external fun nGetName(display: Long, screen: Long): String
         @JvmStatic private external fun nGetSystemName(display: Long, screen: Long): String
-        @JvmStatic private external fun nGetPhysicalSize(display: Long, screen: Long): IntArray
         @JvmStatic private external fun nGetDisplayModes(display: Long, screen: Long): IntArray
         @JvmStatic private external fun nGetCurrentDisplayMode(display: Long, screen: Long): IntArray
+        @JvmStatic private external fun nGetEDID(display: Long, screen: Long): ByteArray
 
         fun primary(display: Long) = X11DisplayPeer(display, nGetPrimaryScreen(display))
 
@@ -68,6 +67,6 @@ class X11DisplayPeer(
 
     @ExperimentalUnsignedTypes
     override val edid: UByteArray
-        get() = byteArrayOf().toUByteArray()
+        get() = nGetEDID(display, handle).toUByteArray()
 
 }

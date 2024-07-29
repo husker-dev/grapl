@@ -27,7 +27,9 @@ open class X11WindowPeer(
         @JvmStatic private external fun nSetSize(display: Long, window: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetPosition(display: Long, window: Long, x: Int, y: Int)
         @JvmStatic private external fun nUpdateMinMax(display: Long, window: Long, minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int)
-        @JvmStatic private external fun nUpdateActions(display: Long, window: Long, minimizable: Boolean, maximizable: Boolean)
+        @JvmStatic private external fun nUpdateActions(display: Long, window: Long, minimizable: Boolean, maximizable: Boolean, resizable: Boolean, closable: Boolean)
+        @JvmStatic private external fun nSetEnabled(display: Long, window: Long, enabled: Boolean)
+        @JvmStatic private external fun nSetStyle(display: Long, window: Long, style: Int)
     }
 
     val xDisplay = (LinuxPlatform.windowingSystem as X11).display
@@ -96,16 +98,13 @@ open class X11WindowPeer(
         TODO("Not yet implemented")
     }
 
-    override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value)
+    override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value, resizable.value, closable.value)
 
-    override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value)
-    override fun setClosable(value: Boolean) {
-        TODO("Not yet implemented")
-    }
+    override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value, resizable.value, closable.value)
 
-    override fun setResizable(value: Boolean) {
-        TODO("Not yet implemented")
-    }
+    override fun setClosable(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, maximizable.value, resizable.value, value)
+
+    override fun setResizable(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, maximizable.value, value, closable.value)
 
     override fun getDpiImpl() = displayProperty.value.dpi
 
@@ -155,13 +154,13 @@ open class X11WindowPeer(
         })
     }
 
-    override fun setEnabledImpl(enabled: Boolean) {
-        TODO("Not yet implemented")
-    }
+    override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(xDisplay, handle, enabled)
 
-    override fun setStyle(style: WindowStyle) {
-        TODO("Not yet implemented")
-    }
+    override fun setStyle(style: WindowStyle) = nSetStyle(xDisplay, handle, when(style){
+        WindowStyle.DEFAULT -> 0
+        WindowStyle.UNDECORATED -> 1
+        WindowStyle.NO_TITLEBAR -> 2
+    })
 
     inner class X11WindowCallback: DefaultWindowCallback(){
         private var lastDisplay = getDisplayImpl()

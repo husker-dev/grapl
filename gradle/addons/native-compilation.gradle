@@ -20,13 +20,7 @@ abstract class MacOSConfiguration extends AbstractPlatformConfiguration{
 }
 
 abstract class LinuxConfiguration extends AbstractPlatformConfiguration{
-
-}
-
-abstract class BinariesConfiguration {
-    abstract Property<String> getX64()
-    abstract Property<String> getX86()
-    abstract Property<String> getArm64()
+    abstract Property<String> getPkgConfig()
 }
 
 abstract class AbstractPlatformConfiguration {
@@ -151,7 +145,7 @@ enum Compiler {
         tmpDir.mkdirs()
 
         def varsDir = platformConfig.varsDir.getOrElse(findVCVarsDir())
-        def sdkDir = platformConfig.varsDir.getOrElse(findWinSDKDir())
+        def sdkDir = platformConfig.sdkDir.getOrElse(findWinSDKDir())
 
         def sdkVersion = findWinSDKVersion()
 
@@ -205,6 +199,7 @@ enum Compiler {
                         ${libDirs.collect { "-L$it" }.join(" ")}
                         -o ${getOutputName(projectConfig, project, output, type, arch)}
                         ${sources.join(" ")}
+                        ${platformConfig.pkgConfig.get()}
                         ${libs.collect { "-l$it" }.join(" ")}
                         """},
                     "",
@@ -414,6 +409,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
 
         config.linux.srcDirs = [ project.file("src/linux") ]
         config.linux.jvmInclude = new File(config.jdk.asFile.get(), "include/linux")
+        config.linux.pkgConfig = ""
 
         project.afterEvaluate {
             project.sourceSets {

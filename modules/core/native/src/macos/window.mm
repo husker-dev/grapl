@@ -40,7 +40,7 @@ public:
     @public
     NSCursor* cursor;
     NSTrackingArea* trackingArea;
-    BOOL enabled;
+    BOOL disabled;
 }
 - (instancetype)initWithRect:(NSRect)rect;
 @end
@@ -242,14 +242,14 @@ public:
    ==================== */
 
 -(void) sendMouseEvent:(NSEvent*)event callback:(Callback*)callback {
-    if(!enabled) return;
+    if(disabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callback->call(0, (jint)pos.x, (jint)(size.height - pos.y), [self getModifierKeys]);
 }
 
 -(void) sendMouseButtonEvent:(NSEvent*)event callback:(Callback*)callback button:(int)button {
-    if(!enabled) return;
+    if(disabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callback->call(event.pointingDeviceID, (jint)pos.x, (jint)(size.height - pos.y), button, [self getModifierKeys]);
@@ -265,7 +265,7 @@ public:
 }
 
 -(void) mouseExited:(NSEvent*)event {
-    if(!enabled) return;
+    if(disabled) return;
     callbacks->onPointerLeaveCallback->call(0, 0, 0, [self getModifierKeys]);
     [[NSCursor arrowCursor] set];
 }
@@ -347,7 +347,7 @@ public:
 }
 
 - (void) scrollWheel:(NSEvent *)event {
-    if(!enabled) return;
+    if(disabled) return;
     const NSPoint pos = [self convertPointToBacking:[event locationInWindow]];
     const NSSize size = [self convertSizeToBacking:[self window].contentView.frame.size];
     callbacks->onPointerScrollCallback->call(
@@ -409,7 +409,7 @@ public:
    ==================== */
 
 -(void) keyDown:(NSEvent*)event{
-    if(!enabled) return;
+    if(disabled) return;
     callbacks->onKeyDownCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
@@ -419,7 +419,7 @@ public:
 }
 
 - (void)flagsChanged:(NSEvent*)event{
-    if(!enabled) return;
+    if(disabled) return;
     const NSUInteger key = [self translateKeyToModifierFlag:event.keyCode];
     const unsigned int modifierFlags = [event modifierFlags] & NSEventModifierFlagDeviceIndependentFlagsMask;
 
@@ -440,7 +440,7 @@ public:
 }
 
 -(void) keyUp:(NSEvent*)event{
-    if(!enabled) return;
+    if(disabled) return;
     callbacks->onKeyUpCallback->call(
         [self translateKey:event.keyCode],
         event.keyCode,
@@ -637,7 +637,7 @@ jni_macos_window(jfloat, nSetEnabled)(JNIEnv* env, jobject, jlong _windowPtr, jb
     ON_MAIN_THREAD(
         NSWindow* window = (NSWindow*)_windowPtr;
         View* view = [window contentView];
-        view->enabled = enabled;
+        view->disabled = !enabled;
     );
 }
 
