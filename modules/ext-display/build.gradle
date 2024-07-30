@@ -22,6 +22,6 @@ dependencies {
 }
 
 maven {
-    name = artifactId = projectName
+    name = artifactId = "$projectName-ext-display"
     description = "$projectName display extension module"
 }

@@ -2,8 +2,10 @@
 #include "touchpad-manager.cpp"
 
 #include <map>
+#include <dwmapi.h>
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+void updateTheme(HWND hwnd, int theme);
 
 class WinWindowCallbackContainer: public WindowCallbackContainer {
 public:
@@ -17,12 +19,14 @@ public:
     boolean trackingMouse = false;
     HMONITOR lastMonitor = NULL;
     int style = 0;
+    int theme = 1;
 
     WinWindowCallbackContainer(JNIEnv* env, HWND hwnd, jobject callbackObject): WindowCallbackContainer(env, callbackObject) {
         this->hwnd = hwnd;
 
         touchpadManager = new TouchpadManager(hwnd);
         prevProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR)CustomWinProc);
+        updateTheme(hwnd, theme);
     }
 };
 
@@ -33,6 +37,24 @@ void removeCallbacks(HWND hwnd){
     WinWindowCallbackContainer* wrapper = wrappers[hwnd];
     wrappers.erase(hwnd);
     delete wrapper;
+}
+
+void updateTheme(HWND hwnd, int theme){
+    BOOL value = false;
+
+    if(theme == 0){
+        char* buffer[1];
+        int length = sizeof(buffer) * sizeof(char);
+        if(RegGetValueW(HKEY_CURRENT_USER,
+            L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", L"AppsUseLightTheme",
+            RRF_RT_REG_DWORD, nullptr, buffer, &(DWORD)length) != ERROR_SUCCESS
+        ) return;
+
+        value = !(BOOL)buffer[0];
+    }else if(theme == 2)
+        value = true;
+
+    DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &value, sizeof(BOOL));
 }
 
 jint getModifierKeys(){
@@ -413,14 +435,15 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
         }
         case WM_DPICHANGED: {
             RECT* rect = (RECT*)lParam;
-            SetWindowPos(hwnd, NULL,
-                rect->left,
-                rect->top,
-                rect->right - rect->left,
-                rect->bottom - rect->top,
-                SWP_NOZORDER);
 
             wrapper->onDpiChanged->call((jfloat)LOWORD(wParam) / (jfloat)USER_DEFAULT_SCREEN_DPI);
+
+            SetWindowPos(hwnd, NULL,
+                            rect->left,
+                            rect->top,
+                            rect->right - rect->left,
+                            rect->bottom - rect->top,
+                            SWP_NOZORDER);
         }
         case WM_NCCALCSIZE: {
             int style = wrapper->style;
@@ -438,6 +461,16 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
                     params.rgrc[0].right -= 1;
                 return 0;
             }
+            break;
+        }
+        case WM_PAINT: {
+             wrapper->onPaintDirtyCallback->call();
+             break;
+        }
+        case WM_SETTINGCHANGE: {
+            if(wcscmp((wchar_t*)lParam, L"ImmersiveColorSet") == 0)
+                updateTheme(hwnd, wrapper->theme);
+
             break;
         }
     }
@@ -616,5 +649,19 @@ jni_win_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _hwnd, jint style) {
     int height = window.bottom - window.top;
     SetWindowPos(hwnd, nullptr, 0, 0, width + 1, height, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
     SetWindowPos(hwnd, nullptr, 0, 0, width, height, SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOACTIVATE);
+}
+
+jni_win_window(void, nSetTheme)(JNIEnv* env, jobject, jlong _hwnd, jint theme) {
+    HWND hwnd = (HWND)_hwnd;
+    WinWindowCallbackContainer* wrapper = wrappers[hwnd];
+
+    wrapper->theme = theme;
+    updateTheme(hwnd, theme);
+}
+
+jni_win_window(void, nSetBackdrop)(JNIEnv* env, jobject, jlong _hwnd, jint design) {
+    HWND hwnd = (HWND)_hwnd;
+
+    DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &design, sizeof(int));
 }
 

@@ -2,7 +2,8 @@
 
 static void peekMessage(){
     MSG msg = {};
-    if(PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)){
+
+    while(PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)){
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }

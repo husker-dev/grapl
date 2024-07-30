@@ -523,5 +523,7 @@ abstract class WindowPeer {
             keyReleasedListeners.dispatch(event)
         }
 
+        open fun onPaintDirtyCallback() = dispatchUpdate()
+
     }
 }

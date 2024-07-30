@@ -60,6 +60,8 @@ public:
     Callback* onKeyDownCallback;
     Callback* onKeyUpCallback;
 
+    Callback* onPaintDirtyCallback;
+
     WindowCallbackContainer(JNIEnv* env, jobject callbackObject) {
         this->env = env;
         this->callbackObject = env->NewGlobalRef(callbackObject);
@@ -89,6 +91,8 @@ public:
 
         onKeyDownCallback = callback("onKeyDownCallback", "(IILjava/lang/String;I)V");
         onKeyUpCallback = callback("onKeyUpCallback", "(IILjava/lang/String;I)V");
+
+        onPaintDirtyCallback = callback("onPaintDirtyCallback", "()V");
     }
 
     ~WindowCallbackContainer(){
@@ -117,6 +121,8 @@ public:
 
         delete onKeyDownCallback;
         delete onKeyUpCallback;
+
+        delete onPaintDirtyCallback;
     }
 
     Callback* callback(const char* name, const char* params){

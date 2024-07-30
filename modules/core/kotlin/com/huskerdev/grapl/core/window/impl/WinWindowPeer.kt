@@ -12,6 +12,7 @@ import com.huskerdev.grapl.core.window.WindowPeer
 import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 
+@Suppress("unused")
 open class WinWindowPeer(
     hwnd: Long,
 ): WindowPeer(hwnd) {
@@ -36,11 +37,47 @@ open class WinWindowPeer(
         @JvmStatic private external fun nSetEnabled(hwnd: Long, enabled: Boolean)
         @JvmStatic private external fun nRequestFocus(hwnd: Long)
         @JvmStatic private external fun nSetStyle(hwnd: Long, style: Int)
+        @JvmStatic private external fun nSetTheme(hwnd: Long, design: Int)
+        @JvmStatic private external fun nSetBackdrop(hwnd: Long, backdrop: Int)
+    }
+
+    enum class Backdrop {
+        DEFAULT,
+        MICA,
+        ACRYLIC,
+        TABBED
+    }
+
+    enum class Theme {
+        AUTO,
+        LIGHT,
+        DARK
     }
 
     init {
         nHookWindow(hwnd, WinWindowCallback())
     }
+
+    var backdrop: Backdrop = Backdrop.DEFAULT
+        set(value) {
+            field = value
+            nSetBackdrop(handle, when(value){
+                Backdrop.DEFAULT -> 1
+                Backdrop.MICA -> 2
+                Backdrop.ACRYLIC -> 3
+                Backdrop.TABBED -> 4
+            })
+        }
+
+    var theme: Theme = Theme.LIGHT
+        set(value) {
+            field = value
+            nSetTheme(handle, when(value){
+                Theme.AUTO -> 0
+                Theme.LIGHT -> 1
+                Theme.DARK -> 2
+            })
+        }
 
     override fun destroy() = nPostQuit(handle)
     override fun requestFocus() = nRequestFocus(handle)
@@ -55,7 +92,7 @@ open class WinWindowPeer(
     override fun setMinimizableImpl(value: Boolean) = nSetMinimizable(handle, value)
     override fun setMaximizableImpl(value: Boolean) = nSetMaximizable(handle, value)
     override fun setClosable(value: Boolean) = nSetClosable(handle, value)
-    override fun setResizable(value: Boolean) = nSetResizable(handle, value);
+    override fun setResizable(value: Boolean) = nSetResizable(handle, value)
     override fun getDpiImpl() = nGetDpi(handle).toDouble()
     override fun getDisplayImpl() = Display(WinDisplayPeer(nGetMonitor(handle)))
     override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(handle, enabled)
