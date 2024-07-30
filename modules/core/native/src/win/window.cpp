@@ -2,7 +2,6 @@
 #include "touchpad-manager.cpp"
 
 #include <map>
-#include <dwmapi.h>
 
 LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 void updateTheme(HWND hwnd, int theme);
