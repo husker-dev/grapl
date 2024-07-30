@@ -4,6 +4,7 @@ import com.huskerdev.grapl.core.util.c_wstr
 import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.Position
 import com.huskerdev.grapl.core.Size
+import com.huskerdev.grapl.core.Theme
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
 import com.huskerdev.grapl.core.exceptions.DisplayModeChangingException
@@ -46,12 +47,6 @@ open class WinWindowPeer(
         MICA,
         ACRYLIC,
         TABBED
-    }
-
-    enum class Theme {
-        AUTO,
-        LIGHT,
-        DARK
     }
 
     init {

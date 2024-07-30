@@ -1,19 +1,59 @@
 #import "grapl-macos.h"
 
-static NSAutoreleasePool* pool;
+
 static JNIEnv* env;
 
 
 /* ====================
       App delegate
    ==================== */
-@interface GraplAppDelegate : NSObject <NSApplicationDelegate>
+@interface GraplAppDelegate : NSObject <NSApplicationDelegate>{
+    id themeObserver;
+@public
+    int theme;
+}
 -(BOOL) applicationSupportsSecureRestorableState:(NSApplication*)app;
+-(void) updateTheme;
 @end
 
+GraplAppDelegate* appDelegate;
+
 @implementation GraplAppDelegate : NSObject
+- (instancetype)init {
+    self = [super init];
+
+    self->theme = 1;
+    id notificationCenter = NSDistributedNotificationCenter.defaultCenter;
+    themeObserver = [notificationCenter addObserverForName:@"AppleInterfaceThemeChangedNotification"
+                                                    object:nil
+                                                     queue:nil
+                                                usingBlock:^(NSNotification *) {
+                                                    [self updateTheme];
+                                                }];
+    [self updateTheme];
+    return self;
+}
+-(void) dealloc {
+    [super dealloc];
+    [NSDistributedNotificationCenter.defaultCenter removeObserver:themeObserver];
+}
+
+
 -(BOOL) applicationSupportsSecureRestorableState:(NSApplication*)app{
     return YES;
+}
+
+-(void) updateTheme {
+    NSAppearance *appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+
+    if(self->theme == 0){
+        NSString* style = [[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"];
+        if(style != 0)
+            appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+    } else if(self->theme == 2)
+        appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
+
+    [NSApp setAppearance:appearance];
 }
 @end
 
@@ -257,6 +297,7 @@ public:
 
 -(void) mouseEntered:(NSEvent*)event {
     [self sendMouseEvent:event callback:callbacks->onPointerEnterCallback];
+    [self->cursor set];
 }
 
 -(void) mouseMoved:(NSEvent*)event {
@@ -273,40 +314,49 @@ public:
 // Left button
 -(void) mouseDown:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:1];
+    [self->cursor set];
 }
 
 -(void) mouseDragged:(NSEvent*)event{
     [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
+    [self->cursor set];
 }
 
 -(void) mouseUp:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:1];
+    [self->cursor set];
 }
 
 // Right button
 -(void) rightMouseDown:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:3];
+    [self->cursor set];
 }
 
 -(void) rightMouseDragged:(NSEvent*)event{
     [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
+    [self->cursor set];
 }
 
 -(void) rightMouseUp:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:3];
+    [self->cursor set];
 }
 
 // Other button
 -(void) otherMouseDown:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerDownCallback button:(int)[event buttonNumber]+1];
+    [self->cursor set];
 }
 
 -(void) otherMouseDragged:(NSEvent*)event{
     [self sendMouseEvent:event callback:callbacks->onPointerMoveCallback];
+    [self->cursor set];
 }
 
 -(void) otherMouseUp:(NSEvent*)event{
     [self sendMouseButtonEvent:event callback:callbacks->onPointerUpCallback button:(int)[event buttonNumber]+1];
+    [self->cursor set];
 }
 
 // Gestures
@@ -457,15 +507,18 @@ jni_macos_window(void, nInitApplication)(JNIEnv* _env, jobject) {
     ON_MAIN_THREAD(
         jvm->AttachCurrentThreadAsDaemon((void**)&env, NULL);
 
-        pool = [[NSAutoreleasePool alloc] init];
-
         [NSApplication sharedApplication];
         [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-        GraplAppDelegate* appDelegate = [[GraplAppDelegate alloc] init];
+        appDelegate = [[GraplAppDelegate alloc] init];
         if (![NSApp delegate])
             [(NSApplication *)NSApp setDelegate:appDelegate];
     );
+}
+
+jni_macos_platform(void, nSetTheme)(JNIEnv* _env, jobject, jint theme) {
+    appDelegate->theme = theme;
+    [appDelegate updateTheme];
 }
 
 jni_macos_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObject) {
