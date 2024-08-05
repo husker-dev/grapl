@@ -21,9 +21,9 @@ Java\Kotlin tool for managing OpenGL contexts and windows.
 # Dependency
 ```groovy
 dependencies {
-    implementation 'com.huskerdev:grapl-gl-windows:2.0.3'
-    implementation 'com.huskerdev:grapl-gl-macos:2.0.3'
-    implementation 'com.huskerdev:grapl-gl-linux:2.0.3'
+    implementation 'com.huskerdev:grapl-gl-windows:2.1.0'
+    implementation 'com.huskerdev:grapl-gl-macos:2.1.0'
+    implementation 'com.huskerdev:grapl-gl-linux:2.1.0'
 }
 ```
 
@@ -36,6 +36,7 @@ Available modules:
     - ```grapl-gl-windows```
     - ```grapl-gl-macos```
     - ```grapl-gl-linux```
+  - ```grapl-ext-display``` - Display extension
 
 # Usage
 
@@ -84,7 +85,6 @@ GLWindow().apply {
 
     eventConsumer = windowEventConsumer {
         onInit {
-            context.makeCurrent()
             swapInterval = 1
             GL.createCapabilities()
             glClearColor(1f, 0f, 1f, 1f)
