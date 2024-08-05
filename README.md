@@ -27,13 +27,13 @@ dependencies {
 
 Available modules:
   - ```grapl``` - core library
-    - ```grapl-native-core-win```
-    - ```grapl-native-core-macos```
-    - ```grapl-native-core-linux```
+    - grapl-native-core-win
+    - grapl-native-core-macos
+    - grapl-native-core-linux
   - ```grapl-gl``` - OpenGL module
-    - ```grapl-native-gl-win```
-    - ```grapl-native-gl-macos```
-    - ```grapl-native-gl-linux```
+    - grapl-native-gl-win
+    - grapl-native-gl-macos
+    - grapl-native-gl-linux
   - ```grapl-ext-display``` - Display extension
 
 # Usage
