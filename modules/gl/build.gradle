@@ -22,6 +22,10 @@ dependencies {
     api rootProject.project("modules:core")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
+    silentApi "$mvn_groupId:$projectName-native-gl-win:$version"
+    silentApi "$mvn_groupId:$projectName-native-gl-linux:$version"
+    silentApi "$mvn_groupId:$projectName-native-gl-macos:$version"
+
     // Testing
     testImplementation subprojects
     testImplementation rootProject.project("modules:core:native")

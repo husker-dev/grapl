@@ -23,10 +23,6 @@ compilation {
 }
 
 maven {
-    name = artifactId = "$projectName-${project.ext.shortOS}"
+    name = artifactId = "$projectName-native-core-${project.ext.shortOS}"
     description = "$projectName core module (native for $project.ext.shortOS)"
-}
-
-dependencies {
-    api parent
 }

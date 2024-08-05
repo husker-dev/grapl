@@ -21,6 +21,9 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation subprojects
+    silentApi "$mvn_groupId:$projectName-native-core-win:$version"
+    silentApi "$mvn_groupId:$projectName-native-core-linux:$version"
+    silentApi "$mvn_groupId:$projectName-native-core-macos:$version"
 }
 
 maven {

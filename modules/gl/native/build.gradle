@@ -22,11 +22,6 @@ compilation {
 }
 
 maven {
-    name = artifactId = "$projectName-gl-${project.ext.shortOS}"
+    name = artifactId = "$projectName-native-gl-${project.ext.shortOS}"
     description = "$projectName gl module (native for $project.ext.shortOS)"
-}
-
-dependencies {
-    api parent
-    api rootProject.project("modules:core:native")
 }
