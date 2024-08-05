@@ -21,21 +21,19 @@ Java\Kotlin tool for managing OpenGL contexts and windows.
 # Dependency
 ```groovy
 dependencies {
-    implementation 'com.huskerdev:grapl-gl-windows:2.1.0'
-    implementation 'com.huskerdev:grapl-gl-macos:2.1.0'
-    implementation 'com.huskerdev:grapl-gl-linux:2.1.0'
+    implementation 'com.huskerdev:grapl-gl:2.1.1'
 }
 ```
 
 Available modules:
   - ```grapl``` - core library
-    - ```grapl-windows```
-    - ```grapl-macos```
-    - ```grapl-linux```
+    - ```grapl-native-core-win```
+    - ```grapl-native-core-macos```
+    - ```grapl-native-core-linux```
   - ```grapl-gl``` - OpenGL module
-    - ```grapl-gl-windows```
-    - ```grapl-gl-macos```
-    - ```grapl-gl-linux```
+    - ```grapl-native-gl-win```
+    - ```grapl-native-gl-macos```
+    - ```grapl-native-gl-linux```
   - ```grapl-ext-display``` - Display extension
 
 # Usage
