@@ -14,7 +14,7 @@ data class GLDebugEvent(
 ) {
     override fun toString() =
         SimpleDateFormat("HH:mm:ss.SSS").format(Date(date)) +
-                " $severity [OpenGL $source $type]: $message (id: $id)"
+                " $severity [OpenGL $source $type]: $message (error id: $id)"
 }
 
 
