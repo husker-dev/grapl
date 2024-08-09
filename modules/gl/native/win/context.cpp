@@ -57,34 +57,8 @@ jni_win_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc) {
     _wglDeleteContext((HGLRC)rc);
 }
 
-// Debug callback
-
-static JavaVM* jvm = NULL;
-static jclass debugCallbackClass;
-
-void callbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam){
-    JNIEnv* env;
-    jvm->AttachCurrentThread((void**)&env, NULL);
-
-    jmethodID callbackMethod = env->GetStaticMethodID(debugCallbackClass, "dispatchDebug", "(JIIIILjava/lang/String;)V");
-    env->CallStaticVoidMethod(debugCallbackClass, callbackMethod,
-        (jlong)userParam,
-        source,
-        type,
-        id,
-        severity,
-        env->NewStringUTF(message)
-    );
-
-    jvm->DetachCurrentThread();
-}
-
-jni_win_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass, jlong handle) {
+jni_win_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass) {
     checkBasicFunctions();
 
-    if(jvm == NULL){
-        env->GetJavaVM(&jvm);
-        debugCallbackClass = (jclass)env->NewGlobalRef(callbackClass);
-    }
-    glDebugMessageCallbackARB(&callbackFunction, _wglGetCurrentContext());
+    bindDefaultDebugFunction(env, callbackClass, _wglGetCurrentContext());
 }

@@ -17,6 +17,7 @@ class GLXContext(
         @JvmStatic private external fun nSetCurrentContext(display: Long, window: Long, context: Long): Boolean
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
         @JvmStatic private external fun nDeleteContext(display: Long, context: Long)
+        @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug).run {
@@ -36,7 +37,5 @@ class GLXContext(
 
     override fun delete() = nDeleteContext(display, handle)
 
-    override fun bindDebugCallback() {
-        TODO("Not yet implemented")
-    }
+    override fun bindDebugCallback() = nBindDebugCallback(GLContext::class.java)
 }

@@ -31,3 +31,32 @@ static glGetIntegervPtr glGetIntegerv;
 static glFlushPtr glFlush;
 static glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
 
+
+
+static JavaVM* jvm = NULL;
+static jclass debugCallbackClass;
+
+static void callbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam){
+    JNIEnv* env;
+    jvm->AttachCurrentThread((void**)&env, NULL);
+
+    jmethodID callbackMethod = env->GetStaticMethodID(debugCallbackClass, "dispatchDebug", "(JIIIILjava/lang/String;)V");
+    env->CallStaticVoidMethod(debugCallbackClass, callbackMethod,
+        (jlong)userParam,
+        source,
+        type,
+        id,
+        severity,
+        env->NewStringUTF(message)
+    );
+
+    jvm->DetachCurrentThread();
+}
+
+static void bindDefaultDebugFunction(JNIEnv* env, jclass callbackClass, const void* handle) {
+    if(jvm == NULL){
+        env->GetJavaVM(&jvm);
+        debugCallbackClass = (jclass)env->NewGlobalRef(callbackClass);
+    }
+    glDebugMessageCallbackARB(&callbackFunction, handle);
+}

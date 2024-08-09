@@ -2,9 +2,9 @@
 
 
 jni_linux_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+    checkBasicFunctions();
+
     Display* display = XOpenDisplay(nullptr);
-    auto glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr) glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
 
     int num_fbc = 0;
     static int visual_attribs[] = { None };
@@ -46,7 +46,8 @@ jni_linux_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isC
 }
 
 jni_linux_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
-    auto glGetIntegerv = (glGetIntegervPtr) glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
+    checkBasicFunctions();
+
     GLint major, minor, flags;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
@@ -63,4 +64,10 @@ jni_linux_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong disp
 
 jni_linux_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong display, jlong context) {
     glXDestroyContext((Display*)display, (GLXContext)context);
+}
+
+jni_linux_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass) {
+    checkBasicFunctions();
+
+    bindDefaultDebugFunction(env, callbackClass, glXGetCurrentContext());
 }

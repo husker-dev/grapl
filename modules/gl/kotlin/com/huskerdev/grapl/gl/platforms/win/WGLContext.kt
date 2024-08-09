@@ -15,7 +15,7 @@ class WGLContext(
         @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
         @JvmStatic private external fun nDeleteContext(rc: Long)
-        @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>, handle: Long)
+        @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug)
@@ -32,6 +32,6 @@ class WGLContext(
 
     override fun delete() = nDeleteContext(handle)
 
-    override fun bindDebugCallback() = nBindDebugCallback(GLContext::class.java, current().handle)
+    override fun bindDebugCallback() = nBindDebugCallback(GLContext::class.java)
 
 }

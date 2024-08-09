@@ -1,6 +1,8 @@
 #include "grapl-gl-linux.h"
 
 jni_linux_platform(jlongArray, nCreateWindow)(JNIEnv* env, jobject, jlong _display, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+    checkBasicFunctions();
+
     Display* display = (Display*)_display;
     int screen = DefaultScreen(display);
 
@@ -69,6 +71,8 @@ jni_linux_platform(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _display, jlo
 }
 
 jni_linux_platform(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong _display, jlong _window, jlong _context, jint swapInterval) {
+    checkBasicFunctions();
+
     Display* display = (Display*)_display;
     Window window = (Window)_window;
 
@@ -76,10 +80,10 @@ jni_linux_platform(void, nSetSwapInterval)(JNIEnv* env, jobject, jlong _display,
     glXSwapIntervalMESAPtr glXSwapIntervalMESA;
     glXSwapIntervalMESAPtr glXSwapIntervalSGI;
 
-    if (glXSwapIntervalEXT = (glXSwapIntervalEXTPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalEXT"))
+    if (glXSwapIntervalEXT)
         glXSwapIntervalEXT(display, window, swapInterval);
-    else if(glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalMESA"))
+    else if(glXSwapIntervalMESA)
         glXSwapIntervalMESA(swapInterval);
-    else if(glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalSGI"))
+    else if(glXSwapIntervalSGI)
         glXSwapIntervalSGI(swapInterval);
 }
