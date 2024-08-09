@@ -150,7 +150,7 @@ enum Compiler {
         includeDirs += "${sdkDir}/Include/${sdkVersion}/shared"
         includeDirs += "${sdkDir}/Include/${sdkVersion}/winrt"
 
-        if(platformConfig.useDXSdk)
+        if(platformConfig.useDXSdk.get())
             includeDirs += "${findDXSDKDir()}/Include"
 
         for(Arch arch in archs) {
@@ -159,7 +159,7 @@ enum Compiler {
                     "${sdkDir}/Lib/${sdkVersion}/ucrt/${arch.name().toLowerCase()}",
                     "${sdkDir}/Lib/${sdkVersion}/um/${arch.name().toLowerCase()}"
             ]
-            if(platformConfig.useDXSdk)
+            if(platformConfig.useDXSdk.get())
                 archLibs += "${findDXSDKDir()}/Lib/${arch.name().toLowerCase()}"
             def varsFile = arch == Arch.X64 ? "vcvars64" : (arch == Arch.X86 ? "vcvars32" : "vcvars_arm64")
 
@@ -423,6 +423,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
 
         config.windows.srcDirs = [ project.file("win"), project.file("shared") ]
         config.windows.jvmInclude = new File(config.jdk.asFile.get(), "include/win32")
+        config.windows.useDXSdk = false
 
         config.macos.srcDirs = [ project.file("macos"), project.file("shared") ]
         config.macos.jvmInclude = new File(config.jdk.asFile.get(), "include/darwin")
