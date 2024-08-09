@@ -1,4 +1,4 @@
-#include "../grapl-gl.h"
+#include "../shared/grapl-gl.h"
 
 #include <windows.h>
 
@@ -23,8 +23,10 @@
 #define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
 #define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
 #define WGL_CONTEXT_MINOR_VERSION_ARB               0x2092
+#define WGL_CONTEXT_FLAGS_ARB                       0x2094
 #define WGL_CONTEXT_CORE_PROFILE_BIT_ARB            0x00000001
 #define WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB   0x00000002
+#define WGL_CONTEXT_DEBUG_BIT_ARB                   0x00000001
 
 #define ERROR_INVALID_VERSION_ARB                   0x2095
 #define ERROR_INVALID_PROFILE_ARB                   0x2096
@@ -165,6 +167,7 @@ static void checkBasicFunctions() {
             wglSwapIntervalEXT = (wglSwapIntervalEXTPtr)_GetProcAddress("wglSwapIntervalEXT");
             glGetIntegerv = (glGetIntegervPtr) _GetProcAddress("glGetIntegerv");
             glFlush = (glFlushPtr) _GetProcAddress("glFlush");
+            glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr) _GetProcAddress("glDebugMessageCallbackARB");
 
             // Destroy dummy context
             _wglMakeCurrent(oldDC, oldRC);

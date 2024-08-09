@@ -1,4 +1,4 @@
-#include "../grapl-gl.h"
+#include "grapl-gl.h"
 
 #include <jni.h>
 

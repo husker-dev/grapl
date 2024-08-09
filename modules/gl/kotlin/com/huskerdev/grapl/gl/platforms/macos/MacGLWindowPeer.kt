@@ -8,9 +8,10 @@ class MacGLWindowPeer(
     profile: GLProfile,
     shareWith: Long,
     majorVersion: Int,
-    minorVersion: Int
+    minorVersion: Int,
+    debug: Boolean
 ): MacWindowPeer(), GLWindowPeer {
-    override val context = NSGLContext.createAttached(this, profile, shareWith, majorVersion, minorVersion)
+    override val context = NSGLContext.createAttached(this, profile, shareWith, majorVersion, minorVersion, debug)
 
     init {
         sizeProperty.listeners += {

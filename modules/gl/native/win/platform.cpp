@@ -2,7 +2,7 @@
 
 #include "grapl-gl-win.h"
 
-jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion) {
+jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
     checkBasicFunctions();
 
     HWND hwnd = CreateWindow(
@@ -29,6 +29,7 @@ jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isC
             WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
             WGL_CONTEXT_MAJOR_VERSION_ARB, (majorVersion == -1) ? 1 : majorVersion,
             WGL_CONTEXT_MINOR_VERSION_ARB, (minorVersion == -1) ? 0 : minorVersion,
+            WGL_CONTEXT_FLAGS_ARB, debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
             0
     };
 
@@ -38,15 +39,16 @@ jni_win_platform(jlongArray, nCreateGLWindow)(JNIEnv* env, jobject, jboolean isC
 
     HGLRC oldRC = _wglGetCurrentContext();
     HDC oldDC = _wglGetCurrentDC();
-    GLint major, minor;
+    GLint major, minor, flags;
 
     _wglMakeCurrent(dc, rc);
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
+    glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
     _wglMakeCurrent(oldDC, oldRC);
 
     return createLongArray(env, {
-        (jlong)hwnd, (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor
+        (jlong)hwnd, (jlong)rc, (jlong)dc, (jlong)major, (jlong)minor, (flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0
     });
 }
 

@@ -29,11 +29,26 @@ abstract class GLPlatform {
         }
     }
 
-    abstract fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int): GLContext
+    abstract fun supportsDebug(): Boolean
+
+    abstract fun createContext(
+        profile: GLProfile,
+        shareWith: Long,
+        majorVersion: Int,
+        minorVersion: Int,
+        debug: Boolean
+    ): GLContext
+
     abstract fun createFromCurrentContext(): GLContext
     abstract fun clearContext(): Boolean
 
-    abstract fun createGLWindowPeer(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int): WindowPeer
+    abstract fun createGLWindowPeer(
+        profile: GLProfile,
+        shareWith: Long,
+        majorVersion: Int,
+        minorVersion: Int,
+        debug: Boolean
+    ): WindowPeer
 
     abstract fun swapBuffers(window: GLWindow)
     abstract fun setSwapInterval(window: GLWindow, value: Int)

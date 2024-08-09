@@ -6,9 +6,10 @@ class GLWindow(
     shareWith: Long = 0L,
     profile: GLProfile = GLProfile.CORE,
     majorVersion: Int = -1,
-    minorVersion: Int = -1
+    minorVersion: Int = -1,
+    debug: Boolean = false
 ): Window(
-    GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion),
+    GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug),
 ) {
 
     val context by (peer as GLWindowPeer)::context
@@ -25,7 +26,8 @@ class GLWindow(
             profile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
-        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith.handle, majorVersion, minorVersion)
+            debug: Boolean
+        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith.handle, majorVersion, minorVersion, debug)
 
         @JvmOverloads
         @JvmStatic
@@ -34,7 +36,8 @@ class GLWindow(
             profile: GLProfile = GLProfile.CORE,
             majorVersion: Int = -1,
             minorVersion: Int = -1,
-        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion)
+            debug: Boolean
+        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug)
     }
 
     var swapInterval = 0

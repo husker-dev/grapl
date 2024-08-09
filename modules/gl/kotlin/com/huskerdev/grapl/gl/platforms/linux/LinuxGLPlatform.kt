@@ -10,13 +10,15 @@ import com.huskerdev.grapl.gl.GLWindow
 
 class LinuxGLPlatform: GLPlatform() {
     companion object {
-        @JvmStatic private external fun nCreateWindow(display: Long): LongArray
+        @JvmStatic private external fun nCreateWindow(display: Long, isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
         @JvmStatic private external fun nSwapBuffers(display: Long, window: Long)
         @JvmStatic private external fun nSetSwapInterval(display: Long, window: Long, context: Long, value: Int)
     }
 
-    override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
-        GLXContext.create(profile, shareWith, majorVersion, minorVersion)
+    override fun supportsDebug() = true
+
+    override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+        GLXContext.create(profile, shareWith, majorVersion, minorVersion, debug)
 
     override fun createFromCurrentContext() =
         GLXContext.fromCurrent()
@@ -28,11 +30,19 @@ class LinuxGLPlatform: GLPlatform() {
         profile: GLProfile,
         shareWith: Long,
         majorVersion: Int,
-        minorVersion: Int
+        minorVersion: Int,
+        debug: Boolean
     ) = BackgroundMessageHandler.invokeWaiting {
-        nCreateWindow((LinuxPlatform.windowingSystem as X11).display).run {
+        nCreateWindow(
+            (LinuxPlatform.windowingSystem as X11).display,
+            profile == GLProfile.CORE,
+            shareWith,
+            majorVersion,
+            minorVersion,
+            debug
+        ).run {
             GLXWindowPeer(this[0]).apply {
-                context = GLXContext(xDisplay, handle, this@run[1], 0, 0)
+                context = GLXContext(xDisplay, handle, this@run[1], this@run[2].toInt(), this@run[3].toInt(), this@run[4].toInt() == 1)
                 onCreated()
             }
         }

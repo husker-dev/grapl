@@ -9,8 +9,6 @@ compilation {
     baseName = "lib"
     classpath = "com.huskerdev.grapl.core.native"
 
-    sharedDir file("shared/all")
-
     windows {
         libs = ["user32", "gdi32", "setupapi", "advapi32", "ole32", "dwmapi"]
     }

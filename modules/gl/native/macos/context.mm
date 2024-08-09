@@ -22,7 +22,7 @@ void checkBasicFunctions(){
     glFlush = (glFlushPtr)a_GetProcAddress("glFlush");
 }
 
-jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion) {
+jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
     checkBasicFunctions();
     CGLContextObj context;
 
@@ -52,7 +52,7 @@ jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isC
     CGLSetCurrentContext(oldContext);
 
     return createLongArray(env, {
-        (jlong)context, (jlong)major, (jlong)minor
+        (jlong)context, (jlong)major, (jlong)minor, false
     });
 }
 
@@ -63,7 +63,7 @@ jni_macos_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     glGetIntegerv(GL_MINOR_VERSION, &minor);
 
     return createLongArray(env, {
-        (jlong)CGLGetCurrentContext(), (jlong)major, (jlong)minor
+        (jlong)CGLGetCurrentContext(), (jlong)major, (jlong)minor, false
     });
 }
 

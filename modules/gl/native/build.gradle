@@ -8,7 +8,9 @@ targetCompatibility = JavaVersion.VERSION_1_8
 compilation {
     baseName = "lib"
     classpath = "com.huskerdev.grapl.gl.native"
-    sharedDir project(":modules:core:native").file("shared/all")
+
+    includeDirs = [project(":modules:core:native").file("shared")]
+    srcDirs = [project(":modules:core:native").file("shared")]
 
     windows {
         libs = ["user32", "gdi32"]

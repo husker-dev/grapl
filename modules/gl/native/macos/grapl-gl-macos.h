@@ -1,6 +1,6 @@
 #define GL_SILENCE_DEPRECATION
 
-#include "../grapl-gl.h"
+#include "grapl-gl.h"
 #import "utils/thread-utils.h"
 
 

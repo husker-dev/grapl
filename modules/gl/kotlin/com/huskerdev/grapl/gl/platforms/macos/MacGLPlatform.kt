@@ -6,8 +6,10 @@ import com.huskerdev.grapl.gl.GLWindow
 
 class MacGLPlatform: GLPlatform() {
 
-    override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int) =
-        CGLContext.create(profile, shareWith, majorVersion, minorVersion)
+    override fun supportsDebug() = false
+
+    override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+        CGLContext.create(profile, shareWith, majorVersion, minorVersion, debug)
 
     override fun createFromCurrentContext() =
         CGLContext.fromCurrent()
@@ -19,8 +21,9 @@ class MacGLPlatform: GLPlatform() {
         profile: GLProfile,
         shareWith: Long,
         majorVersion: Int,
-        minorVersion: Int
-    ) = MacGLWindowPeer(profile, shareWith, majorVersion, minorVersion).apply {
+        minorVersion: Int,
+        debug: Boolean
+    ) = MacGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
         this.onCreated()
     }
 
