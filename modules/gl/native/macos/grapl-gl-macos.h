@@ -1,6 +1,6 @@
 #define GL_SILENCE_DEPRECATION
 
-#import "grapl-gl.h"
+#import "../shared/grapl-gl.h"
 #import "utils/thread-utils.h"
 
 #import <Cocoa/Cocoa.h>
@@ -12,10 +12,10 @@ static void* libGL;
 
 #define jni_macos_context(returnType, fun)   extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_CGLContext_##fun
 #define jni_macos_nscontext(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_NSGLContext_##fun
-#define jni_macos_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_MacGLManager_##fun
+#define jni_macos_manager(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_macos_MacGLManager_##fun
 
 
-void* a_GetProcAddress(const char* name) {
+static void* a_GetProcAddress(const char* name) {
     if(libGL == NULL){
         static const char *NAMES[] = {
             "../Frameworks/OpenGL.framework/OpenGL",
