@@ -173,22 +173,21 @@ void dispatchEvent(XEvent event){
 }
 
 
-jni_x11_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jlong _display) {
+jni_x11_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jlong _display, jobject callbackObject) {
     Display* display = (Display*)_display;
 
    	int screen = DefaultScreen(display);
-   	Window window = XCreateSimpleWindow(
-   	    display, DefaultRootWindow(display),
-   	    0, 0, 10, 10,
-		5, WhitePixel(display, screen), BlackPixel(display, screen)
-    );
 
-	return (jlong)window;
-}
+   	XSetWindowAttributes windowAttribs;
+    windowAttribs.border_pixel = BlackPixel(display, screen);
+    windowAttribs.background_pixel = WhitePixel(display, screen);
+    windowAttribs.event_mask = ExposureMask | ButtonPressMask | KeyPressMask;
 
-jni_x11_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _display, jlong _window, jobject callbackObject) {
-    Display* display = (Display*)_display;
-    Window window = (Window)_window;
+   	Window window = XCreateWindow(display, DefaultRootWindow(display),
+                  0, 0, 10, 10, 0,
+                  CopyFromParent, InputOutput, CopyFromParent,
+                  CWEventMask | CWBackPixel | CWBorderPixel,
+                  &windowAttribs);
 
     // Set events
     XSelectInput(display, window, StructureNotifyMask | KeyPressMask    | KeyReleaseMask       |
@@ -220,6 +219,8 @@ jni_x11_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _display, jlong _w
 
     // Create callback container
     wrappers[window] = new X11WindowCallbackContainer(env, window, xic, callbackObject);
+
+	return (jlong)window;
 }
 
 jni_x11_window(void, nDestroyWindow)(JNIEnv* env, jobject, jlong _display, jlong _window) {

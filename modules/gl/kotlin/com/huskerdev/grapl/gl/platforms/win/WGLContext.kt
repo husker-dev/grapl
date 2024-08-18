@@ -8,30 +8,49 @@ class WGLContext(
     val dc: Long,
     majorVersion: Int,
     minorVersion: Int,
+    profile: GLProfile,
     debug: Boolean
-): GLContext(context, majorVersion, minorVersion, debug){
+): GLContext(context, majorVersion, minorVersion, profile, debug){
     companion object {
+        @JvmStatic private external fun nInitFunctions()
+        @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @JvmStatic private external fun nCreateContextForWindow(hwnd: Long, isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
-        @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
         @JvmStatic private external fun nDeleteContext(rc: Long)
         @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-            nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug)
-                .run { WGLContext(this[0], this[1], this[2].toInt(), this[3].toInt(), this[4].toInt() == 1) }
+            fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
+
+        fun createForWindow(hwnd: Long, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+            fromJNI(nCreateContextForWindow(hwnd, profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
         fun fromCurrent() =
-            nGetCurrentContext().run { WGLContext(this[0], this[1], this[2].toInt(), this[3].toInt(), this[4].toInt() == 1) }
+            fromJNI(nGetCurrentContext())
 
         fun clearContext() =
             nSetCurrentContext(0L, 0L)
+
+        private fun fromJNI(array: LongArray) = WGLContext(
+            array[0], array[1],
+            array[2].toInt(), array[3].toInt(),
+            if(array[4].toInt() == 1) GLProfile.CORE else GLProfile.COMPATIBILITY,
+            array[5].toInt() == 1
+        )
+
+        init {
+            nInitFunctions()
+        }
     }
 
-    override fun makeCurrent() = nSetCurrentContext(dc, handle)
+    override fun makeCurrent() =
+        nSetCurrentContext(dc, handle)
 
-    override fun delete() = nDeleteContext(handle)
+    override fun delete() =
+        nDeleteContext(handle)
 
-    override fun bindDebugCallback() = nBindDebugCallback(GLContext::class.java)
+    override fun bindDebugCallback() =
+        nBindDebugCallback(GLContext::class.java)
 
 }

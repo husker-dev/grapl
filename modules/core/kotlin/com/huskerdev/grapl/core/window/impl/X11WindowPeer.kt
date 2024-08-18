@@ -6,20 +6,17 @@ import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.X11DisplayPeer
 import com.huskerdev.grapl.core.input.Cursor
 import com.huskerdev.grapl.core.platform.impl.LinuxPlatform
+import com.huskerdev.grapl.core.platform.impl.LinuxWindowPeer
 import com.huskerdev.grapl.core.platform.impl.X11
 import com.huskerdev.grapl.core.util.c_str
 import com.huskerdev.grapl.core.window.WindowDisplayState
-import com.huskerdev.grapl.core.window.WindowPeer
 import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 import kotlin.math.hypot
 
-open class X11WindowPeer(
-    handle: Long = nCreateWindow((LinuxPlatform.windowingSystem as X11).display)
-): WindowPeer(handle) {
+open class X11WindowPeer: LinuxWindowPeer() {
     companion object {
-        @JvmStatic private external fun nCreateWindow(display: Long): Long
-        @JvmStatic private external fun nHookWindow(display: Long, window: Long, callback: Any)
+        @JvmStatic private external fun nCreateWindow(display: Long, callbackObject: Any): Long
         @JvmStatic private external fun nDestroyWindow(display: Long, window: Long)
         @JvmStatic private external fun nSetTitle(display: Long, window: Long, title: ByteBuffer)
         @JvmStatic private external fun nSetVisible(display: Long, window: Long, isVisible: Boolean)
@@ -32,26 +29,25 @@ open class X11WindowPeer(
         @JvmStatic private external fun nSetStyle(display: Long, window: Long, style: Int)
     }
 
-    val xDisplay = (LinuxPlatform.windowingSystem as X11).display
-
     init {
-        nHookWindow(xDisplay, handle, X11WindowCallback())
+        display = (LinuxPlatform.windowingSystem as X11).display
+        handle = nCreateWindow(display, X11WindowCallback())
     }
 
-    override fun destroy() = nDestroyWindow(xDisplay, handle)
+    override fun destroy() = nDestroyWindow(display, handle)
     override fun requestFocus() {
         TODO("Not yet implemented")
     }
 
-    override fun setTitleImpl(title: String) = nSetTitle(xDisplay, handle, title.c_str)
+    override fun setTitleImpl(title: String) = nSetTitle(display, handle, title.c_str)
 
     override fun setVisibleImpl(visible: Boolean) {
-        nSetVisible(xDisplay, handle, visible)
-        nSetSize(xDisplay, handle, sizeProperty.value.width.toInt(), sizeProperty.value.height.toInt())
-        nSetPosition(xDisplay, handle, positionProperty.value.x.toInt(), positionProperty.value.y.toInt())
+        nSetVisible(display, handle, visible)
+        nSetSize(display, handle, sizeProperty.value.width.toInt(), sizeProperty.value.height.toInt())
+        nSetPosition(display, handle, positionProperty.value.x.toInt(), positionProperty.value.y.toInt())
     }
 
-    override fun setCursorImpl(cursor: Cursor) = nSetCursor(xDisplay, handle, when(cursor){
+    override fun setCursorImpl(cursor: Cursor) = nSetCursor(display, handle, when(cursor){
         Cursor.DEFAULT -> 0
         Cursor.HAND -> 1
         Cursor.TEXT -> 2
@@ -80,36 +76,36 @@ open class X11WindowPeer(
         Cursor.SCROLL_BOTTOM_RIGHT -> 25
     })
 
-    override fun setSizeImpl(size: Size) = nSetSize(xDisplay, handle, size.width.toInt(), size.height.toInt())
+    override fun setSizeImpl(size: Size) = nSetSize(display, handle, size.width.toInt(), size.height.toInt())
 
-    override fun setMinSizeImpl(size: Size) = nUpdateMinMax(xDisplay, handle,
+    override fun setMinSizeImpl(size: Size) = nUpdateMinMax(display, handle,
         minSizeProperty.value.width.toInt(), minSizeProperty.value.height.toInt(),
         maxSizeProperty.value.width.toInt(), maxSizeProperty.value.height.toInt(),
     )
 
-    override fun setMaxSizeImpl(size: Size) = nUpdateMinMax(xDisplay, handle,
+    override fun setMaxSizeImpl(size: Size) = nUpdateMinMax(display, handle,
         minSizeProperty.value.width.toInt(), minSizeProperty.value.height.toInt(),
         maxSizeProperty.value.width.toInt(), maxSizeProperty.value.height.toInt(),
     )
 
-    override fun setPositionImpl(position: Position) = nSetPosition(xDisplay, handle, position.x.toInt(), position.y.toInt())
+    override fun setPositionImpl(position: Position) = nSetPosition(display, handle, position.x.toInt(), position.y.toInt())
 
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         TODO("Not yet implemented")
     }
 
-    override fun setMinimizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, value, maximizable.value, resizable.value, closable.value)
+    override fun setMinimizableImpl(value: Boolean) = nUpdateActions(display, handle, value, maximizable.value, resizable.value, closable.value)
 
-    override fun setMaximizableImpl(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, value, resizable.value, closable.value)
+    override fun setMaximizableImpl(value: Boolean) = nUpdateActions(display, handle, minimizable.value, value, resizable.value, closable.value)
 
-    override fun setClosable(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, maximizable.value, resizable.value, value)
+    override fun setClosable(value: Boolean) = nUpdateActions(display, handle, minimizable.value, maximizable.value, resizable.value, value)
 
-    override fun setResizable(value: Boolean) = nUpdateActions(xDisplay, handle, minimizable.value, maximizable.value, value, closable.value)
+    override fun setResizable(value: Boolean) = nUpdateActions(display, handle, minimizable.value, maximizable.value, value, closable.value)
 
     override fun getDpiImpl() = displayProperty.value.dpi
 
     override fun getDisplayImpl(): Display {
-        val displays = X11DisplayPeer.list(xDisplay)
+        val displays = X11DisplayPeer.list(display)
 
         // Searching by center point
         val center = Position(
@@ -154,9 +150,9 @@ open class X11WindowPeer(
         })
     }
 
-    override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(xDisplay, handle, enabled)
+    override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(display, handle, enabled)
 
-    override fun setStyle(style: WindowStyle) = nSetStyle(xDisplay, handle, when(style){
+    override fun setStyle(style: WindowStyle) = nSetStyle(display, handle, when(style){
         WindowStyle.DEFAULT -> 0
         WindowStyle.UNDECORATED -> 1
         WindowStyle.NO_TITLEBAR -> 2
@@ -167,7 +163,7 @@ open class X11WindowPeer(
 
         override fun onCloseCallback() {
             super.onCloseCallback()
-            nDestroyWindow(xDisplay, handle)
+            nDestroyWindow(display, handle)
         }
 
         override fun onMoveCallback(x: Int, y: Int) {

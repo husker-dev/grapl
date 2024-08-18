@@ -3,7 +3,7 @@
 #include <windows.h>
 
 #define jni_win_context(returnType, fun)     extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLContext_##fun
-#define jni_win_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WinGLPlatform_##fun
+#define jni_win_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLManager_##fun
 
 
 /*
@@ -76,7 +76,7 @@ static void* _GetProcAddress(const char* name) {
 }
 
 static void printError(const char* func, const char* error){
-    std::cout << "WGL error at '" << func << "': " << error << std::endl;
+    printf("WGL error at '%s': %s", func, error);
 }
 
 static void checkError(const char* func){
@@ -118,82 +118,4 @@ static int* createPixelAttributes(){
             0
     };
     return &pixel_attributes[0];
-}
-
-static void checkBasicFunctions() {
-    if (dc == nullptr) {
-        // Load standard WGL functions
-        _wglCreateContext = (wglCreateContextPtr)_GetProcAddress("wglCreateContext");
-        _wglDeleteContext = (wglDeleteContextPtr)_GetProcAddress("wglDeleteContext");
-        _wglGetCurrentContext = (wglGetCurrentContextPtr)_GetProcAddress("wglGetCurrentContext");
-        _wglGetCurrentDC = (wglGetCurrentDCPtr)_GetProcAddress("wglGetCurrentDC");
-        _wglMakeCurrent = (wglMakeCurrentPtr)_GetProcAddress("wglMakeCurrent");
-
-        HDC oldDC = _wglGetCurrentDC();
-        HGLRC oldRC = _wglGetCurrentContext();
-
-        PIXELFORMATDESCRIPTOR pfd = createPFD();
-
-        WNDCLASS wc = {};
-        wc.lpfnWndProc = DefWindowProc;
-        wc.hInstance = GetModuleHandle(NULL);
-        wc.lpszClassName = L"grapl-gl";
-        RegisterClass(&wc);
-
-        // Create dummy window to initialize function
-        {
-            HWND hwnd = CreateWindow(
-                    L"grapl-gl", L"",
-                    WS_OVERLAPPEDWINDOW,
-                    0, 0,
-                    100, 100,
-                    NULL, NULL,
-                    GetModuleHandle(NULL),
-                    NULL);
-            HDC dc = GetDC(hwnd);
-
-            int pixel_format;
-            if (!(pixel_format = ChoosePixelFormat(dc, &pfd)))
-                checkError("ChoosePixelFormat");
-            if (!SetPixelFormat(dc, pixel_format, &pfd))
-                checkError("SetPixelFormat");
-
-            HGLRC rc = _wglCreateContext(dc);
-            _wglMakeCurrent(dc, rc);
-
-            // Load functions
-            wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) _GetProcAddress("wglChoosePixelFormatARB");
-            wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) _GetProcAddress("wglCreateContextAttribsARB");
-            wglSwapIntervalEXT = (wglSwapIntervalEXTPtr)_GetProcAddress("wglSwapIntervalEXT");
-            glGetIntegerv = (glGetIntegervPtr) _GetProcAddress("glGetIntegerv");
-            glFlush = (glFlushPtr) _GetProcAddress("glFlush");
-            glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr) _GetProcAddress("glDebugMessageCallbackARB");
-
-            // Destroy dummy context
-            _wglMakeCurrent(oldDC, oldRC);
-            _wglDeleteContext(rc);
-            ReleaseDC(hwnd, dc);
-            DestroyWindow(hwnd);
-        }
-
-        // Create window with ARB pixel attributes
-        HWND hwnd = CreateWindow(
-                L"grapl-gl", L"",
-                WS_OVERLAPPEDWINDOW,
-                0, 0,
-                100, 100,
-                NULL, NULL,
-                GetModuleHandle(NULL),
-                NULL);
-        dc = GetDC(hwnd);
-
-        int pixel_format_arb;
-        UINT pixel_formats_count;
-
-        int* pixel_attributes = createPixelAttributes();
-        if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
-            checkError("wglChoosePixelFormatARB");
-        if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
-            checkError("SetPixelFormat (wgl)");
-    }
 }

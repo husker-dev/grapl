@@ -4,6 +4,7 @@ import com.huskerdev.grapl.core.Theme
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.MacDisplayPeer
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.grapl.core.window.impl.NSWindowPeer
 
 class MacPlatform: Platform() {
 
@@ -36,6 +37,8 @@ class MacPlatform: Platform() {
 
     override fun specifyLibName(libName: String) =
         "$libName.dylib"
+
+    override fun createWindowPeer() = NSWindowPeer()
 
     override fun peekMessages() = nPeekMessage()
 

@@ -1,6 +1,5 @@
 
 import com.huskerdev.grapl.core.input.Cursor
-import com.huskerdev.grapl.core.window.WindowStyle
 import com.huskerdev.grapl.core.window.windowEventConsumer
 import com.huskerdev.grapl.core.x
 import com.huskerdev.grapl.gl.GLContext
@@ -14,7 +13,6 @@ fun main(){
         title = "UTF? Да"
         cursor = Cursor.HAND
         size = 100 x 100
-        style = WindowStyle.NO_TITLEBAR
         alignToCenter()
 
         eventConsumer = windowEventConsumer {

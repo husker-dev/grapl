@@ -10,9 +10,9 @@ import com.huskerdev.grapl.core.util.ListenerSet
 
 import com.huskerdev.grapl.core.x
 
-
-abstract class Window(
-    val peer: WindowPeer
+@Suppress("unused")
+open class Window(
+    val peer: WindowPeer = Platform.current.createWindowPeer()
 ) {
     companion object {
         fun peekMessages() = Platform.current.peekMessages()

@@ -175,24 +175,24 @@ abstract class WindowPeer {
     abstract fun destroy()
     abstract fun requestFocus()
 
-    protected abstract fun setTitleImpl(title: String)
-    protected abstract fun setVisibleImpl(visible: Boolean)
-    protected abstract fun setCursorImpl(cursor: Cursor)
+    abstract fun setTitleImpl(title: String)
+    abstract fun setVisibleImpl(visible: Boolean)
+    abstract fun setCursorImpl(cursor: Cursor)
 
-    protected abstract fun setSizeImpl(size: Size)
-    protected abstract fun setMinSizeImpl(size: Size)
-    protected abstract fun setMaxSizeImpl(size: Size)
-    protected abstract fun setPositionImpl(position: Position)
-    protected abstract fun setDisplayStateImpl(state: WindowDisplayState)
-    protected abstract fun setMinimizableImpl(value: Boolean)
-    protected abstract fun setMaximizableImpl(value: Boolean)
-    protected abstract fun setClosable(value: Boolean)
-    protected abstract fun setResizable(value: Boolean)
+    abstract fun setSizeImpl(size: Size)
+    abstract fun setMinSizeImpl(size: Size)
+    abstract fun setMaxSizeImpl(size: Size)
+    abstract fun setPositionImpl(position: Position)
+    abstract fun setDisplayStateImpl(state: WindowDisplayState)
+    abstract fun setMinimizableImpl(value: Boolean)
+    abstract fun setMaximizableImpl(value: Boolean)
+    abstract fun setClosable(value: Boolean)
+    abstract fun setResizable(value: Boolean)
 
-    protected abstract fun getDpiImpl(): Double
-    protected abstract fun getDisplayImpl(): Display
-    protected abstract fun setEnabledImpl(enabled: Boolean)
-    protected abstract fun setStyle(style: WindowStyle)
+    abstract fun getDpiImpl(): Double
+    abstract fun getDisplayImpl(): Display
+    abstract fun setEnabledImpl(enabled: Boolean)
+    abstract fun setStyle(style: WindowStyle)
 
     /* ================================= *\
     |              Callbacks              |

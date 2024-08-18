@@ -3,17 +3,9 @@ package com.huskerdev.grapl.gl.platforms.win
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.gl.*
 
-class WinGLPlatform: GLPlatform() {
+class WGLManager: GLManager() {
 
     companion object {
-        @JvmStatic private external fun nCreateGLWindow(
-            isCore: Boolean,
-            shareWith: Long,
-            majorVersion: Int,
-            minorVersion: Int,
-            debug: Boolean
-        ): LongArray
-
         @JvmStatic private external fun nSwapBuffers(dc: Long)
         @JvmStatic private external fun nSetSwapInterval(hwnd: Long, value: Int)
     }
@@ -36,11 +28,8 @@ class WinGLPlatform: GLPlatform() {
         minorVersion: Int,
         debug: Boolean
     ) = BackgroundMessageHandler.invokeWaiting {
-        nCreateGLWindow(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug).run {
-            WinGLWindowPeer(
-                this[0],
-                WGLContext(this[1], this[2], this[3].toInt(), this[4].toInt(), this[5].toInt() == 1),
-            ).apply { this.onCreated() }
+        WGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
+            this.onCreated()
         }
     }
 

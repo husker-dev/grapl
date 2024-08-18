@@ -7,10 +7,12 @@ open class CGLContext(
     context: Long,
     majorVersion: Int,
     minorVersion: Int,
+    profile: GLProfile,
     debug: Boolean
-): GLContext(context, majorVersion, minorVersion, debug) {
+): GLContext(context, majorVersion, minorVersion, profile, debug) {
 
     companion object {
+        @JvmStatic private external fun nInitFunctions()
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(context: Long): Boolean
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
@@ -21,17 +23,24 @@ open class CGLContext(
         @JvmStatic private external fun nUnlockContext(context: Long)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-            nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug).run{
-                CGLContext(this[0], this[1].toInt(), this[2].toInt(), this[3].toInt() == 1)
-            }
+            fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
         fun fromCurrent() =
-            nGetCurrentContext().run {
-                CGLContext(this[0], this[1].toInt(), this[2].toInt(), this[3].toInt() == 1)
-            }
+            fromJNI(nGetCurrentContext())
 
         fun clearContext() =
             nSetCurrentContext(0L)
+
+        private fun fromJNI(array: LongArray) = CGLContext(
+            array[0],
+            array[1].toInt(), array[2].toInt(),
+            if(array[3].toInt() == 1) GLProfile.CORE else GLProfile.COMPATIBILITY,
+            array[4].toInt() == 1
+        )
+
+        init {
+            nInitFunctions()
+        }
     }
 
     fun setBackingSize(width: Int, height: Int) = nSetBackingSize(handle, width, height)

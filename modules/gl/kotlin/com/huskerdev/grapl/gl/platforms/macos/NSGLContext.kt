@@ -1,12 +1,12 @@
 package com.huskerdev.grapl.gl.platforms.macos
 
-import com.huskerdev.grapl.core.window.impl.MacWindowPeer
+import com.huskerdev.grapl.core.window.impl.NSWindowPeer
 import com.huskerdev.grapl.gl.GLProfile
 
 class NSGLContext(
     val nsglHandle: Long,
     cgl: CGLContext
-): CGLContext(cgl.handle, cgl.majorVersion, cgl.minorVersion, cgl.debug) {
+): CGLContext(cgl.handle, cgl.majorVersion, cgl.minorVersion, cgl.profile, cgl.debug) {
 
     companion object {
         @JvmStatic private external fun nAttachToWindow(windowPtr: Long, contextPtr: Long): Long
@@ -15,7 +15,7 @@ class NSGLContext(
 
         @JvmStatic private external fun nSetSwapInterval(nsgl: Long, swapInterval: Int)
 
-        fun createAttached(peer: MacWindowPeer, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+        fun createAttached(peer: NSWindowPeer, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             create(profile, shareWith, majorVersion, minorVersion, debug).run {
                 NSGLContext(nAttachToWindow(peer.handle, this.handle), this)
             }

@@ -4,6 +4,8 @@ import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.X11DisplayPeer
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.grapl.core.window.WindowPeer
+import com.huskerdev.grapl.core.window.impl.X11WindowPeer
 
 
 class LinuxPlatform: Platform() {
@@ -16,6 +18,9 @@ class LinuxPlatform: Platform() {
 
     override fun specifyLibName(libName: String) =
         "$libName-$arch.so"
+
+    override fun createWindowPeer() =
+        windowingSystem.createWindowPeer()
 
     override val primaryDisplay: Display
         get() = windowingSystem.primaryDisplay
@@ -31,9 +36,16 @@ interface WindowingSystem {
     val primaryDisplay: Display
     val displays: Array<Display>
 
+    fun createWindowPeer(): LinuxWindowPeer
+
     fun peekMessages()
     fun waitMessages(timeout: Int)
     fun postEmptyMessage()
+}
+
+abstract class LinuxWindowPeer: WindowPeer() {
+    var display: Long = 0L
+        protected set
 }
 
 class X11: WindowingSystem {
@@ -49,6 +61,8 @@ class X11: WindowingSystem {
 
     override val primaryDisplay = Display(X11DisplayPeer.primary(display))
     override val displays = X11DisplayPeer.list(display).map { Display(it) }.toTypedArray()
+
+    override fun createWindowPeer() = X11WindowPeer()
 
     override fun peekMessages() = nPeekMessage(display)
     override fun waitMessages(timeout: Int) = nWaitMessage(display, timeout)
@@ -73,6 +87,10 @@ class Wayland: WindowingSystem {
         get() = TODO("Not yet implemented")
     override val displays: Array<Display>
         get() = TODO("Not yet implemented")
+
+    override fun createWindowPeer(): LinuxWindowPeer {
+        TODO("Not yet implemented")
+    }
 
     override fun peekMessages() {
         TODO("Not yet implemented")

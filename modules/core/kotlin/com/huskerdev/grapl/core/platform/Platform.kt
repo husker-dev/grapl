@@ -7,6 +7,7 @@ import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.impl.LinuxPlatform
 import com.huskerdev.grapl.core.platform.impl.MacPlatform
 import com.huskerdev.grapl.core.platform.impl.WinPlatform
+import com.huskerdev.grapl.core.window.WindowPeer
 import java.io.File
 import java.io.FileOutputStream
 
@@ -81,6 +82,8 @@ abstract class Platform {
     abstract val displays: Array<Display>
 
     internal abstract fun specifyLibName(libName: String): String
+
+    internal abstract fun createWindowPeer(): WindowPeer
 
     abstract fun peekMessages()
     abstract fun waitMessages(timeout: Int = -1)

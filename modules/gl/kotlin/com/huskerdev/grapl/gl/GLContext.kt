@@ -1,10 +1,12 @@
 package com.huskerdev.grapl.gl
 
 
+@Suppress("unused")
 abstract class GLContext(
     val handle: Long,
     val majorVersion: Int,
     val minorVersion: Int,
+    val profile: GLProfile,
     val debug: Boolean
 ) {
     companion object {
@@ -33,17 +35,17 @@ abstract class GLContext(
             majorVersion: Int       = DEFAULT_MAJOR_VERSION,
             minorVersion: Int       = DEFAULT_MINOR_VERSION,
             debug: Boolean          = DEFAULT_DEBUG
-        ) = GLPlatform.current.createContext(coreProfile, shareWith, majorVersion, minorVersion, debug)
+        ) = GLManager.current.createContext(coreProfile, shareWith, majorVersion, minorVersion, debug)
 
         @JvmStatic
-        fun current() = GLPlatform.current.createFromCurrentContext()
+        fun current() = GLManager.current.createFromCurrentContext()
 
         @JvmStatic
-        fun clear() = GLPlatform.current.clearContext()
+        fun clear() = GLManager.current.clearContext()
 
         fun bindDebugCallback(callback: (GLDebugEvent) -> Unit){
             val context = current()
-            if(context.debug && GLPlatform.current.supportsDebug()){
+            if(context.debug && GLManager.current.supportsDebug()){
                 debugCallbacks[context.handle] = callback
                 context.bindDebugCallback()
             }

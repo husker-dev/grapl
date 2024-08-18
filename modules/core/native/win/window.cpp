@@ -481,9 +481,23 @@ LRESULT CALLBACK CustomWinProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     JNI
 */
 
-jni_win_window(void, nHookWindow)(JNIEnv* env, jobject, jlong _hwnd, jobject callbackObject) {
-    HWND hwnd = (HWND)_hwnd;
+jni_win_window(void, nRegisterClass)(JNIEnv* env, jobject) {
+    WNDCLASS wc = {};
+    wc.lpfnWndProc = DefWindowProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = L"grapl-win";
+    RegisterClass(&wc);
+}
+
+jni_win_window(jlong, nCreateWindow)(JNIEnv* env, jobject, jobject callbackObject) {
+    HWND hwnd = CreateWindow(
+                L"grapl-win", L"",
+                WS_OVERLAPPEDWINDOW,
+                CW_USEDEFAULT, CW_USEDEFAULT,
+                10, 10,
+                NULL, NULL, GetModuleHandle(NULL), NULL);
     wrappers[hwnd] = new WinWindowCallbackContainer(env, hwnd, callbackObject);
+    return (jlong)hwnd;
 }
 
 jni_win_window(void, nPostQuit)(JNIEnv* env, jobject, jlong hwnd) {

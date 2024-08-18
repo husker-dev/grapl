@@ -1,10 +1,10 @@
 package com.huskerdev.grapl.gl.platforms.macos
 
-import com.huskerdev.grapl.gl.GLPlatform
+import com.huskerdev.grapl.gl.GLManager
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
 
-class MacGLPlatform: GLPlatform() {
+class MacGLManager: GLManager() {
 
     override fun supportsDebug() = false
 
@@ -23,7 +23,7 @@ class MacGLPlatform: GLPlatform() {
         majorVersion: Int,
         minorVersion: Int,
         debug: Boolean
-    ) = MacGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
+    ) = NSGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
         this.onCreated()
     }
 

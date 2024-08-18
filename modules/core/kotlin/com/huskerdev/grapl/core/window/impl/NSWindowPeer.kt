@@ -11,7 +11,7 @@ import com.huskerdev.grapl.core.window.WindowPeer
 import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 
-open class MacWindowPeer : WindowPeer() {
+open class NSWindowPeer : WindowPeer() {
 
     companion object {
         @JvmStatic private external fun nInitApplication()
@@ -35,7 +35,7 @@ open class MacWindowPeer : WindowPeer() {
         @JvmStatic private external fun nSetEnabled(windowPtr: Long, enabled: Boolean)
         @JvmStatic private external fun nSetStyle(windowPtr: Long, style: Int)
 
-        fun create() = MacWindowPeer()
+        fun create() = NSWindowPeer()
 
         init {
             nInitApplication()

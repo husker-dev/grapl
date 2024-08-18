@@ -1,5 +1,11 @@
+#ifndef GRAPL_GL_H
+#define GRAPL_GL_H
+
 #include <grapl.h>
-#include <iostream>
+#include <stdio.h>
+
+static JavaVM* jvm = NULL;
+static jclass debugCallbackClass;
 
 typedef int GLint;
 typedef int GLsizei;
@@ -20,21 +26,37 @@ typedef signed long int GLsizeiptr;
 #define GL_MINOR_VERSION  0x821C
 #define GL_CONTEXT_FLAGS  0x821E
 #define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
+#define GL_CONTEXT_PROFILE_MASK 0x9126
+#define GL_CONTEXT_CORE_PROFILE_BIT 0x00000001
 
 typedef void (*GLDEBUGPROCARB)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
-typedef void (*glFlushPtr)();
 typedef void (*glDebugMessageCallbackARBPtr)(GLDEBUGPROCARB callback, const void *userParam);
 
-static glGetIntegervPtr glGetIntegerv;
-static glFlushPtr glFlush;
-static glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
+static glGetIntegervPtr glGetIntegerv = NULL;
+static glDebugMessageCallbackARBPtr glDebugMessageCallbackARB = NULL;
+
+struct GLDetails {
+    GLint major;
+    GLint minor;
+    GLint flags;
+    bool isCore;
+    bool debug;
+};
 
 
+static void getContextDetails(GLDetails* details){
+    GLint profileMask = 0;
 
-static JavaVM* jvm = NULL;
-static jclass debugCallbackClass;
+    glGetIntegerv(GL_MAJOR_VERSION, &details->major);
+    glGetIntegerv(GL_MINOR_VERSION, &details->minor);
+    glGetIntegerv(GL_CONTEXT_FLAGS, &details->flags);
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profileMask);
+
+    details->isCore = profileMask == GL_CONTEXT_CORE_PROFILE_BIT;
+    details->debug = (details->flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
+}
 
 static void callbackFunction(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam){
     JNIEnv* env;
@@ -54,9 +76,13 @@ static void callbackFunction(GLenum source, GLenum type, GLuint id, GLenum sever
 }
 
 static void bindDefaultDebugFunction(JNIEnv* env, jclass callbackClass, const void* handle) {
+    if(glDebugMessageCallbackARB == NULL)
+        return;
     if(jvm == NULL){
         env->GetJavaVM(&jvm);
         debugCallbackClass = (jclass)env->NewGlobalRef(callbackClass);
     }
     glDebugMessageCallbackARB(&callbackFunction, handle);
 }
+
+#endif

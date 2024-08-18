@@ -4,11 +4,11 @@ import com.huskerdev.grapl.GraplInfo
 import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.core.window.WindowPeer
-import com.huskerdev.grapl.gl.platforms.linux.LinuxGLPlatform
-import com.huskerdev.grapl.gl.platforms.macos.MacGLPlatform
-import com.huskerdev.grapl.gl.platforms.win.WinGLPlatform
+import com.huskerdev.grapl.gl.platforms.linux.egl.EGLManager
+import com.huskerdev.grapl.gl.platforms.macos.MacGLManager
+import com.huskerdev.grapl.gl.platforms.win.WGLManager
 
-abstract class GLPlatform {
+abstract class GLManager {
 
     companion object {
         init {
@@ -21,9 +21,9 @@ abstract class GLPlatform {
 
         val current by lazy {
             when(Platform.os) {
-                OS.Windows  -> WinGLPlatform()
-                OS.Linux    -> LinuxGLPlatform()
-                OS.MacOS    -> MacGLPlatform()
+                OS.Windows  -> WGLManager()
+                OS.Linux    -> EGLManager()
+                OS.MacOS    -> MacGLManager()
                 else -> throw UnsupportedOperationException("Unsupported OS")
             }
         }

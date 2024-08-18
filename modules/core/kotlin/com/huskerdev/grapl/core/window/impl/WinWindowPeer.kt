@@ -14,11 +14,10 @@ import com.huskerdev.grapl.core.window.WindowStyle
 import java.nio.ByteBuffer
 
 @Suppress("unused")
-open class WinWindowPeer(
-    hwnd: Long,
-): WindowPeer(hwnd) {
+open class WinWindowPeer: WindowPeer() {
     companion object {
-        @JvmStatic private external fun nHookWindow(hwnd: Long, callbackObject: Any)
+        @JvmStatic private external fun nRegisterClass()
+        @JvmStatic private external fun nCreateWindow(callbackObject: Any): Long
         @JvmStatic private external fun nPostQuit(hwnd: Long)   // Pushes WM_QUIT
 
         @JvmStatic private external fun nSetVisible(hwnd: Long, value: Boolean)
@@ -40,6 +39,10 @@ open class WinWindowPeer(
         @JvmStatic private external fun nSetStyle(hwnd: Long, style: Int)
         @JvmStatic private external fun nSetTheme(hwnd: Long, design: Int)
         @JvmStatic private external fun nSetBackdrop(hwnd: Long, backdrop: Int)
+
+        init {
+            nRegisterClass()
+        }
     }
 
     enum class Backdrop {
@@ -50,7 +53,7 @@ open class WinWindowPeer(
     }
 
     init {
-        nHookWindow(hwnd, WinWindowCallback())
+        handle = nCreateWindow(WinWindowCallback())
     }
 
     var backdrop: Backdrop = Backdrop.DEFAULT

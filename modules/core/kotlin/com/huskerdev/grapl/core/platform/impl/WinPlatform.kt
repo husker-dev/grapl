@@ -4,6 +4,7 @@ import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.WinDisplayPeer
 import com.huskerdev.grapl.core.input.*
 import com.huskerdev.grapl.core.platform.Platform
+import com.huskerdev.grapl.core.window.impl.WinWindowPeer
 
 class WinPlatform: Platform() {
     companion object {
@@ -20,6 +21,8 @@ class WinPlatform: Platform() {
 
     override fun specifyLibName(libName: String) =
         "$libName-$arch.dll"
+
+    override fun createWindowPeer() = WinWindowPeer()
 
     override fun peekMessages() = nPeekMessage()
 

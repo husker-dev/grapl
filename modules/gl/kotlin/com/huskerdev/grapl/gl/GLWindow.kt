@@ -9,12 +9,10 @@ class GLWindow(
     minorVersion: Int = -1,
     debug: Boolean = false
 ): Window(
-    GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug),
+    GLManager.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug),
 ) {
 
     val context by (peer as GLWindowPeer)::context
-
-    constructor(profile: GLProfile): this(0L, profile)
 
     // TODO: Implement ScaledFullscreen via shader
 
@@ -27,7 +25,7 @@ class GLWindow(
             majorVersion: Int = -1,
             minorVersion: Int = -1,
             debug: Boolean
-        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith.handle, majorVersion, minorVersion, debug)
+        ) = GLManager.current.createGLWindowPeer(profile, shareWith.handle, majorVersion, minorVersion, debug)
 
         @JvmOverloads
         @JvmStatic
@@ -37,14 +35,14 @@ class GLWindow(
             majorVersion: Int = -1,
             minorVersion: Int = -1,
             debug: Boolean
-        ) = GLPlatform.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug)
+        ) = GLManager.current.createGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug)
     }
 
     var swapInterval = 0
         set(value) {
-            GLPlatform.current.setSwapInterval(this, value)
+            GLManager.current.setSwapInterval(this, value)
             field = value
         }
 
-    fun swapBuffers() = GLPlatform.current.swapBuffers(this)
+    fun swapBuffers() = GLManager.current.swapBuffers(this)
 }
