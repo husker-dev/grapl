@@ -2,6 +2,8 @@
 
 #include "grapl-gl-win.h"
 
+wglSwapIntervalEXTPtr wglSwapIntervalEXT;
+
 static void getContextDetailsWGL(GLDetails* details, HGLRC rc, HDC dc){
     HGLRC oldRC = _wglGetCurrentContext();
     HDC oldDC = _wglGetCurrentDC();
@@ -114,8 +116,8 @@ jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCor
 }
 
 
-jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong hwnd, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
-    HWND hwnd = (HNWD)hwnd;
+jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong _hwnd, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
+    HWND hwnd = (HWND)_hwnd;
     HDC dc = GetDC(hwnd);
 
     int pixel_format_arb;

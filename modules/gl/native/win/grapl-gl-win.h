@@ -3,7 +3,7 @@
 #include <windows.h>
 
 #define jni_win_context(returnType, fun)     extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLContext_##fun
-#define jni_win_platform(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLManager_##fun
+#define jni_win_manager(returnType, fun)	 extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_platforms_win_WGLManager_##fun
 
 
 /*
@@ -52,7 +52,7 @@ static wglMakeCurrentPtr                   _wglMakeCurrent;
 static wglGetProcAddressPtr                _wglGetProcAddress;
 static wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
 static wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
-static wglSwapIntervalEXTPtr               wglSwapIntervalEXT;
+
 
 
 /*
