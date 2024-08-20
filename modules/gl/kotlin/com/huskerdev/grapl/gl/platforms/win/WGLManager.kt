@@ -19,7 +19,7 @@ class WGLManager: GLManager() {
         WGLContext.fromCurrent()
 
     override fun clearContext() =
-        WGLContext.clearContext()
+        WGLContext.clear()
 
     override fun createGLWindowPeer(
         profile: GLProfile,

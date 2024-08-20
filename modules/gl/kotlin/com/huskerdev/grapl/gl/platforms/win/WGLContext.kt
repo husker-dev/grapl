@@ -29,7 +29,7 @@ class WGLContext(
         fun fromCurrent() =
             fromJNI(nGetCurrentContext())
 
-        fun clearContext() =
+        fun clear() =
             nSetCurrentContext(0L, 0L)
 
         private fun fromJNI(array: LongArray) = WGLContext(

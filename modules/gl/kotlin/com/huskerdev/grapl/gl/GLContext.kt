@@ -21,21 +21,21 @@ abstract class GLContext(
         @JvmOverloads
         fun create(
             shareWith: GLContext,
-            coreProfile: GLProfile  = DEFAULT_PROFILE,
+            core: GLProfile         = DEFAULT_PROFILE,
             majorVersion: Int       = DEFAULT_MAJOR_VERSION,
             minorVersion: Int       = DEFAULT_MINOR_VERSION,
             debug: Boolean          = DEFAULT_DEBUG
-        ) = create(shareWith.handle, coreProfile, majorVersion, minorVersion, debug)
+        ) = create(shareWith.handle, core, majorVersion, minorVersion, debug)
 
         @JvmStatic
         @JvmOverloads
         fun create(
             shareWith: Long = 0L,
-            coreProfile: GLProfile  = DEFAULT_PROFILE,
+            core: GLProfile         = DEFAULT_PROFILE,
             majorVersion: Int       = DEFAULT_MAJOR_VERSION,
             minorVersion: Int       = DEFAULT_MINOR_VERSION,
             debug: Boolean          = DEFAULT_DEBUG
-        ) = GLManager.current.createContext(coreProfile, shareWith, majorVersion, minorVersion, debug)
+        ) = GLManager.current.createContext(core, shareWith, majorVersion, minorVersion, debug)
 
         @JvmStatic
         fun current() = GLManager.current.createFromCurrentContext()

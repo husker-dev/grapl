@@ -15,7 +15,7 @@ class MacGLManager: GLManager() {
         CGLContext.fromCurrent()
 
     override fun clearContext() =
-        CGLContext.clearContext()
+        CGLContext.clear()
 
     override fun createGLWindowPeer(
         profile: GLProfile,

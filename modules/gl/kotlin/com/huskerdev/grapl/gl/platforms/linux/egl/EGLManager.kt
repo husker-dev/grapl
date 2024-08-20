@@ -20,7 +20,7 @@ class EGLManager: GLManager() {
         EGLContext.fromCurrent()
 
     override fun clearContext() =
-        EGLContext.clearContext()
+        EGLContext.clear()
 
     override fun createGLWindowPeer(
         profile: GLProfile,

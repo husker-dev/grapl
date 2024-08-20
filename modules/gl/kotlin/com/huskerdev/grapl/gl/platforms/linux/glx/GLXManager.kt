@@ -21,7 +21,7 @@ class GLXManager: GLManager() {
         GLXContext.fromCurrent()
 
     override fun clearContext() =
-        GLXContext.clearContext()
+        GLXContext.clear()
 
     override fun createGLWindowPeer(
         profile: GLProfile,

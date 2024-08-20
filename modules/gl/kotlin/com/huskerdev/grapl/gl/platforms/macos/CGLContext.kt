@@ -28,7 +28,7 @@ open class CGLContext(
         fun fromCurrent() =
             fromJNI(nGetCurrentContext())
 
-        fun clearContext() =
+        fun clear() =
             nSetCurrentContext(0L)
 
         private fun fromJNI(array: LongArray) = CGLContext(
