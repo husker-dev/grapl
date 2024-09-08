@@ -1,7 +1,5 @@
-#include "grapl-gl-linux-egl.h"
 
-extern eglSwapBuffersPtr eglSwapBuffers;
-extern eglSwapIntervalPtr eglSwapInterval;
+#include "gl-linux-egl.h"
 
 
 jni_linux_egl_manager(void, nSwapBuffers)(JNIEnv* env, jobject, jlong display, jlong window) {

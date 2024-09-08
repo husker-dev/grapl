@@ -7,6 +7,8 @@
 static JavaVM* jvm = NULL;
 static jclass debugCallbackClass;
 
+#define jni_context(returnType, fun) extern "C" JNIEXPORT returnType JNICALL Java_com_huskerdev_grapl_gl_GLContext_##fun
+
 typedef int GLint;
 typedef int GLsizei;
 typedef float GLfloat;
@@ -28,14 +30,18 @@ typedef signed long int GLsizeiptr;
 #define GL_CONTEXT_FLAG_DEBUG_BIT 0x00000002
 #define GL_CONTEXT_PROFILE_MASK 0x9126
 #define GL_CONTEXT_CORE_PROFILE_BIT 0x00000001
+#define GL_NUM_EXTENSIONS 0x821D
+#define GL_EXTENSIONS     0x1F03
 
 typedef void (*GLDEBUGPROCARB)(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam);
 
 typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
+typedef const GLubyte* (*glGetStringiPtr)(GLenum name, GLuint index);
 typedef void (*glDebugMessageCallbackARBPtr)(GLDEBUGPROCARB callback, const void *userParam);
 
-static glGetIntegervPtr glGetIntegerv = NULL;
-static glDebugMessageCallbackARBPtr glDebugMessageCallbackARB = NULL;
+extern glGetIntegervPtr glGetIntegerv;
+extern glGetStringiPtr glGetStringi;
+extern glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
 
 struct GLDetails {
     GLint major;

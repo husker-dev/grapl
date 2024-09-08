@@ -1,4 +1,13 @@
-#include "grapl-gl-linux-glx.h"
+#include "gl-linux-glx.h"
+
+glXCreateContextAttribsARBPtr glXCreateContextAttribsARB = NULL;
+glXSwapIntervalEXTPtr         glXSwapIntervalEXT = NULL;
+glXSwapIntervalMESAPtr        glXSwapIntervalMESA = NULL;
+glXSwapIntervalMESAPtr        glXSwapIntervalSGI = NULL;
+
+glGetIntegervPtr              glGetIntegerv;
+glGetStringiPtr               glGetStringi;
+glDebugMessageCallbackARBPtr  glDebugMessageCallbackARB;
 
 
 static void getContextDetailsGLX(GLDetails* details, Display* display, GLXDrawable drawable, GLXContext context){
@@ -13,13 +22,14 @@ static void getContextDetailsGLX(GLDetails* details, Display* display, GLXDrawab
 
 
 jni_linux_glx_context(void, nInitFunctions)(JNIEnv* env, jobject) {
-    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)glXGetProcAddressARB((GLubyte*) "glDebugMessageCallbackARB");
-    glGetIntegerv = (glGetIntegervPtr)glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
-
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr)glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
     glXSwapIntervalEXT = (glXSwapIntervalEXTPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalEXT");
     glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalMESA");
     glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalSGI");
+
+    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)glXGetProcAddressARB((GLubyte*) "glDebugMessageCallbackARB");
+    glGetIntegerv = (glGetIntegervPtr)glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
+    glGetStringi = (glGetStringiPtr)glXGetProcAddressARB((GLubyte*) "glGetStringi");
 }
 
 jni_linux_glx_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {

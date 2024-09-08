@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.gl.platforms.win
 
 import com.huskerdev.grapl.gl.GLContext
+import com.huskerdev.grapl.gl.GLPixelFormat
 import com.huskerdev.grapl.gl.GLProfile
 
 class WGLContext(
@@ -14,7 +15,17 @@ class WGLContext(
     companion object {
         @JvmStatic private external fun nInitFunctions()
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
-        @JvmStatic private external fun nCreateContextForWindow(hwnd: Long, isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @JvmStatic private external fun nCreateContextForWindow(
+            hwnd: Long,
+            isCore: Boolean,
+            msaa: Int,
+            doubleBuffering: Boolean,
+            redBits: Int, greenBits: Int, blueBits: Int, alphaBits: Int, depthBits: Int, stencilBits: Int,
+            transparency: Boolean,
+            shareWith: Long,
+            majorVersion: Int, minorVersion: Int,
+            debug: Boolean
+        ): LongArray
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
         @JvmStatic private external fun nDeleteContext(rc: Long)
@@ -23,8 +34,16 @@ class WGLContext(
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
-        fun createForWindow(hwnd: Long, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-            fromJNI(nCreateContextForWindow(hwnd, profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
+        fun createForWindow(hwnd: Long, profile: GLProfile, pixelFormat: GLPixelFormat, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+            fromJNI(nCreateContextForWindow(
+                hwnd,
+                profile == GLProfile.CORE,
+                pixelFormat.msaa,
+                pixelFormat.doubleBuffering,
+                pixelFormat.redBits, pixelFormat.greenBits, pixelFormat.blueBits, pixelFormat.alphaBits, pixelFormat.depthBits, pixelFormat.stencilBits,
+                pixelFormat.transparency,
+                shareWith, majorVersion, minorVersion, debug
+            ))
 
         fun fromCurrent() =
             fromJNI(nGetCurrentContext())

@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.gl.platforms.macos
 
 import com.huskerdev.grapl.core.window.impl.NSWindowPeer
+import com.huskerdev.grapl.gl.GLPixelFormat
 import com.huskerdev.grapl.gl.GLProfile
 
 class NSGLContext(
@@ -15,7 +16,7 @@ class NSGLContext(
 
         @JvmStatic private external fun nSetSwapInterval(nsgl: Long, swapInterval: Int)
 
-        fun createAttached(peer: NSWindowPeer, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+        fun createAttached(peer: NSWindowPeer, profile: GLProfile, pixelFormat: GLPixelFormat, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             create(profile, shareWith, majorVersion, minorVersion, debug).run {
                 NSGLContext(nAttachToWindow(peer.handle, this.handle), this)
             }

@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.gl.platforms.macos
 
 import com.huskerdev.grapl.gl.GLManager
+import com.huskerdev.grapl.gl.GLPixelFormat
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
 
@@ -19,11 +20,12 @@ class MacGLManager: GLManager() {
 
     override fun createGLWindowPeer(
         profile: GLProfile,
+        pixelFormat: GLPixelFormat,
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int,
         debug: Boolean
-    ) = NSGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
+    ) = NSGLWindowPeer(profile, pixelFormat, shareWith, majorVersion, minorVersion, debug).apply {
         this.onCreated()
     }
 

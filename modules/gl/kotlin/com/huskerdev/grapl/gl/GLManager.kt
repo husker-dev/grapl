@@ -44,6 +44,7 @@ abstract class GLManager {
 
     abstract fun createGLWindowPeer(
         profile: GLProfile,
+        pixelFormat: GLPixelFormat,
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int,

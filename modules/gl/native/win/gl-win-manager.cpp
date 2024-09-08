@@ -1,8 +1,5 @@
-#define UNICODE
+#include "gl-win.h"
 
-#include "grapl-gl-win.h"
-
-extern wglSwapIntervalEXTPtr wglSwapIntervalEXT;
 
 jni_win_manager(void, nSwapBuffers)(JNIEnv* env, jobject, jlong _dc) {
     SwapBuffers((HDC)_dc);

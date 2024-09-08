@@ -1,8 +1,20 @@
-#define UNICODE
 
-#include "grapl-gl-win.h"
+#include "gl-win.h"
 
-wglSwapIntervalEXTPtr wglSwapIntervalEXT;
+wglCreateContextPtr                 _wglCreateContext;
+wglDeleteContextPtr                 _wglDeleteContext;
+wglGetCurrentContextPtr             _wglGetCurrentContext;
+wglGetCurrentDCPtr                  _wglGetCurrentDC;
+wglMakeCurrentPtr                   _wglMakeCurrent;
+wglGetProcAddressPtr                _wglGetProcAddress;
+wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
+wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
+wglSwapIntervalEXTPtr               wglSwapIntervalEXT;
+
+glGetIntegervPtr glGetIntegerv;
+glGetStringiPtr glGetStringi;
+glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
+
 
 static void getContextDetailsWGL(GLDetails* details, HGLRC rc, HDC dc){
     HGLRC oldRC = _wglGetCurrentContext();
@@ -24,15 +36,13 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
     HDC oldDC = _wglGetCurrentDC();
     HGLRC oldRC = _wglGetCurrentContext();
 
-    PIXELFORMATDESCRIPTOR pfd = createPFD();
-
     WNDCLASS wc = {};
     wc.lpfnWndProc = DefWindowProc;
     wc.hInstance = GetModuleHandle(NULL);
     wc.lpszClassName = L"grapl-gl";
     RegisterClass(&wc);
 
-    // Create dummy window to initialize function
+    // Create dummy window to initialize functions
     {
         HWND hwnd = CreateWindow(
                 L"grapl-gl", L"",
@@ -43,6 +53,13 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
                 GetModuleHandle(NULL),
                 NULL);
         HDC dc = GetDC(hwnd);
+
+        PIXELFORMATDESCRIPTOR pfd = {};
+        pfd.nSize = sizeof(pfd);
+        pfd.nVersion = 1;
+        pfd.iPixelType = PFD_TYPE_RGBA;
+        pfd.cColorBits = 24;
+        pfd.cDepthBits = 32;
 
         int pixel_format;
         if (!(pixel_format = ChoosePixelFormat(dc, &pfd)))
@@ -56,8 +73,9 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
         // Load functions
         wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) _GetProcAddress("wglChoosePixelFormatARB");
         wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) _GetProcAddress("wglCreateContextAttribsARB");
-        wglSwapIntervalEXT = (wglSwapIntervalEXTPtr)_GetProcAddress("wglSwapIntervalEXT");
+        wglSwapIntervalEXT = (wglSwapIntervalEXTPtr) _GetProcAddress("wglSwapIntervalEXT");
         glGetIntegerv = (glGetIntegervPtr) _GetProcAddress("glGetIntegerv");
+        glGetStringi = (glGetStringiPtr) _GetProcAddress("glGetStringi");
         glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr) _GetProcAddress("glDebugMessageCallbackARB");
 
         // Destroy dummy context
@@ -81,10 +99,20 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
     int pixel_format_arb;
     UINT pixel_formats_count;
 
-    int* pixel_attributes = createPixelAttributes();
+    int pixel_attributes[] = {
+            WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
+            WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
+            WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
+            WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
+            WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
+            WGL_COLOR_BITS_ARB,         32,
+            WGL_DEPTH_BITS_ARB,         24,
+            WGL_STENCIL_BITS_ARB,       8,
+            0
+    };
     if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
         checkError("wglChoosePixelFormatARB");
-    if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
+    if (!SetPixelFormat(dc, pixel_format_arb, NULL))
         checkError("SetPixelFormat (wgl)");
 }
 
@@ -116,18 +144,47 @@ jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCor
 }
 
 
-jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong _hwnd, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
+jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
+    jlong _hwnd,
+    jboolean isCore,
+    jint msaa,
+    jboolean doubleBuffering,
+    jint redBits, jint greenBits, jint blueBits, jint alphaBits, jint depthBits, jint stencilBits,
+    jboolean transparency,
+    jlong shareRc,
+    jint majorVersion,
+    jint minorVersion,
+    jboolean debug
+) {
     HWND hwnd = (HWND)_hwnd;
     HDC dc = GetDC(hwnd);
 
     int pixel_format_arb;
     UINT pixel_formats_count;
+    int pixel_attributes[] = {
+            WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
+            WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
+            WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
+            WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
 
-    PIXELFORMATDESCRIPTOR pfd = createPFD();
-    int* pixel_attributes = createPixelAttributes();
+            WGL_COLOR_BITS_ARB,         redBits + greenBits + blueBits + alphaBits,
+            WGL_RED_BITS_ARB,           redBits,
+            WGL_GREEN_BITS_ARB,         greenBits,
+            WGL_BLUE_BITS_ARB,          blueBits,
+            WGL_ALPHA_BITS_ARB,         alphaBits,
+            WGL_DEPTH_BITS_ARB,         depthBits,
+            WGL_STENCIL_BITS_ARB,       stencilBits,
+
+            WGL_TRANSPARENT_ARB,        transparency,
+            WGL_DOUBLE_BUFFER_ARB,      doubleBuffering,
+            WGL_SAMPLE_BUFFERS_ARB,     msaa > 0 ? GL_TRUE : GL_FALSE,
+            WGL_SAMPLES_ARB,            msaa,
+            0
+    };
     if (!wglChoosePixelFormatARB(dc, pixel_attributes, NULL, 1, &pixel_format_arb, &pixel_formats_count))
         checkError("wglChoosePixelFormatARB (nCreateWindow)");
-    if (!SetPixelFormat(dc, pixel_format_arb, &pfd))
+
+    if (!SetPixelFormat(dc, pixel_format_arb, NULL))
         checkError("SetPixelFormat (nCreateWindow, wgl)");
 
     GLint context_attributes[] = {

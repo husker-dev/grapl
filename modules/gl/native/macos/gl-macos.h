@@ -1,6 +1,6 @@
 #define GL_SILENCE_DEPRECATION
 
-#import "../shared/grapl-gl.h"
+#import "../shared/gl-shared.h"
 #import "utils/thread-utils.h"
 
 #import <Cocoa/Cocoa.h>

@@ -1,6 +1,7 @@
 package com.huskerdev.grapl.gl.platforms.linux.glx
 
 import com.huskerdev.grapl.gl.GLContext
+import com.huskerdev.grapl.gl.GLPixelFormat
 import com.huskerdev.grapl.gl.GLProfile
 
 class GLXContext(
@@ -25,7 +26,7 @@ class GLXContext(
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
-        fun createForWindow(display: Long, window: Long, profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
+        fun createForWindow(display: Long, window: Long, profile: GLProfile, pixelFormat: GLPixelFormat, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContextForWindow(display, window, profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
         fun fromCurrent() =

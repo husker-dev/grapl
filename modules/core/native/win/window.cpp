@@ -605,8 +605,8 @@ jni_win_window(jint, nUpdateDisplayState)(JNIEnv* env, jobject, jlong hwnd, jboo
             rect.right - rect.left,
             rect.bottom - rect.top,
             SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-        return 0;
     }
+    return 0;
 }
 
 jni_win_window(void, nSetMinimizable)(JNIEnv* env, jobject, jlong _hwnd, jboolean value) {

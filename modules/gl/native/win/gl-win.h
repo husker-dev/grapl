@@ -1,4 +1,6 @@
-#include "../shared/grapl-gl.h"
+#define UNICODE
+
+#include "../shared/gl-shared.h"
 
 #include <windows.h>
 
@@ -19,6 +21,13 @@
 #define WGL_FULL_ACCELERATION_ARB                   0x2027
 #define WGL_TYPE_RGBA_ARB                           0x202B
 #define WGL_DOUBLE_BUFFER_ARB                       0x2011
+#define WGL_RED_BITS_ARB                            0x2015
+#define WGL_GREEN_BITS_ARB                          0x2017
+#define WGL_BLUE_BITS_ARB                           0x2019
+#define WGL_ALPHA_BITS_ARB                          0x201B
+#define WGL_TRANSPARENT_ARB                         0x200A
+#define WGL_SAMPLE_BUFFERS_ARB                      0x2041
+#define WGL_SAMPLES_ARB                             0x2042
 
 #define WGL_CONTEXT_PROFILE_MASK_ARB                0x9126
 #define WGL_CONTEXT_MAJOR_VERSION_ARB               0x2091
@@ -44,15 +53,15 @@ typedef HGLRC (*wglCreateContextAttribsARBPtr)(HDC hDC, HGLRC hShareContext, con
 typedef BOOL (*wglChoosePixelFormatARBPtr)(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
 typedef BOOL (*wglSwapIntervalEXTPtr)(int interval);
 
-static wglCreateContextPtr                 _wglCreateContext;
-static wglDeleteContextPtr                 _wglDeleteContext;
-static wglGetCurrentContextPtr             _wglGetCurrentContext;
-static wglGetCurrentDCPtr                  _wglGetCurrentDC;
-static wglMakeCurrentPtr                   _wglMakeCurrent;
-static wglGetProcAddressPtr                _wglGetProcAddress;
-static wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
-static wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
-
+extern wglCreateContextPtr                 _wglCreateContext;
+extern wglDeleteContextPtr                 _wglDeleteContext;
+extern wglGetCurrentContextPtr             _wglGetCurrentContext;
+extern wglGetCurrentDCPtr                  _wglGetCurrentDC;
+extern wglMakeCurrentPtr                   _wglMakeCurrent;
+extern wglGetProcAddressPtr                _wglGetProcAddress;
+extern wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
+extern wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
+extern wglSwapIntervalEXTPtr               wglSwapIntervalEXT;
 
 
 /*
@@ -103,19 +112,4 @@ static PIXELFORMATDESCRIPTOR createPFD(){
     pfd.cDepthBits = 32;
     pfd.nSize = sizeof(pfd);
     return pfd;
-}
-
-static int* createPixelAttributes(){
-    int pixel_attributes[] = {
-            WGL_DRAW_TO_WINDOW_ARB,     GL_TRUE,
-            WGL_SUPPORT_OPENGL_ARB,     GL_TRUE,
-            WGL_DOUBLE_BUFFER_ARB,      GL_TRUE,
-            WGL_ACCELERATION_ARB,       WGL_FULL_ACCELERATION_ARB,
-            WGL_PIXEL_TYPE_ARB,         WGL_TYPE_RGBA_ARB,
-            WGL_COLOR_BITS_ARB,         32,
-            WGL_DEPTH_BITS_ARB,         24,
-            WGL_STENCIL_BITS_ARB,       8,
-            0
-    };
-    return &pixel_attributes[0];
 }

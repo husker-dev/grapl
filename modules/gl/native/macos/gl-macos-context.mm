@@ -1,4 +1,4 @@
-#import "grapl-gl-macos.h"
+#import "gl-macos.h"
 
 
 static void getContextDetailsCGL(GLDetails* details, CGLContextObj context){

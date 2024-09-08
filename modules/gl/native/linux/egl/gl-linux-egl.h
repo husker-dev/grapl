@@ -68,19 +68,20 @@ typedef EGLBoolean (*eglSwapBuffersPtr)(EGLDisplay dpy, EGLSurface surface);
 typedef EGLBoolean (*eglSwapIntervalPtr)(EGLDisplay dpy, EGLint interval);
 
 
-static eglGetProcAddressPtr eglGetProcAddress = NULL;
+extern eglGetProcAddressPtr      eglGetProcAddress;
 
-static eglBindAPIPtr eglBindAPI = NULL;
-static eglGetDisplayPtr eglGetDisplay = NULL;
-static eglInitializePtr eglInitialize = NULL;
-static eglChooseConfigPtr eglChooseConfig = NULL;
-static eglCreateContextPtr eglCreateContext = NULL;
-static eglCreateWindowSurfacePtr eglCreateWindowSurface = NULL;
-static eglGetCurrentDisplayPtr eglGetCurrentDisplay = NULL;
-static eglGetCurrentSurfacePtr eglGetCurrentSurface = NULL;
-static eglGetCurrentContextPtr eglGetCurrentContext = NULL;
-static eglMakeCurrentPtr eglMakeCurrent = NULL;
-static eglDestroyContextPtr eglDestroyContext = NULL;
-
+extern eglBindAPIPtr             eglBindAPI;
+extern eglGetDisplayPtr          eglGetDisplay;
+extern eglInitializePtr          eglInitialize;
+extern eglChooseConfigPtr        eglChooseConfig;
+extern eglCreateContextPtr       eglCreateContext;
+extern eglCreateWindowSurfacePtr eglCreateWindowSurface;
+extern eglGetCurrentDisplayPtr   eglGetCurrentDisplay;
+extern eglGetCurrentSurfacePtr   eglGetCurrentSurface;
+extern eglGetCurrentContextPtr   eglGetCurrentContext;
+extern eglMakeCurrentPtr         eglMakeCurrent;
+extern eglDestroyContextPtr      eglDestroyContext;
+extern eglSwapBuffersPtr         eglSwapBuffers;
+extern eglSwapIntervalPtr        eglSwapInterval;
 
 #endif

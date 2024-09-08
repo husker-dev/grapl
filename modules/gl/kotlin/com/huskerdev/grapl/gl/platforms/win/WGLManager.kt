@@ -23,12 +23,13 @@ class WGLManager: GLManager() {
 
     override fun createGLWindowPeer(
         profile: GLProfile,
+        pixelFormat: GLPixelFormat,
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int,
         debug: Boolean
     ) = BackgroundMessageHandler.invokeWaiting {
-        WGLWindowPeer(profile, shareWith, majorVersion, minorVersion, debug).apply {
+        WGLWindowPeer(profile, pixelFormat, shareWith, majorVersion, minorVersion, debug).apply {
             this.onCreated()
         }
     }

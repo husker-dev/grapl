@@ -1,7 +1,24 @@
-#include "grapl-gl-linux-egl.h"
+#include "gl-linux-egl.h"
 
-eglSwapBuffersPtr eglSwapBuffers = NULL;
-eglSwapIntervalPtr eglSwapInterval = NULL;
+eglGetProcAddressPtr      eglGetProcAddress;
+
+eglBindAPIPtr             eglBindAPI;
+eglGetDisplayPtr          eglGetDisplay;
+eglInitializePtr          eglInitialize;
+eglChooseConfigPtr        eglChooseConfig;
+eglCreateContextPtr       eglCreateContext;
+eglCreateWindowSurfacePtr eglCreateWindowSurface;
+eglGetCurrentDisplayPtr   eglGetCurrentDisplay;
+eglGetCurrentSurfacePtr   eglGetCurrentSurface;
+eglGetCurrentContextPtr   eglGetCurrentContext;
+eglMakeCurrentPtr         eglMakeCurrent;
+eglDestroyContextPtr      eglDestroyContext;
+eglSwapBuffersPtr         eglSwapBuffers;
+eglSwapIntervalPtr        eglSwapInterval;
+
+glGetIntegervPtr          glGetIntegerv;
+glGetStringiPtr           glGetStringi;
+glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
 
 
 static void getContextDetailsEGL(GLDetails* details, EGLDisplay display, EGLSurface surfaceRead, EGLSurface surfaceWrite, EGLContext context){
@@ -38,9 +55,9 @@ jni_linux_egl_context(void, nInitFunctions)(JNIEnv* env, jobject) {
     eglSwapBuffers = (eglSwapBuffersPtr)eglGetProcAddress("eglSwapBuffers");
     eglSwapInterval = (eglSwapIntervalPtr)eglGetProcAddress("eglSwapInterval");
 
-
     glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)eglGetProcAddress("glDebugMessageCallbackARB");
     glGetIntegerv = (glGetIntegervPtr)eglGetProcAddress("glGetIntegerv");
+    glGetStringi = (glGetStringiPtr)eglGetProcAddress("glGetStringi");
 }
 
 jni_linux_egl_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
@@ -76,7 +93,19 @@ jni_linux_egl_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean
     });
 }
 
-jni_linux_egl_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong _display, jlong window, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+jni_linux_egl_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
+    jlong _display,
+    jlong window,
+    jboolean isCore,
+    jint msaa,
+    jboolean doubleBuffering,
+    jint redBits, jint greenBits, jint blueBits, jint alphaBits, jint depthBits, jint stencilBits,
+    jboolean transparency,
+    jlong shareWith,
+    jint majorVersion,
+    jint minorVersion,
+    jboolean debug
+) {
     EGLDisplay display = eglGetDisplay((EGLNativeDisplayType)_display);
     eglInitialize(display, nullptr, nullptr);
     eglBindAPI(EGL_OPENGL_API);
@@ -85,16 +114,22 @@ jni_linux_egl_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
     EGLConfig config;
     EGLint num_config;
     EGLint configAttr[] = {
-        EGL_SURFACE_TYPE,      EGL_WINDOW_BIT,
-        EGL_CONFORMANT,        EGL_OPENGL_BIT,
-        EGL_RENDERABLE_TYPE,   EGL_OPENGL_BIT,
-        EGL_COLOR_BUFFER_TYPE, EGL_RGB_BUFFER,
+        EGL_SURFACE_TYPE,       EGL_WINDOW_BIT,
+        EGL_CONFORMANT,         EGL_OPENGL_BIT,
+        EGL_RENDERABLE_TYPE,    EGL_OPENGL_BIT,
+        EGL_COLOR_BUFFER_TYPE,  EGL_RGB_BUFFER,
 
-        EGL_RED_SIZE,      8,
-        EGL_GREEN_SIZE,    8,
-        EGL_BLUE_SIZE,     8,
-        EGL_DEPTH_SIZE,   24,
-        EGL_STENCIL_SIZE,  8,
+        EGL_RED_SIZE,           redBits,
+        EGL_GREEN_SIZE,         greenBits,
+        EGL_BLUE_SIZE,          blueBits,
+        EGL_ALPHA_SIZE,         alphaBits,
+        EGL_DEPTH_SIZE,         depthBits,
+        EGL_STENCIL_SIZE,       stencilBits,
+
+        EGL_SAMPLE_BUFFERS,     msaa ? 1 : 0,
+        EGL_SAMPLES,            msaa,
+
+        EGL_TRANSPARENT_TYPE,   transparency ? EGL_TRANSPARENT_RGB : EGL_NONE,
         EGL_NONE
     };
     eglChooseConfig(display, configAttr, &config, 1, &num_config);
@@ -102,7 +137,7 @@ jni_linux_egl_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
     // Create surface
     EGLint surfaceAttr[] = {
         EGL_GL_COLORSPACE, EGL_GL_COLORSPACE_LINEAR,
-        EGL_RENDER_BUFFER, EGL_BACK_BUFFER,
+        EGL_RENDER_BUFFER, doubleBuffering ? EGL_BACK_BUFFER : EGL_SINGLE_BUFFER,
         EGL_NONE,
     };
     EGLSurface surface = eglCreateWindowSurface(display, config, (void*)window, surfaceAttr);

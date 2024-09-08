@@ -10,6 +10,8 @@ abstract class GLContext(
     val debug: Boolean
 ) {
     companion object {
+        @JvmStatic private external fun nGetExtensions(): Array<String>
+
         private val DEFAULT_PROFILE             = GLProfile.CORE
         private const val DEFAULT_MAJOR_VERSION = -1
         private const val DEFAULT_MINOR_VERSION = -1
@@ -42,6 +44,13 @@ abstract class GLContext(
 
         @JvmStatic
         fun clear() = GLManager.current.clearContext()
+
+        /**
+         * Returns a list of supported extensions.
+         * Must have an associated context when called.
+         */
+        fun getExtensions() =
+            nGetExtensions().toList()
 
         fun bindDebugCallback(callback: (GLDebugEvent) -> Unit){
             val context = current()

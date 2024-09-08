@@ -2,6 +2,7 @@ package com.huskerdev.grapl.gl.platforms.linux.egl
 
 import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.gl.GLManager
+import com.huskerdev.grapl.gl.GLPixelFormat
 import com.huskerdev.grapl.gl.GLProfile
 import com.huskerdev.grapl.gl.GLWindow
 
@@ -24,12 +25,13 @@ class EGLManager: GLManager() {
 
     override fun createGLWindowPeer(
         profile: GLProfile,
+        pixelFormat: GLPixelFormat,
         shareWith: Long,
         majorVersion: Int,
         minorVersion: Int,
         debug: Boolean
     ) = BackgroundMessageHandler.invokeWaiting {
-        EGLWindowPeer.X11(profile, shareWith, majorVersion, minorVersion, debug).apply {
+        EGLWindowPeer.X11(profile, pixelFormat, shareWith, majorVersion, minorVersion, debug).apply {
             onCreated()
         }
     }
