@@ -17,7 +17,18 @@ class GLXContext(
     companion object {
         @JvmStatic private external fun nInitFunctions()
         @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
-        @JvmStatic private external fun nCreateContextForWindow(display: Long, window: Long, isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @JvmStatic private external fun nCreateContextForWindow(
+            display: Long,
+            window: Long,
+            isCore: Boolean,
+            msaa: Int,
+            doubleBuffering: Boolean,
+            redBits: Int, greenBits: Int, blueBits: Int, alphaBits: Int, depthBits: Int, stencilBits: Int,
+            transparency: Boolean,
+            shareWith: Long,
+            majorVersion: Int, minorVersion: Int,
+            debug: Boolean
+        ): LongArray
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(display: Long, window: Long, context: Long): Boolean
         @JvmStatic private external fun nDeleteContext(display: Long, context: Long)
@@ -27,7 +38,18 @@ class GLXContext(
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
         fun createForWindow(display: Long, window: Long, profile: GLProfile, pixelFormat: GLPixelFormat, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-            fromJNI(nCreateContextForWindow(display, window, profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
+            fromJNI(nCreateContextForWindow(
+                display,
+                window,
+                profile == GLProfile.CORE,
+                pixelFormat.msaa,
+                pixelFormat.doubleBuffering,
+                pixelFormat.redBits, pixelFormat.greenBits, pixelFormat.blueBits, pixelFormat.alphaBits, pixelFormat.depthBits, pixelFormat.stencilBits,
+                pixelFormat.transparency,
+                shareWith,
+                majorVersion, minorVersion,
+                debug
+            ))
 
         fun fromCurrent() =
             fromJNI(nGetCurrentContext())

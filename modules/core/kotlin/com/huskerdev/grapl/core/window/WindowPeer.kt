@@ -87,22 +87,22 @@ abstract class WindowPeer {
         }
     }
 
-    val positionProperty = LinkedProperty(displayStateProperty.value::position) {
+    val positionProperty = LinkedProperty({ displayStateProperty.value::position }) {
         if(!isFullscreen())
             setPositionImpl(it)
     }
 
-    val sizeProperty = LinkedProperty(displayStateProperty.value::size){
+    val sizeProperty = LinkedProperty({ displayStateProperty.value::size }){
         if(!isFullscreen())
             setSizeImpl(it)
     }
 
-    val minSizeProperty = LinkedProperty(displayStateProperty.value::minSize){
+    val minSizeProperty = LinkedProperty({ displayStateProperty.value::minSize }){
         if(!isFullscreen())
             setMinSizeImpl(it)
     }
 
-    val maxSizeProperty = LinkedProperty(displayStateProperty.value::maxSize){
+    val maxSizeProperty = LinkedProperty({ displayStateProperty.value::maxSize }){
         if(!isFullscreen())
             setMaxSizeImpl(it)
     }

@@ -5,12 +5,15 @@ import com.huskerdev.grapl.core.platform.OS
 import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.core.window.WindowPeer
 import com.huskerdev.grapl.gl.platforms.linux.egl.EGLManager
+import com.huskerdev.grapl.gl.platforms.linux.glx.GLXManager
 import com.huskerdev.grapl.gl.platforms.macos.MacGLManager
 import com.huskerdev.grapl.gl.platforms.win.WGLManager
 
 abstract class GLManager {
 
     companion object {
+        @JvmStatic var preferGLX = false
+
         init {
             Platform.loadLibraryFromResources(
                 classpath = "com.huskerdev.grapl.gl.native",
@@ -22,7 +25,7 @@ abstract class GLManager {
         val current by lazy {
             when(Platform.os) {
                 OS.Windows  -> WGLManager()
-                OS.Linux    -> EGLManager()
+                OS.Linux    -> if(preferGLX) GLXManager() else EGLManager()
                 OS.MacOS    -> MacGLManager()
                 else -> throw UnsupportedOperationException("Unsupported OS")
             }

@@ -5,10 +5,6 @@ glXSwapIntervalEXTPtr         glXSwapIntervalEXT = NULL;
 glXSwapIntervalMESAPtr        glXSwapIntervalMESA = NULL;
 glXSwapIntervalMESAPtr        glXSwapIntervalSGI = NULL;
 
-glGetIntegervPtr              glGetIntegerv;
-glGetStringiPtr               glGetStringi;
-glDebugMessageCallbackARBPtr  glDebugMessageCallbackARB;
-
 
 static void getContextDetailsGLX(GLDetails* details, Display* display, GLXDrawable drawable, GLXContext context){
     Display* oldDisplay = glXGetCurrentDisplay();
@@ -71,21 +67,35 @@ jni_linux_glx_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean
     });
 }
 
-jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
+    jlong _display,
+    jlong _window,
+    jboolean isCore,
+    jint msaa,
+    jboolean doubleBuffering,
+    jint redBits, jint greenBits, jint blueBits, jint alphaBits, jint depthBits, jint stencilBits,
+    jboolean transparency,
+    jlong shareWith,
+    jint majorVersion,
+    jint minorVersion,
+    jboolean debug
+) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
     int screen = DefaultScreen(display);
 
     GLint glxAttribs[] = {
         GLX_RGBA,
-        GLX_DOUBLEBUFFER,
-        GLX_DEPTH_SIZE,     24,
-        GLX_STENCIL_SIZE,   8,
-        GLX_RED_SIZE,       8,
-        GLX_GREEN_SIZE,     8,
-        GLX_BLUE_SIZE,      8,
-        GLX_SAMPLE_BUFFERS, 0,
-        GLX_SAMPLES,        0,
+        doubleBuffering ? GLX_DOUBLEBUFFER : GLX_USE_GL,
+
+        GLX_RED_SIZE,       redBits,
+        GLX_GREEN_SIZE,     greenBits,
+        GLX_BLUE_SIZE,      blueBits,
+        GLX_DEPTH_SIZE,     depthBits,
+        GLX_STENCIL_SIZE,   stencilBits,
+
+        GLX_SAMPLE_BUFFERS, msaa > 0,
+        GLX_SAMPLES,        msaa,
         None
     };
     XVisualInfo* visual = glXChooseVisual(display, screen, glxAttribs);

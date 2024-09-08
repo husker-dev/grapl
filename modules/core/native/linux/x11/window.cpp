@@ -8,17 +8,18 @@ struct MwmHints {
     long input_mode;
     unsigned long status;
 };
-enum {
-    MWM_HINTS_FUNCTIONS = (1L << 0),
-    MWM_HINTS_DECORATIONS =  (1L << 1),
 
-    MWM_FUNC_ALL = (1L << 0),
-    MWM_FUNC_RESIZE = (1L << 1),
-    MWM_FUNC_MOVE = (1L << 2),
-    MWM_FUNC_MINIMIZE = (1L << 3),
-    MWM_FUNC_MAXIMIZE = (1L << 4),
-    MWM_FUNC_CLOSE = (1L << 5)
-};
+#define MWM_HINTS_FUNCTIONS     (1L << 0)
+#define MWM_HINTS_DECORATIONS   (1L << 1)
+
+#define MWM_FUNC_RESIZE         (1L << 1)
+#define MWM_FUNC_MOVE           (1L << 2)
+#define MWM_FUNC_MINIMIZE       (1L << 3)
+#define MWM_FUNC_MAXIMIZE       (1L << 4)
+#define MWM_FUNC_CLOSE          (1L << 5)
+
+#define MWM_DECOR_ALL           (1L << 0)
+
 
 class X11WindowCallbackContainer: public WindowCallbackContainer {
 public:
@@ -88,7 +89,7 @@ void dispatchEvent(XEvent event){
             break;
         }
         case ConfigureNotify: {
-            XConfigureRequestEvent e = event.xconfigurerequest;
+            XConfigureEvent e = event.xconfigure;
             wrapper->onResizeCallback->call(e.width, e.height);
             wrapper->onMoveCallback->call(e.x, e.y);
             break;
@@ -245,12 +246,15 @@ jni_x11_window(void, nSetTitle)(JNIEnv* env, jobject, jlong _display, jlong _win
             env->GetDirectBufferCapacity(_title)-2);
 }
 
-jni_x11_window(void, nSetVisible)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean isVisible) {
+jni_x11_window(void, nSetVisible)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean isVisible, jint x, jint y, jint width, jint height) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
 
     if(isVisible) XMapRaised(display, window);
     else          XUnmapWindow(display, window);
+
+    XMoveWindow(display, window, x, y);
+    XResizeWindow(display, window, width, height);
     XFlush(display);
 }
 
@@ -342,18 +346,20 @@ jni_x11_window(void, nUpdateMinMax)(JNIEnv* env, jobject, jlong _display, jlong 
     XFlush(display);
 }
 
-jni_x11_window(void, nUpdateActions)(JNIEnv* env, jobject, jlong _display, jlong _window,
+jni_x11_window(void, nUpdateHints)(JNIEnv* env, jobject, jlong _display, jlong _window,
     jboolean minimizable,
     jboolean maximizable,
     jboolean resizable,
-    jboolean closable
+    jboolean closable,
+    jboolean decorations
 ) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
 
     struct MwmHints hints;
-    hints.flags = MWM_HINTS_FUNCTIONS;
+    hints.flags = MWM_HINTS_FUNCTIONS | MWM_HINTS_DECORATIONS;
     hints.functions = MWM_FUNC_MOVE;
+    if(decorations) hints.decorations |= MWM_DECOR_ALL;
     if(minimizable) hints.functions |= MWM_FUNC_MINIMIZE;
     if(maximizable) hints.functions |= MWM_FUNC_MAXIMIZE;
     if(resizable)   hints.functions |= MWM_FUNC_RESIZE;
@@ -369,18 +375,6 @@ jni_x11_window(void, nSetEnabled)(JNIEnv* env, jobject, jlong _display, jlong _w
 
     X11WindowCallbackContainer* wrapper = wrappers[window];
     wrapper->disabled = !enabled;
-
-    XFlush(display);
-}
-
-jni_x11_window(void, nSetStyle)(JNIEnv* env, jobject, jlong _display, jlong _window, jint style) {
-    Display* display = (Display*)_display;
-    Window window = (Window)_window;
-
-    struct MwmHints hints;
-    hints.flags = MWM_HINTS_DECORATIONS;
-    hints.decorations = style == 0;
-    XChangeProperty(display, window, _MOTIF_WM_HINTS, XA_ATOM, 32, PropModeReplace, (unsigned char*)&hints, 5);
 
     XFlush(display);
 }

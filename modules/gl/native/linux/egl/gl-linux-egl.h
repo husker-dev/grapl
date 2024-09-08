@@ -1,7 +1,7 @@
 #ifndef GRAPL_GL_LINUX_EGL_H
 #define GRAPL_GL_LINUX_EGL_H
 
-#include "../grapl-gl-linux.h"
+#include "../gl-linux.h"
 #include <dlfcn.h>
 
 static void* libEGL;
@@ -40,6 +40,12 @@ static void* libEGL;
 #define EGL_GL_COLORSPACE_LINEAR 0x308A
 #define EGL_RENDER_BUFFER 0x3086
 #define EGL_BACK_BUFFER 0x3084
+#define EGL_ALPHA_SIZE 0x3021
+#define EGL_SAMPLE_BUFFERS 0x3032
+#define EGL_SAMPLES 0x3031
+#define EGL_TRANSPARENT_TYPE 0x3034
+#define EGL_TRANSPARENT_RGB 0x3052
+#define EGL_SINGLE_BUFFER 0x3085
 
 typedef void* EGLDisplay;
 typedef void* EGLConfig;

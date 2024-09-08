@@ -38,14 +38,14 @@ open class Property<T>(
 }
 
 open class LinkedProperty<T>(
-    private val property: KMutableProperty0<T>,
+    private val property: () -> KMutableProperty0<T>,
     onExternalSet: (T) -> Unit
-): Property<T>(property.get(), onExternalSet){
+): Property<T>(property().get(), onExternalSet){
 
     override var internalValue: T?
-        get() = property.get()
+        get() = property().get()
         set(value) {
-            property.set(value!!)
+            property().set(value!!)
             listeners.dispatch()
         }
 }

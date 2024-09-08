@@ -507,7 +507,7 @@ class NativeCompilationPlugin implements Plugin<Project> {
                 def libs = config.libs.get() + platformConfig.libs.get()
 
                 def src = new ArrayList<String>()
-                for(String path in (config.srcDirs.get() + platformConfig.srcDirs.get())){
+                for(String path in (config.srcDirs.get() + platformConfig.srcDirs.get()).toSet()){
                     def file = project.file(path)
                     if(file.directory)
                         project.fileTree(file).files.each {
