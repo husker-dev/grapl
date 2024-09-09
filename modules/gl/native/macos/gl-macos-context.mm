@@ -1,5 +1,7 @@
 #import "gl-macos.h"
 
+glGetIntegervPtr glGetIntegerv;
+glGetStringiPtr glGetStringi;
 
 static void getContextDetailsCGL(GLDetails* details, CGLContextObj context){
     CGLContextObj oldContext = CGLGetCurrentContext();
@@ -11,17 +13,37 @@ static void getContextDetailsCGL(GLDetails* details, CGLContextObj context){
 
 
 jni_macos_context(void, nInitFunctions)(JNIEnv* env, jobject) {
-    glGetIntegerv = (glGetIntegervPtr)a_GetProcAddress("glGetIntegerv");
+    glGetIntegerv = (glGetIntegervPtr) a_GetProcAddress("glGetIntegerv");
+    glGetStringi = (glGetStringiPtr) a_GetProcAddress("glGetStringi");
 }
 
-jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+jni_macos_context(jlongArray, nCreateContext)(JNIEnv* env, jobject,
+    jboolean isCore,
+    jint msaa,
+    jboolean doubleBuffering,
+    jint redBits, jint greenBits, jint blueBits, jint alphaBits, jint depthBits, jint stencilBits,
+    jboolean transparency,
+    jlong shareWith,
+    jint majorVersion,
+    jint minorVersion,
+    jboolean debug
+) {
     CGLContextObj context;
 
     CGLPixelFormatObj pix;
     GLint num;
-    CGLPixelFormatAttribute attributes[5] = {
-            kCGLPFADoubleBuffer,
+    CGLPixelFormatAttribute attributes[17] = {
             kCGLPFAAccelerated,
+            doubleBuffering ? kCGLPFADoubleBuffer : kCGLPFAAccelerated,
+
+            kCGLPFAColorSize, (CGLPixelFormatAttribute)(redBits + greenBits + blueBits),
+            kCGLPFAAlphaSize, (CGLPixelFormatAttribute) alphaBits,
+            kCGLPFADepthSize, (CGLPixelFormatAttribute) depthBits,
+            kCGLPFAStencilSize, (CGLPixelFormatAttribute) stencilBits,
+
+            kCGLPFASampleBuffers, (CGLPixelFormatAttribute) (msaa > 1),
+            kCGLPFASamples, (CGLPixelFormatAttribute) msaa,
+
             kCGLPFAOpenGLProfile,
             (CGLPixelFormatAttribute) (isCore ?
                 ((majorVersion >= 4 || majorVersion == -1) ? kCGLOGLPVersion_GL4_Core : kCGLOGLPVersion_GL3_Core)

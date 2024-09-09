@@ -17,7 +17,7 @@ class NSGLContext(
         @JvmStatic private external fun nSetSwapInterval(nsgl: Long, swapInterval: Int)
 
         fun createAttached(peer: NSWindowPeer, profile: GLProfile, pixelFormat: GLPixelFormat, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-            create(profile, shareWith, majorVersion, minorVersion, debug).run {
+            create(profile, pixelFormat, shareWith, majorVersion, minorVersion, debug).run {
                 NSGLContext(nAttachToWindow(peer.handle, this.handle), this)
             }
 

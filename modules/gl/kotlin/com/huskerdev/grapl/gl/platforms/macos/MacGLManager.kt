@@ -10,7 +10,7 @@ class MacGLManager: GLManager() {
     override fun supportsDebug() = false
 
     override fun createContext(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
-        CGLContext.create(profile, shareWith, majorVersion, minorVersion, debug)
+        CGLContext.create(profile, GLPixelFormat.DEFAULT, shareWith, majorVersion, minorVersion, debug)
 
     override fun createFromCurrentContext() =
         CGLContext.fromCurrent()
