@@ -32,6 +32,7 @@ class GLXContext(
         @JvmStatic private external fun nGetCurrentContext(): LongArray
         @JvmStatic private external fun nSetCurrentContext(display: Long, window: Long, context: Long): Boolean
         @JvmStatic private external fun nDeleteContext(display: Long, context: Long)
+        @JvmStatic private external fun nHasFunction(name: String): Boolean
         @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =

@@ -27,6 +27,7 @@ open class CGLContext(
             minorVersion: Int, debug: Boolean
         ): LongArray
         @JvmStatic private external fun nDeleteContext(context: Long)
+        @JvmStatic private external fun nHasFunction(name: String): Boolean
         @JvmStatic private external fun nSetBackingSize(context: Long, width: Int, height: Int)
 
         @JvmStatic private external fun nLockContext(context: Long)
