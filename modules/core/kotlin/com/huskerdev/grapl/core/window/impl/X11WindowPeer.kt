@@ -19,14 +19,13 @@ open class X11WindowPeer: LinuxWindowPeer() {
         @JvmStatic private external fun nCreateWindow(display: Long, callbackObject: Any): Long
         @JvmStatic private external fun nDestroyWindow(display: Long, window: Long)
         @JvmStatic private external fun nSetTitle(display: Long, window: Long, title: ByteBuffer)
-        @JvmStatic private external fun nSetVisible(display: Long, window: Long, isVisible: Boolean)
+        @JvmStatic private external fun nSetVisible(display: Long, window: Long, isVisible: Boolean, x: Int, y: Int, width: Int, height: Int)
         @JvmStatic private external fun nSetCursor(display: Long, window: Long, cursor: Int)
         @JvmStatic private external fun nSetSize(display: Long, window: Long, width: Int, height: Int)
         @JvmStatic private external fun nSetPosition(display: Long, window: Long, x: Int, y: Int)
         @JvmStatic private external fun nUpdateMinMax(display: Long, window: Long, minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int)
-        @JvmStatic private external fun nUpdateActions(display: Long, window: Long, minimizable: Boolean, maximizable: Boolean, resizable: Boolean, closable: Boolean)
+        @JvmStatic private external fun nUpdateHints(display: Long, window: Long, minimizable: Boolean, maximizable: Boolean, resizable: Boolean, closable: Boolean, decorations: Boolean)
         @JvmStatic private external fun nSetEnabled(display: Long, window: Long, enabled: Boolean)
-        @JvmStatic private external fun nSetStyle(display: Long, window: Long, style: Int)
     }
 
     init {
@@ -41,11 +40,10 @@ open class X11WindowPeer: LinuxWindowPeer() {
 
     override fun setTitleImpl(title: String) = nSetTitle(display, handle, title.c_str)
 
-    override fun setVisibleImpl(visible: Boolean) {
-        nSetVisible(display, handle, visible)
-        nSetSize(display, handle, sizeProperty.value.width.toInt(), sizeProperty.value.height.toInt())
-        nSetPosition(display, handle, positionProperty.value.x.toInt(), positionProperty.value.y.toInt())
-    }
+    override fun setVisibleImpl(visible: Boolean) = nSetVisible(display, handle, visible,
+        positionProperty.value.x.toInt(), positionProperty.value.y.toInt(),
+        sizeProperty.value.width.toInt(), sizeProperty.value.height.toInt()
+    )
 
     override fun setCursorImpl(cursor: Cursor) = nSetCursor(display, handle, when(cursor){
         Cursor.DEFAULT -> 0
@@ -76,7 +74,10 @@ open class X11WindowPeer: LinuxWindowPeer() {
         Cursor.SCROLL_BOTTOM_RIGHT -> 25
     })
 
-    override fun setSizeImpl(size: Size) = nSetSize(display, handle, size.width.toInt(), size.height.toInt())
+    override fun setSizeImpl(size: Size) {
+        if(visibleProperty.value)
+            nSetSize(display, handle, size.width.toInt(), size.height.toInt())
+    }
 
     override fun setMinSizeImpl(size: Size) = nUpdateMinMax(display, handle,
         minSizeProperty.value.width.toInt(), minSizeProperty.value.height.toInt(),
@@ -88,19 +89,22 @@ open class X11WindowPeer: LinuxWindowPeer() {
         maxSizeProperty.value.width.toInt(), maxSizeProperty.value.height.toInt(),
     )
 
-    override fun setPositionImpl(position: Position) = nSetPosition(display, handle, position.x.toInt(), position.y.toInt())
+    override fun setPositionImpl(position: Position) {
+        if(visibleProperty.value)
+            nSetPosition(display, handle, position.x.toInt(), position.y.toInt())
+    }
 
     override fun setDisplayStateImpl(state: WindowDisplayState) {
         TODO("Not yet implemented")
     }
 
-    override fun setMinimizableImpl(value: Boolean) = nUpdateActions(display, handle, value, maximizable.value, resizable.value, closable.value)
+    override fun setMinimizableImpl(value: Boolean) = updateHints()
 
-    override fun setMaximizableImpl(value: Boolean) = nUpdateActions(display, handle, minimizable.value, value, resizable.value, closable.value)
+    override fun setMaximizableImpl(value: Boolean) = updateHints()
 
-    override fun setClosable(value: Boolean) = nUpdateActions(display, handle, minimizable.value, maximizable.value, resizable.value, value)
+    override fun setClosable(value: Boolean) = updateHints()
 
-    override fun setResizable(value: Boolean) = nUpdateActions(display, handle, minimizable.value, maximizable.value, value, closable.value)
+    override fun setResizable(value: Boolean) = updateHints()
 
     override fun getDpiImpl() = displayProperty.value.dpi
 
@@ -152,11 +156,16 @@ open class X11WindowPeer: LinuxWindowPeer() {
 
     override fun setEnabledImpl(enabled: Boolean) = nSetEnabled(display, handle, enabled)
 
-    override fun setStyle(style: WindowStyle) = nSetStyle(display, handle, when(style){
-        WindowStyle.DEFAULT -> 0
-        WindowStyle.UNDECORATED -> 1
-        WindowStyle.NO_TITLEBAR -> 2
-    })
+    override fun setStyle(style: WindowStyle) = updateHints()
+
+    private fun updateHints() = nUpdateHints(display, handle,
+        minimizable.value,
+        maximizable.value,
+        resizable.value,
+        closable.value,
+        styleProperty.value == WindowStyle.DEFAULT
+    )
+
 
     inner class X11WindowCallback: DefaultWindowCallback(){
         private var lastDisplay = getDisplayImpl()

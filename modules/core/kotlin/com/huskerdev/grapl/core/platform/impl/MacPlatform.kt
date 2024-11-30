@@ -3,6 +3,7 @@ package com.huskerdev.grapl.core.platform.impl
 import com.huskerdev.grapl.core.Theme
 import com.huskerdev.grapl.core.display.Display
 import com.huskerdev.grapl.core.display.impl.MacDisplayPeer
+import com.huskerdev.grapl.core.platform.BackgroundMessageHandler
 import com.huskerdev.grapl.core.platform.Platform
 import com.huskerdev.grapl.core.window.impl.NSWindowPeer
 
@@ -38,7 +39,9 @@ class MacPlatform: Platform() {
     override fun specifyLibName(libName: String) =
         "$libName.dylib"
 
-    override fun createWindowPeer() = NSWindowPeer()
+    override fun createWindowPeer() = BackgroundMessageHandler.invokeWaiting {
+        NSWindowPeer()
+    }
 
     override fun peekMessages() = nPeekMessage()
 

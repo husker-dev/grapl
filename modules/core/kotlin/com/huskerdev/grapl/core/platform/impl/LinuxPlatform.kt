@@ -62,7 +62,9 @@ class X11: WindowingSystem {
     override val primaryDisplay = Display(X11DisplayPeer.primary(display))
     override val displays = X11DisplayPeer.list(display).map { Display(it) }.toTypedArray()
 
-    override fun createWindowPeer() = X11WindowPeer()
+    override fun createWindowPeer() = BackgroundMessageHandler.invokeWaiting {
+        X11WindowPeer()
+    }
 
     override fun peekMessages() = nPeekMessage(display)
     override fun waitMessages(timeout: Int) = nWaitMessage(display, timeout)

@@ -5,10 +5,6 @@ glXSwapIntervalEXTPtr         glXSwapIntervalEXT = NULL;
 glXSwapIntervalMESAPtr        glXSwapIntervalMESA = NULL;
 glXSwapIntervalMESAPtr        glXSwapIntervalSGI = NULL;
 
-glGetIntegervPtr              glGetIntegerv;
-glGetStringiPtr               glGetStringi;
-glDebugMessageCallbackARBPtr  glDebugMessageCallbackARB;
-
 
 static void getContextDetailsGLX(GLDetails* details, Display* display, GLXDrawable drawable, GLXContext context){
     Display* oldDisplay = glXGetCurrentDisplay();
@@ -90,14 +86,16 @@ jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
 
     GLint glxAttribs[] = {
         GLX_RGBA,
-        GLX_DOUBLEBUFFER,
-        GLX_DEPTH_SIZE,     depthBits,
-        GLX_STENCIL_SIZE,   stencilBits,
+        doubleBuffering ? GLX_DOUBLEBUFFER : GLX_USE_GL,
+
         GLX_RED_SIZE,       redBits,
         GLX_GREEN_SIZE,     greenBits,
         GLX_BLUE_SIZE,      blueBits,
-        GLX_SAMPLE_BUFFERS, msaa,
-        GLX_SAMPLES,        msaa ? 1 : 0,
+        GLX_DEPTH_SIZE,     depthBits,
+        GLX_STENCIL_SIZE,   stencilBits,
+
+        GLX_SAMPLE_BUFFERS, msaa > 0,
+        GLX_SAMPLES,        msaa,
         None
     };
     XVisualInfo* visual = glXChooseVisual(display, screen, glxAttribs);

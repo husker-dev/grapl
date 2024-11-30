@@ -12,7 +12,7 @@ import com.huskerdev.grapl.core.x
 
 @Suppress("unused")
 open class Window(
-    val peer: WindowPeer = Platform.current.createWindowPeer()
+    val peer: WindowPeer = Platform.current.createWindowPeer().apply { onCreated() }
 ) {
     companion object {
         fun peekMessages() = Platform.current.peekMessages()
@@ -233,8 +233,13 @@ open class Window(
         set(value) { peer.styleProperty.value = value }
 
     fun alignToCenter(){
-        val displaySize = Display.primary.absoluteSize
-        absolutePosition = Position((displaySize.width - absoluteWidth) / 2.0, (displaySize.height - absoluteHeight) / 2.0)
+        val targetDisplay = Display.primary
+        val size = targetDisplay.absoluteSize
+        val position = targetDisplay.absolutePosition
+        absolutePosition = Position(
+            position.x + (size.width - absoluteWidth) / 2.0,
+            position.y + (size.height - absoluteHeight) / 2.0
+        )
     }
 
     @JvmOverloads
