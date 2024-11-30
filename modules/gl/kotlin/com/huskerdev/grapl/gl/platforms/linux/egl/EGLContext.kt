@@ -16,9 +16,9 @@ class EGLContext(
 ): GLContext(context, majorVersion, minorVersion, profile, debug) {
 
     companion object {
-        @JvmStatic private external fun nInitFunctions()
-        @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
-        @JvmStatic private external fun nCreateContextForWindow(
+        @Suppress("unused") @JvmStatic private external fun nInitFunctions()
+        @Suppress("unused") @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @Suppress("unused") @JvmStatic private external fun nCreateContextForWindow(
             display: Long,
             surface: Long,
             isCore: Boolean,
@@ -30,10 +30,11 @@ class EGLContext(
             majorVersion: Int, minorVersion: Int,
             debug: Boolean
         ): LongArray
-        @JvmStatic private external fun nGetCurrentContext(): LongArray
-        @JvmStatic private external fun nSetCurrentContext(display: Long, surfaceRead: Long, surfaceWrite: Long, context: Long): Boolean
-        @JvmStatic private external fun nDeleteContext(display: Long, context: Long)
-        @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
+        @Suppress("unused") @JvmStatic private external fun nGetCurrentContext(): LongArray
+        @Suppress("unused") @JvmStatic private external fun nSetCurrentContext(display: Long, surfaceRead: Long, surfaceWrite: Long, context: Long): Boolean
+        @Suppress("unused") @JvmStatic private external fun nDeleteContext(display: Long, context: Long)
+        @Suppress("unused") @JvmStatic private external fun nHasFunction(name: String): Boolean
+        @Suppress("unused") @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
@@ -73,6 +74,9 @@ class EGLContext(
 
     override fun delete() =
         nDeleteContext(display, handle)
+
+    override fun hasFunction(name: String) =
+        nHasFunction(name)
 
     override fun bindDebugCallback() =
         nBindDebugCallback(GLContext::class.java)

@@ -67,6 +67,13 @@ jni_macos_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong context) {
     checkError(CGLDestroyContext((CGLContextObj)context));
 }
 
+jni_macos_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {
+    const char* name = env->GetStringUTFChars(_name, 0);
+    jboolean result = a_GetProcAddress(name) != 0;
+    env->ReleaseStringUTFChars(_name, name);
+    return result;
+}
+
 jni_macos_context(void, nSetBackingSize)(JNIEnv* env, jobject, jlong _context, jint width, jint height) {
     CGLContextObj context = (CGLContextObj)_context;
     GLint dim[2] = { width, height};

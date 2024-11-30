@@ -237,6 +237,13 @@ jni_win_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc) {
     _wglDeleteContext((HGLRC)rc);
 }
 
+jni_win_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {
+    const char* name = env->GetStringUTFChars(_name, 0);
+    jboolean result = _GetProcAddress(name) != 0;
+    env->ReleaseStringUTFChars(_name, name);
+    return result;
+}
+
 jni_win_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass) {
     bindDefaultDebugFunction(env, callbackClass, _wglGetCurrentContext());
 }

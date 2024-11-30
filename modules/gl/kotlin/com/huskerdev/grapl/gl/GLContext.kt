@@ -45,12 +45,6 @@ abstract class GLContext(
         @JvmStatic
         fun clear() = GLManager.current.clearContext()
 
-        /**
-         * Returns a list of supported extensions.
-         * Must have an associated context when called.
-         */
-        fun getExtensions() =
-            nGetExtensions().toList()
 
         fun bindDebugCallback(callback: (GLDebugEvent) -> Unit){
             val context = current()
@@ -79,6 +73,17 @@ abstract class GLContext(
 
     abstract fun makeCurrent(): Boolean
     abstract fun delete()
+
+    /**
+     * Returns a list of supported extensions.
+     */
+    fun getExtensions() =
+        nGetExtensions().toList()
+
+    /**
+     * Returns a list of supported extensions.
+     */
+    abstract fun hasFunction(name: String): Boolean
 
     protected abstract fun bindDebugCallback()
 }

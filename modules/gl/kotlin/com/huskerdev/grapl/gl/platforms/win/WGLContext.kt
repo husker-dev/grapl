@@ -13,9 +13,9 @@ class WGLContext(
     debug: Boolean
 ): GLContext(context, majorVersion, minorVersion, profile, debug){
     companion object {
-        @JvmStatic private external fun nInitFunctions()
-        @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
-        @JvmStatic private external fun nCreateContextForWindow(
+        @Suppress("unused") @JvmStatic private external fun nInitFunctions()
+        @Suppress("unused") @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @Suppress("unused") @JvmStatic private external fun nCreateContextForWindow(
             hwnd: Long,
             isCore: Boolean,
             msaa: Int,
@@ -26,10 +26,11 @@ class WGLContext(
             majorVersion: Int, minorVersion: Int,
             debug: Boolean
         ): LongArray
-        @JvmStatic private external fun nGetCurrentContext(): LongArray
-        @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
-        @JvmStatic private external fun nDeleteContext(rc: Long)
-        @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
+        @Suppress("unused") @JvmStatic private external fun nGetCurrentContext(): LongArray
+        @Suppress("unused") @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
+        @Suppress("unused") @JvmStatic private external fun nDeleteContext(rc: Long)
+        @Suppress("unused") @JvmStatic private external fun nHasFunction(name: String): Boolean
+        @Suppress("unused") @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
@@ -68,6 +69,9 @@ class WGLContext(
 
     override fun delete() =
         nDeleteContext(handle)
+
+    override fun hasFunction(name: String) =
+        nHasFunction(name)
 
     override fun bindDebugCallback() =
         nBindDebugCallback(GLContext::class.java)

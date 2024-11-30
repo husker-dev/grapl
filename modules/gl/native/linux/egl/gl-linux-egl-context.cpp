@@ -199,6 +199,13 @@ jni_linux_egl_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong display,
     );
 }
 
+jni_linux_egl_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {
+    const char* name = env->GetStringUTFChars(_name, 0);
+    jboolean result = eglGetProcAddress(name) != 0;
+    env->ReleaseStringUTFChars(_name, name);
+    return result;
+}
+
 jni_linux_egl_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass) {
     bindDefaultDebugFunction(env, callbackClass, eglGetCurrentContext());
 }

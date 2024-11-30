@@ -71,7 +71,19 @@ jni_linux_glx_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean
     });
 }
 
-jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject, jlong _display, jlong _window, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
+jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
+    jlong _display,
+    jlong _window,
+    jboolean isCore,
+    jint msaa,
+    jboolean doubleBuffering,
+    jint redBits, jint greenBits, jint blueBits, jint alphaBits, jint depthBits, jint stencilBits,
+    jboolean transparency,
+    jlong shareWith,
+    jint majorVersion,
+    jint minorVersion,
+    jboolean debug
+) {
     Display* display = (Display*)_display;
     Window window = (Window)_window;
     int screen = DefaultScreen(display);
@@ -79,13 +91,13 @@ jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
     GLint glxAttribs[] = {
         GLX_RGBA,
         GLX_DOUBLEBUFFER,
-        GLX_DEPTH_SIZE,     24,
-        GLX_STENCIL_SIZE,   8,
-        GLX_RED_SIZE,       8,
-        GLX_GREEN_SIZE,     8,
-        GLX_BLUE_SIZE,      8,
-        GLX_SAMPLE_BUFFERS, 0,
-        GLX_SAMPLES,        0,
+        GLX_DEPTH_SIZE,     depthBits,
+        GLX_STENCIL_SIZE,   stencilBits,
+        GLX_RED_SIZE,       redBits,
+        GLX_GREEN_SIZE,     greenBits,
+        GLX_BLUE_SIZE,      blueBits,
+        GLX_SAMPLE_BUFFERS, msaa,
+        GLX_SAMPLES,        msaa ? 1 : 0,
         None
     };
     XVisualInfo* visual = glXChooseVisual(display, screen, glxAttribs);
@@ -97,7 +109,11 @@ jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
 
     // Create context
     int num_fbc = 0;
-    static int visual_attribs[] = { None };
+    static int visual_attribs[] = {
+        GLX_RENDER_TYPE, GLX_RGBA_BIT,
+        GLX_DOUBLEBUFFER, doubleBuffering
+        None
+    };
     GLXFBConfig* fbc = glXChooseFBConfig(display, screen, visual_attribs, &num_fbc);
 
     static int context_attribs[] = {
@@ -151,6 +167,13 @@ jni_linux_glx_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong display,
         (Display*)display,
         (GLXContext)context
     );
+}
+
+jni_linux_glx_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {
+    const char* name = env->GetStringUTFChars(_name, 0);
+    jboolean result = glXGetProcAddressARB((GLubyte*) name) != 0;
+    env->ReleaseStringUTFChars(_name, name);
+    return result;
 }
 
 jni_linux_glx_context(void, nBindDebugCallback)(JNIEnv* env, jobject, jclass callbackClass) {

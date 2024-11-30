@@ -12,15 +12,16 @@ open class CGLContext(
 ): GLContext(context, majorVersion, minorVersion, profile, debug) {
 
     companion object {
-        @JvmStatic private external fun nInitFunctions()
-        @JvmStatic private external fun nGetCurrentContext(): LongArray
-        @JvmStatic private external fun nSetCurrentContext(context: Long): Boolean
-        @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
-        @JvmStatic private external fun nDeleteContext(context: Long)
-        @JvmStatic private external fun nSetBackingSize(context: Long, width: Int, height: Int)
+        @Suppress("unused") @JvmStatic private external fun nInitFunctions()
+        @Suppress("unused") @JvmStatic private external fun nGetCurrentContext(): LongArray
+        @Suppress("unused") @JvmStatic private external fun nSetCurrentContext(context: Long): Boolean
+        @Suppress("unused") @JvmStatic private external fun nCreateContext(isCore: Boolean, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean): LongArray
+        @Suppress("unused") @JvmStatic private external fun nDeleteContext(context: Long)
+        @Suppress("unused") @JvmStatic private external fun nSetBackingSize(context: Long, width: Int, height: Int)
+        @Suppress("unused") @JvmStatic private external fun nHasFunction(name: String): Boolean
 
-        @JvmStatic private external fun nLockContext(context: Long)
-        @JvmStatic private external fun nUnlockContext(context: Long)
+        @Suppress("unused") @JvmStatic private external fun nLockContext(context: Long)
+        @Suppress("unused") @JvmStatic private external fun nUnlockContext(context: Long)
 
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
@@ -48,6 +49,9 @@ open class CGLContext(
     override fun makeCurrent() = nSetCurrentContext(handle)
 
     override fun delete() = nDeleteContext(handle)
+
+    override fun hasFunction(name: String) =
+        nHasFunction(name)
 
     override fun bindDebugCallback() = Unit // Unsupported
 
