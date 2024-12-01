@@ -525,7 +525,7 @@ jni_win_window(void, nSetSize)(JNIEnv* env, jobject, jlong _hwnd, jint width, ji
     RECT rect = { 0, 0, width, height };
 
     AdjustWindowRectEx(&rect, style, 0, exStyle);
-    SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE);
+    SetWindowPos(hwnd, 0, 0, 0, rect.right - rect.left, rect.bottom - rect.top, SWP_NOMOVE | SWP_NOACTIVATE);
     UpdateWindow(hwnd);
 }
 
