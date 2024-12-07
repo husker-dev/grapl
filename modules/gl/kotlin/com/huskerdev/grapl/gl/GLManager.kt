@@ -12,7 +12,7 @@ import com.huskerdev.grapl.gl.platforms.win.WGLManager
 abstract class GLManager {
 
     companion object {
-        @JvmStatic var preferGLX = false
+        @JvmStatic var preferGLX = true
 
         init {
             Platform.loadLibraryFromResources(

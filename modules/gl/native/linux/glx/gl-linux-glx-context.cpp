@@ -109,7 +109,7 @@ jni_linux_glx_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
     int num_fbc = 0;
     static int visual_attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
-        GLX_DOUBLEBUFFER, doubleBuffering
+        GLX_DOUBLEBUFFER, doubleBuffering,
         None
     };
     GLXFBConfig* fbc = glXChooseFBConfig(display, screen, visual_attribs, &num_fbc);
