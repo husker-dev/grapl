@@ -84,8 +84,19 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
         ReleaseDC(hwnd, dc);
         DestroyWindow(hwnd);
     }
+}
 
-    // Create window with ARB pixel attributes
+
+jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
+    GLint context_attributes[] = {
+            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
+            WGL_CONTEXT_MAJOR_VERSION_ARB, (majorVersion == -1) ? 1 : majorVersion,
+            WGL_CONTEXT_MINOR_VERSION_ARB, (minorVersion == -1) ? 0 : minorVersion,
+            WGL_CONTEXT_FLAGS_ARB, debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
+            0
+    };
+
+    // Create invisible window
     HWND hwnd = CreateWindow(
             L"grapl-gl", L"",
             WS_OVERLAPPEDWINDOW,
@@ -94,7 +105,7 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
             NULL, NULL,
             GetModuleHandle(NULL),
             NULL);
-    dc = GetDC(hwnd);
+    HDC dc = GetDC(hwnd);
 
     int pixel_format_arb;
     UINT pixel_formats_count;
@@ -114,18 +125,8 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
         checkError("wglChoosePixelFormatARB");
     if (!SetPixelFormat(dc, pixel_format_arb, NULL))
         checkError("SetPixelFormat (wgl)");
-}
 
-
-jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareRc, jint majorVersion, jint minorVersion, jboolean debug) {
-    GLint context_attributes[] = {
-            WGL_CONTEXT_PROFILE_MASK_ARB, isCore ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
-            WGL_CONTEXT_MAJOR_VERSION_ARB, (majorVersion == -1) ? 1 : majorVersion,
-            WGL_CONTEXT_MINOR_VERSION_ARB, (minorVersion == -1) ? 0 : minorVersion,
-            WGL_CONTEXT_FLAGS_ARB, debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
-            0
-    };
-
+    // Create context
     HGLRC rc;
     if (!(rc = wglCreateContextAttribsARB(dc, (HGLRC)shareRc, context_attributes)))
         checkError("wglCreateContextAttribsARB");
@@ -136,6 +137,7 @@ jni_win_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCor
     return createLongArray(env, {
         (jlong) rc,
         (jlong) dc,
+        (jlong) hwnd,
         (jlong) details.major,
         (jlong) details.minor,
         (jlong) details.isCore,
@@ -205,6 +207,7 @@ jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
     return createLongArray(env, {
         (jlong) rc,
         (jlong) dc,
+        (jlong) hwnd,
         (jlong) details.major,
         (jlong) details.minor,
         (jlong) details.isCore,
@@ -219,6 +222,7 @@ jni_win_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
     return createLongArray(env, {
         (jlong) _wglGetCurrentContext(),
         (jlong) _wglGetCurrentDC(),
+        (jlong) WindowFromDC(_wglGetCurrentDC()),
         (jlong) details.major,
         (jlong) details.minor,
         (jlong) details.isCore,
@@ -233,8 +237,10 @@ jni_win_context(jboolean, nSetCurrentContext)(JNIEnv* env, jobject, jlong dc, jl
     );
 }
 
-jni_win_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc) {
+jni_win_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong rc, jlong dc, jlong hwnd) {
     _wglDeleteContext((HGLRC)rc);
+    ReleaseDC((HWND)hwnd, (HDC)dc);
+    DestroyWindow((HWND)hwnd);
 }
 
 jni_win_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {

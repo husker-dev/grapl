@@ -7,6 +7,7 @@ import com.huskerdev.grapl.gl.GLProfile
 class WGLContext(
     context: Long,
     val dc: Long,
+    val hwnd: Long,
     majorVersion: Int,
     minorVersion: Int,
     profile: GLProfile,
@@ -28,7 +29,7 @@ class WGLContext(
         ): LongArray
         @Suppress("unused") @JvmStatic private external fun nGetCurrentContext(): LongArray
         @Suppress("unused") @JvmStatic private external fun nSetCurrentContext(dc: Long, rc: Long): Boolean
-        @Suppress("unused") @JvmStatic private external fun nDeleteContext(rc: Long)
+        @Suppress("unused") @JvmStatic private external fun nDeleteContext(rc: Long, dc: Long, hwnd: Long)
         @Suppress("unused") @JvmStatic private external fun nHasFunction(name: String): Boolean
         @Suppress("unused") @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
@@ -53,10 +54,10 @@ class WGLContext(
             nSetCurrentContext(0L, 0L)
 
         private fun fromJNI(array: LongArray) = WGLContext(
-            array[0], array[1],
-            array[2].toInt(), array[3].toInt(),
-            if(array[4].toInt() == 1) GLProfile.CORE else GLProfile.COMPATIBILITY,
-            array[5].toInt() == 1
+            array[0], array[1], array[2],
+            array[3].toInt(), array[4].toInt(),
+            if(array[5].toInt() == 1) GLProfile.CORE else GLProfile.COMPATIBILITY,
+            array[6].toInt() == 1
         )
 
         init {
@@ -68,7 +69,7 @@ class WGLContext(
         nSetCurrentContext(dc, handle)
 
     override fun delete() =
-        nDeleteContext(handle)
+        nDeleteContext(handle, dc, hwnd)
 
     override fun hasFunction(name: String) =
         nHasFunction(name)

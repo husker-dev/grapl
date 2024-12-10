@@ -68,7 +68,6 @@ extern wglSwapIntervalEXTPtr               wglSwapIntervalEXT;
     GL variables
 */
 static HMODULE libGL;
-static HDC dc = nullptr;
 
 /*
     Functions
