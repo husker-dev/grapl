@@ -4,6 +4,7 @@ plugins {
 
 apply from: addon(addons_mavenPublish)
 apply from: addon(addons_testing)
+apply from: addon(addons_moduleInfo)
 
 sourceSets {
     main.java.srcDirs = ['kotlin']
