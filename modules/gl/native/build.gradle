@@ -32,6 +32,12 @@ maven {
     description = "$projectName gl module (natives for $project.ext.shortOS)"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.natives.gl.${project.ext.shortOS}")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.natives.gl.${project.ext.shortOS}"
 

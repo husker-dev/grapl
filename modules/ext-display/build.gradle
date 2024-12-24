@@ -24,6 +24,12 @@ maven {
     description = "$projectName display extension module"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.ext.display")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.ext.display"
 

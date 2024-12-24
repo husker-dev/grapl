@@ -42,6 +42,12 @@ maven {
     description = "$projectName gl module"
 }
 
+jar {
+    manifest {
+        attributes("Automatic-Module-Name": "${projectName}.gl")
+    }
+}
+
 moduleInfo {
     name = "${projectName}.gl"
 
