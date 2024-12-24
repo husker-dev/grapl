@@ -11,7 +11,7 @@ java {
 
 compilation {
     baseName = "lib"
-    classpath = "com.huskerdev.grapl.gl.natives"
+    classpath = "com.huskerdev.grapl.gl.natives.${project.ext.shortOS}"
 
     includeDirs = [project(":modules:core:native").file("shared"), file("shared")]
     srcDirs = [project(":modules:core:native").file("shared"), file("shared")]

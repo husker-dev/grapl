@@ -70,7 +70,7 @@ abstract class Platform {
         ) {
             val fileName = current.specifyLibName("$baseName-$version")
             val path = classpath.replace(".", "/")
-            loadLibraryFromResources("/$path/$fileName")
+            loadLibraryFromResources("/$path/${os.shortName}/$fileName")
         }
 
         init {
