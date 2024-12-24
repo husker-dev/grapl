@@ -53,7 +53,7 @@ abstract class Platform {
             val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
             try {
                 FileOutputStream(tmpFile).use {
-                    this::class.java.getResourceAsStream(path)!!.copyTo(it)
+                    ClassLoader.getSystemResource(path).openStream().copyTo(it)
                 }
             }catch (e: Exception){
                 e.printStackTrace()
@@ -70,7 +70,7 @@ abstract class Platform {
         ) {
             val fileName = current.specifyLibName("$baseName-$version")
             val path = classpath.replace(".", "/")
-            loadLibraryFromResources("/$path/${os.shortName}/$fileName")
+            loadLibraryFromResources("$path/${os.shortName}/$fileName")
         }
 
         init {
