@@ -20,9 +20,9 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     testImplementation subprojects
-    silentApi "$mvn_groupId:$projectName-native-core-win:$version"
-    silentApi "$mvn_groupId:$projectName-native-core-linux:$version"
-    silentApi "$mvn_groupId:$projectName-native-core-macos:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-win:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-linux:$version"
+    silentApi "$mvn_groupId:$projectName-natives-core-macos:$version"
 }
 
 maven {
@@ -35,4 +35,28 @@ properties {
     classpath = "com.huskerdev.grapl"
 
     field("VERSION", version)
+}
+
+moduleInfo {
+    name = projectName
+
+    requiresTransitive = [
+            "kotlin.stdlib",
+            "grapl.natives.core.win",
+            "grapl.natives.core.macos",
+            "grapl.natives.core.linux"
+    ]
+    exports = [
+            "com.huskerdev.grapl",
+            "com.huskerdev.grapl.core",
+            "com.huskerdev.grapl.core.display",
+            "com.huskerdev.grapl.core.display.impl",
+            "com.huskerdev.grapl.core.exceptions",
+            "com.huskerdev.grapl.core.input",
+            "com.huskerdev.grapl.core.platform",
+            "com.huskerdev.grapl.core.platform.impl",
+            "com.huskerdev.grapl.core.util",
+            "com.huskerdev.grapl.core.window",
+            "com.huskerdev.grapl.core.window.impl"
+    ]
 }

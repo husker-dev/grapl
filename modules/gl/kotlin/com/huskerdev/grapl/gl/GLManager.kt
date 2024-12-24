@@ -16,7 +16,7 @@ abstract class GLManager {
 
         init {
             Platform.loadLibraryFromResources(
-                classpath = "com.huskerdev.grapl.gl.native",
+                classpath = "com.huskerdev.grapl.gl.natives",
                 baseName = "lib",
                 version = GraplInfo.VERSION
             )

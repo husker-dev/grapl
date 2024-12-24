@@ -17,10 +17,21 @@ kotlin {
 
 dependencies {
     api rootProject.project("modules:core")
-    api "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 maven {
     name = artifactId = "$projectName-ext-display"
     description = "$projectName display extension module"
+}
+
+moduleInfo {
+    name = "${projectName}.ext.display"
+
+    requiresTransitive = [
+            "grapl"
+    ]
+    exports = [
+            "com.huskerdev.grapl.ext.display",
+            "com.huskerdev.grapl.ext.display-utils"
+    ]
 }

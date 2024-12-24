@@ -16,11 +16,10 @@ kotlin {
 
 dependencies {
     api rootProject.project("modules:core")
-    compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-    silentApi "$mvn_groupId:$projectName-native-gl-win:$version"
-    silentApi "$mvn_groupId:$projectName-native-gl-linux:$version"
-    silentApi "$mvn_groupId:$projectName-native-gl-macos:$version"
+    silentApi "$mvn_groupId:$projectName-natives-gl-win:$version"
+    silentApi "$mvn_groupId:$projectName-natives-gl-linux:$version"
+    silentApi "$mvn_groupId:$projectName-natives-gl-macos:$version"
 
     // Testing
     testImplementation subprojects
@@ -41,4 +40,22 @@ dependencies {
 maven {
     name = artifactId = "$projectName-gl"
     description = "$projectName gl module"
+}
+
+moduleInfo {
+    name = "${projectName}.gl"
+
+    requiresTransitive = [
+            "grapl",
+            "grapl.natives.gl.win",
+            "grapl.natives.gl.macos",
+            "grapl.natives.gl.linux"
+    ]
+    exports = [
+            "com.huskerdev.grapl.gl",
+            "com.huskerdev.grapl.gl.platforms.linux.egl",
+            "com.huskerdev.grapl.gl.platforms.linux.glx",
+            "com.huskerdev.grapl.gl.platforms.win",
+            "com.huskerdev.grapl.gl.platforms.macos",
+    ]
 }

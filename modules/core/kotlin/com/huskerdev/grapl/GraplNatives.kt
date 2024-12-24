@@ -7,7 +7,7 @@ class GraplNatives {
     companion object {
         fun load(){
             Platform.loadLibraryFromResources(
-                classpath = "com.huskerdev.grapl.core.native",
+                classpath = "com.huskerdev.grapl.core.natives",
                 baseName = "lib",
                 version = GraplInfo.VERSION
             )
