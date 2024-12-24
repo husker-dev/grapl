@@ -33,6 +33,6 @@ moduleInfo {
     name = "${projectName}.natives.core.${project.ext.shortOS}"
 
     exports = [
-            "com.huskerdev.grapl.core.natives"
+            "com.huskerdev.grapl.core.natives.${project.ext.shortOS}"
     ]
 }
