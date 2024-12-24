@@ -25,9 +25,7 @@ maven {
 }
 
 jar {
-    manifest {
-        attributes("Automatic-Module-Name": "${projectName}.ext.display")
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 moduleInfo {

@@ -33,9 +33,7 @@ maven {
 }
 
 jar {
-    manifest {
-        attributes("Automatic-Module-Name": "${projectName}.natives.gl.${project.ext.shortOS}")
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 moduleInfo {

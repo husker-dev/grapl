@@ -38,9 +38,7 @@ properties {
 }
 
 jar {
-    manifest {
-        attributes("Automatic-Module-Name": projectName)
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 moduleInfo {

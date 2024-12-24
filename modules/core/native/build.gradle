@@ -30,9 +30,7 @@ maven {
 }
 
 jar {
-    manifest {
-        attributes("Automatic-Module-Name": "${projectName}.natives.core.${project.ext.shortOS}")
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 moduleInfo {

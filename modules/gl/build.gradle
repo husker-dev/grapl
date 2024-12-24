@@ -43,9 +43,7 @@ maven {
 }
 
 jar {
-    manifest {
-        attributes("Automatic-Module-Name": "${projectName}.gl")
-    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 moduleInfo {
