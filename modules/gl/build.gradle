@@ -50,7 +50,9 @@ moduleInfo {
     name = "${projectName}.gl"
 
     requiresTransitive = [
-            "grapl",
+            "grapl"
+    ]
+    requiresStatic = [
             "grapl.natives.gl.win",
             "grapl.natives.gl.macos",
             "grapl.natives.gl.linux"

@@ -45,7 +45,9 @@ moduleInfo {
     name = projectName
 
     requiresTransitive = [
-            "kotlin.stdlib",
+            "kotlin.stdlib"
+    ]
+    requiresStatic = [
             "grapl.natives.core.win",
             "grapl.natives.core.macos",
             "grapl.natives.core.linux"
