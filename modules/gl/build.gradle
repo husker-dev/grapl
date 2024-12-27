@@ -52,11 +52,6 @@ moduleInfo {
     requiresTransitive = [
             "grapl"
     ]
-    requiresStatic = [
-            "grapl.natives.gl.win",
-            "grapl.natives.gl.macos",
-            "grapl.natives.gl.linux"
-    ]
     exports = [
             "com.huskerdev.grapl.gl",
             "com.huskerdev.grapl.gl.platforms.linux.egl",
