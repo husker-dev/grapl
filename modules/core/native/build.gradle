@@ -36,7 +36,11 @@ jar {
 moduleInfo {
     name = "${projectName}.natives.core.${project.ext.shortOS}"
 
-    exports = [
+    requiresTransitive = [
+            "grapl"
+    ]
+
+    opens = [
             "com.huskerdev.grapl.core.natives.${project.ext.shortOS}"
     ]
 }

@@ -56,7 +56,7 @@ abstract class Platform {
                     ClassLoader.getSystemResource(path).openStream().copyTo(it)
                 }
             }catch (e: Exception){
-                e.printStackTrace()
+                throw Exception("Can not read resource library: $path", e)
             }
             tmpFile.deleteOnExit()
             System.load(tmpFile.absolutePath)
