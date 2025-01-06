@@ -33,6 +33,10 @@ class WGLContext(
         @Suppress("unused") @JvmStatic private external fun nHasFunction(name: String): Boolean
         @Suppress("unused") @JvmStatic private external fun nBindDebugCallback(callbackClass: Class<GLContext>)
 
+        init {
+            nInitFunctions()
+        }
+
         fun create(profile: GLProfile, shareWith: Long, majorVersion: Int, minorVersion: Int, debug: Boolean) =
             fromJNI(nCreateContext(profile == GLProfile.CORE, shareWith, majorVersion, minorVersion, debug))
 
@@ -59,10 +63,6 @@ class WGLContext(
             if(array[5].toInt() == 1) GLProfile.CORE else GLProfile.COMPATIBILITY,
             array[6].toInt() == 1
         )
-
-        init {
-            nInitFunctions()
-        }
     }
 
     override fun makeCurrent() =

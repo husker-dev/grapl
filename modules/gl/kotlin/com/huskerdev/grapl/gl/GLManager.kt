@@ -15,6 +15,10 @@ abstract class GLManager {
         @JvmStatic var preferGLX = true
 
         init {
+            loadLibrary()
+        }
+
+        internal fun loadLibrary(){
             Platform.loadLibraryFromResources(
                 classpath = "com.huskerdev.grapl.gl.natives",
                 baseName = "lib",

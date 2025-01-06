@@ -216,6 +216,11 @@ jni_win_context(jlongArray, nCreateContextForWindow)(JNIEnv* env, jobject,
 }
 
 jni_win_context(jlongArray, nGetCurrentContext)(JNIEnv* env, jobject) {
+    if(_wglGetCurrentContext() == 0){
+        return createLongArray(env, {
+            0, 0, 0, 0, 0, 0, 0
+        });
+    }
     GLDetails details = {};
     getContextDetails(&details);
 

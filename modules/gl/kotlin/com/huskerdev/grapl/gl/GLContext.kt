@@ -1,5 +1,7 @@
 package com.huskerdev.grapl.gl
 
+import com.huskerdev.grapl.gl.GLManager.Companion.loadLibrary
+
 
 @Suppress("unused")
 abstract class GLContext(
@@ -11,6 +13,10 @@ abstract class GLContext(
 ) {
     companion object {
         @JvmStatic private external fun nGetExtensions(): Array<String>
+
+        init {
+            loadLibrary()
+        }
 
         private val DEFAULT_PROFILE             = GLProfile.CORE
         private const val DEFAULT_MAJOR_VERSION = -1
