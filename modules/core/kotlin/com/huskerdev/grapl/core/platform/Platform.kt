@@ -53,7 +53,8 @@ abstract class Platform {
             val tmpFile = File(System.getProperty("java.io.tmpdir"), fileName)
             try {
                 FileOutputStream(tmpFile).use {
-                    ClassLoader.getSystemResource(path).openStream().copyTo(it)
+                    val classLoader = Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
+                    classLoader.getResourceAsStream(path)?.copyTo(it)
                 }
             }catch (e: Exception){
                 throw Exception("Can not read resource library: $path", e)
