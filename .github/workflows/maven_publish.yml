@@ -34,7 +34,8 @@ jobs:
 
       - name: "Building and publishing"
         run: >
-          ./gradlew publish
+          ./gradlew publishToMavenCentralPortal
+          -Dorg.gradle.jvmargs=-Xmx4096M
           -Dorg.gradle.project.signing.password=${{ secrets.GPG_PASSPHRASE }}
           -Dorg.gradle.project.signing.secretKeyRingFile=${{ github.workspace }}/gradle/secring.gpg
           -Dorg.gradle.project.ossrhUsername=${{ secrets.SONATYPE_USERNAME }}
