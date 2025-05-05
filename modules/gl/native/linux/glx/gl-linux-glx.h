@@ -30,9 +30,9 @@ static void* _GetProcAddress(const char* name) {
             if((libGL = dlopen(NAMES[i], RTLD_NOW | RTLD_GLOBAL)) != NULL)
                 break;
     }
-    void* handle = glXGetProcAddressARB((GLubyte*) name);
+    void* handle = (void*)glXGetProcAddressARB((GLubyte*) name);
     if(handle == NULL)
-        handle = glXGetProcAddress((GLubyte const*) name);
+        handle = (void*)glXGetProcAddress((GLubyte const*) name);
     if(handle == NULL)
         handle = dlsym(libGL, name);
     return handle;
