@@ -13,8 +13,8 @@ compilation {
     baseName = "lib"
     classpath = "com.huskerdev.grapl.gl.natives.$shortOSName"
 
-    includeDirs = arrayListOf(project(":modules:core:native").file("shared"), file("shared"))
-    srcDirs = arrayListOf(project(":modules:core:native").file("shared"), file("shared"))
+    includeDirs = arrayListOf(project(":modules:core:native").file("shared"))
+    srcDirs = arrayListOf(project(":modules:core:native").file("shared"))
 
     windows {
         libs = arrayListOf("user32", "gdi32")
