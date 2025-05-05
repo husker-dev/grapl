@@ -55,11 +55,12 @@ abstract class Platform {
                 FileOutputStream(tmpFile).use {
                     val classLoader = Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
                     classLoader.getResourceAsStream(path)?.copyTo(it)
+                        ?: throw NullPointerException()
                 }
             }catch (e: Exception){
                 throw Exception("Can not read resource library: $path", e)
             }
-            tmpFile.deleteOnExit()
+            //tmpFile.deleteOnExit()
             System.load(tmpFile.absolutePath)
             loadedLibs.add(path)
         }

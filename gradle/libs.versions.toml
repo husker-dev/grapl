@@ -1,0 +1,8 @@
+[versions]
+
+kotlin = "2.1.0"
+pkmerboot-central-publisher = "1.1.1"
+
+[plugins]
+kotlin-jvm                  = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+pkmerboot-central-publisher = { id = "io.gitee.pkmer.pkmerboot-central-publisher", version.ref = "pkmerboot-central-publisher" }

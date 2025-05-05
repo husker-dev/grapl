@@ -18,14 +18,14 @@ static void getContextDetailsGLX(GLDetails* details, Display* display, GLXDrawab
 
 
 jni_linux_glx_context(void, nInitFunctions)(JNIEnv* env, jobject) {
-    glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr)glXGetProcAddressARB((GLubyte*) "glXCreateContextAttribsARB");
-    glXSwapIntervalEXT = (glXSwapIntervalEXTPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalEXT");
-    glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalMESA");
-    glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)glXGetProcAddress((GLubyte const*)"glXSwapIntervalSGI");
+    glXCreateContextAttribsARB = (glXCreateContextAttribsARBPtr)_GetProcAddress("glXCreateContextAttribsARB");
+    glXSwapIntervalEXT = (glXSwapIntervalEXTPtr)_GetProcAddress("glXSwapIntervalEXT");
+    glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)_GetProcAddress("glXSwapIntervalMESA");
+    glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)_GetProcAddress("glXSwapIntervalSGI");
 
-    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)glXGetProcAddressARB((GLubyte*) "glDebugMessageCallbackARB");
-    glGetIntegerv = (glGetIntegervPtr)glXGetProcAddressARB((GLubyte*) "glGetIntegerv");
-    glGetStringi = (glGetStringiPtr)glXGetProcAddressARB((GLubyte*) "glGetStringi");
+    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)_GetProcAddress("glDebugMessageCallbackARB");
+    glGetIntegerv = (glGetIntegervPtr)_GetProcAddress("glGetIntegerv");
+    glGetStringi = (glGetStringiPtr)_GetProcAddress("glGetStringi");
 }
 
 jni_linux_glx_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {
@@ -169,7 +169,7 @@ jni_linux_glx_context(void, nDeleteContext)(JNIEnv* env, jobject, jlong display,
 
 jni_linux_glx_context(jboolean, nHasFunction)(JNIEnv* env, jobject, jstring _name) {
     const char* name = env->GetStringUTFChars(_name, 0);
-    jboolean result = glXGetProcAddressARB((GLubyte*) name) != 0;
+    jboolean result = _GetProcAddress(name) != 0;
     env->ReleaseStringUTFChars(_name, name);
     return result;
 }
