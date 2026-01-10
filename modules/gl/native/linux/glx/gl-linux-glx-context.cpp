@@ -23,9 +23,9 @@ jni_linux_glx_context(void, nInitFunctions)(JNIEnv* env, jobject) {
     glXSwapIntervalMESA = (glXSwapIntervalMESAPtr)_GetProcAddress("glXSwapIntervalMESA");
     glXSwapIntervalSGI = (glXSwapIntervalMESAPtr)_GetProcAddress("glXSwapIntervalSGI");
 
-    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)_GetProcAddress("glDebugMessageCallbackARB");
-    glGetIntegerv = (glGetIntegervPtr)_GetProcAddress("glGetIntegerv");
-    glGetStringi = (glGetStringiPtr)_GetProcAddress("glGetStringi");
+    _glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)_GetProcAddress("glDebugMessageCallbackARB");
+    _glGetIntegerv = (glGetIntegervPtr)_GetProcAddress("glGetIntegerv");
+    _glGetStringi = (glGetStringiPtr)_GetProcAddress("glGetStringi");
 }
 
 jni_linux_glx_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {

@@ -16,9 +16,9 @@ eglDestroyContextPtr      eglDestroyContext;
 eglSwapBuffersPtr         eglSwapBuffers;
 eglSwapIntervalPtr        eglSwapInterval;
 
-glGetIntegervPtr          glGetIntegerv;
-glGetStringiPtr           glGetStringi;
-glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
+glGetIntegervPtr          _glGetIntegerv;
+glGetStringiPtr           _glGetStringi;
+glDebugMessageCallbackARBPtr _glDebugMessageCallbackARB;
 
 
 static void getContextDetailsEGL(GLDetails* details, EGLDisplay display, EGLSurface surfaceRead, EGLSurface surfaceWrite, EGLContext context){
@@ -55,9 +55,9 @@ jni_linux_egl_context(void, nInitFunctions)(JNIEnv* env, jobject) {
     eglSwapBuffers = (eglSwapBuffersPtr)eglGetProcAddress("eglSwapBuffers");
     eglSwapInterval = (eglSwapIntervalPtr)eglGetProcAddress("eglSwapInterval");
 
-    glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)eglGetProcAddress("glDebugMessageCallbackARB");
-    glGetIntegerv = (glGetIntegervPtr)eglGetProcAddress("glGetIntegerv");
-    glGetStringi = (glGetStringiPtr)eglGetProcAddress("glGetStringi");
+    _glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr)eglGetProcAddress("glDebugMessageCallbackARB");
+    _glGetIntegerv = (glGetIntegervPtr)eglGetProcAddress("glGetIntegerv");
+    _glGetStringi = (glGetStringiPtr)eglGetProcAddress("glGetStringi");
 }
 
 jni_linux_egl_context(jlongArray, nCreateContext)(JNIEnv* env, jobject, jboolean isCore, jlong shareWith, jint majorVersion, jint minorVersion, jboolean debug) {

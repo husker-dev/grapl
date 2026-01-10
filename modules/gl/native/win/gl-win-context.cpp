@@ -11,9 +11,9 @@ wglChoosePixelFormatARBPtr          wglChoosePixelFormatARB;
 wglCreateContextAttribsARBPtr       wglCreateContextAttribsARB;
 wglSwapIntervalEXTPtr               wglSwapIntervalEXT;
 
-glGetIntegervPtr glGetIntegerv;
-glGetStringiPtr glGetStringi;
-glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
+glGetIntegervPtr _glGetIntegerv;
+glGetStringiPtr _glGetStringi;
+glDebugMessageCallbackARBPtr _glDebugMessageCallbackARB;
 
 
 static void getContextDetailsWGL(GLDetails* details, HGLRC rc, HDC dc){
@@ -74,9 +74,9 @@ jni_win_context(void, nInitFunctions)(JNIEnv* env, jobject) {
         wglChoosePixelFormatARB = (wglChoosePixelFormatARBPtr) _GetProcAddress("wglChoosePixelFormatARB");
         wglCreateContextAttribsARB = (wglCreateContextAttribsARBPtr) _GetProcAddress("wglCreateContextAttribsARB");
         wglSwapIntervalEXT = (wglSwapIntervalEXTPtr) _GetProcAddress("wglSwapIntervalEXT");
-        glGetIntegerv = (glGetIntegervPtr) _GetProcAddress("glGetIntegerv");
-        glGetStringi = (glGetStringiPtr) _GetProcAddress("glGetStringi");
-        glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr) _GetProcAddress("glDebugMessageCallbackARB");
+        _glGetIntegerv = (glGetIntegervPtr) _GetProcAddress("glGetIntegerv");
+        _glGetStringi = (glGetStringiPtr) _GetProcAddress("glGetStringi");
+        _glDebugMessageCallbackARB = (glDebugMessageCallbackARBPtr) _GetProcAddress("glDebugMessageCallbackARB");
 
         // Destroy dummy context
         _wglMakeCurrent(oldDC, oldRC);

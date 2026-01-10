@@ -39,9 +39,9 @@ typedef void (*glGetIntegervPtr)(GLenum pname, GLint* data);
 typedef const GLubyte* (*glGetStringiPtr)(GLenum name, GLuint index);
 typedef void (*glDebugMessageCallbackARBPtr)(GLDEBUGPROCARB callback, const void *userParam);
 
-extern glGetIntegervPtr glGetIntegerv;
-extern glGetStringiPtr glGetStringi;
-extern glDebugMessageCallbackARBPtr glDebugMessageCallbackARB;
+extern glGetIntegervPtr _glGetIntegerv;
+extern glGetStringiPtr _glGetStringi;
+extern glDebugMessageCallbackARBPtr _glDebugMessageCallbackARB;
 
 struct GLDetails {
     GLint major;
@@ -55,10 +55,10 @@ struct GLDetails {
 static void getContextDetails(GLDetails* details){
     GLint profileMask = 0;
 
-    glGetIntegerv(GL_MAJOR_VERSION, &details->major);
-    glGetIntegerv(GL_MINOR_VERSION, &details->minor);
-    glGetIntegerv(GL_CONTEXT_FLAGS, &details->flags);
-    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profileMask);
+    _glGetIntegerv(GL_MAJOR_VERSION, &details->major);
+    _glGetIntegerv(GL_MINOR_VERSION, &details->minor);
+    _glGetIntegerv(GL_CONTEXT_FLAGS, &details->flags);
+    _glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &profileMask);
 
     details->isCore = profileMask == GL_CONTEXT_CORE_PROFILE_BIT;
     details->debug = (details->flags & GL_CONTEXT_FLAG_DEBUG_BIT) != 0;
@@ -82,13 +82,13 @@ static void callbackFunction(GLenum source, GLenum type, GLuint id, GLenum sever
 }
 
 static void bindDefaultDebugFunction(JNIEnv* env, jclass callbackClass, const void* handle) {
-    if(glDebugMessageCallbackARB == NULL)
+    if(_glDebugMessageCallbackARB == NULL)
         return;
     if(jvm == NULL){
         env->GetJavaVM(&jvm);
         debugCallbackClass = (jclass)env->NewGlobalRef(callbackClass);
     }
-    glDebugMessageCallbackARB(&callbackFunction, handle);
+    _glDebugMessageCallbackARB(&callbackFunction, handle);
 }
 
 #endif

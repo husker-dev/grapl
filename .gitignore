@@ -1,3 +1,10 @@
 /.gradle/
 /build/
 /.idea/
+
+# Gradle build outputs
+/modules/*/build/
+/modules/*/native/build/
+
+/plugins/*/.gradle/
+/plugins/*/build/
