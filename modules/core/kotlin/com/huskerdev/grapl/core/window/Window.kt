@@ -15,7 +15,7 @@ open class Window(
     val peer: WindowPeer = Platform.current.createWindowPeer().apply { onCreated() }
 ) {
     companion object {
-        fun peekMessages() = Platform.current.peekMessages()
+        fun peekMessages() = Platform.current.pollMessages()
         fun waitMessages(timeout: Int = -1) = Platform.current.waitMessages(timeout)
         fun postEmptyMessage() = Platform.current.postEmptyMessage()
     }

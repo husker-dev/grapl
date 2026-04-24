@@ -9,7 +9,7 @@ import com.huskerdev.grapl.core.window.impl.WinWindowPeer
 
 class WinPlatform: Platform() {
     companion object {
-        @JvmStatic private external fun nPeekMessage()
+        @JvmStatic private external fun nPollMessage()
         @JvmStatic private external fun nWaitMessage(timeout: Int)
         @JvmStatic private external fun nPostEmptyMessage()
     }
@@ -27,7 +27,7 @@ class WinPlatform: Platform() {
         WinWindowPeer()
     }
 
-    override fun peekMessages() = nPeekMessage()
+    override fun pollMessages() = nPollMessage()
 
     override fun waitMessages(timeout: Int) = nWaitMessage(timeout)
 

@@ -17,7 +17,7 @@ jni_macos_platform(void, nInvokeOnMainThread)(JNIEnv* env, jobject, jobject runn
     }];
 }
 
-jni_macos_platform(void, nPeekMessage)(JNIEnv* env, jobject) {
+jni_macos_platform(void, nPollMessage)(JNIEnv* env, jobject) {
     ON_MAIN_THREAD(
         for (;;) {
             NSEvent* event = [NSApp nextEventMatchingMask:NSEventMaskAny

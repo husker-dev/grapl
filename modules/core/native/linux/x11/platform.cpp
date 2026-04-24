@@ -2,6 +2,8 @@
 
 #include <poll.h>
 #include <cstring>
+#include <unistd.h>
+#include <errno.h>
 
 // ---- Extern from grapl-x11.h -----
 Atom WM_PROTOCOLS,
@@ -13,17 +15,37 @@ Atom WM_PROTOCOLS,
 std::map<int, int> keyMap;
 // ----------------------------------
 
-static void peekMessage(Display* display){
-    XEvent event;
-    while(XPending(display)){
+int emptyEventPipe[2];
+
+static void drainEmptyEvents() {
+    for (;;) {
+        char dummy[64];
+        const ssize_t result = read(emptyEventPipe[0], dummy, sizeof(dummy));
+        if (result == -1 && errno != EINTR)
+            break;
+    }
+}
+
+static void pollMessage(Display* display) {
+    drainEmptyEvents();
+
+    while (XPending(display)) {
+        XEvent event;
         XNextEvent(display, &event);
-        dispatchEvent(event);
+        processEvent(&event);
     }
 }
 
 jni_x11_platform(jlong, nXOpenDisplay)(JNIEnv* env, jobject) {
     XInitThreads();
     Display* display = XOpenDisplay(NULL);
+
+    emptyEventPipe[0] = -1;
+    emptyEventPipe[1] = -1;
+    if (pipe(emptyEventPipe) != 0) {
+        emptyEventPipe[0] = -1;
+        emptyEventPipe[1] = -1;
+    }
 
     initKeyMap(display);
 
@@ -37,37 +59,46 @@ jni_x11_platform(jlong, nXOpenDisplay)(JNIEnv* env, jobject) {
     return (jlong)display;
 }
 
-jni_x11_platform(void, nPeekMessage)(JNIEnv* env, jobject, jlong _display) {
+jni_x11_platform(void, nPollMessage)(JNIEnv* env, jobject, jlong _display) {
     Display* display = (Display*)_display;
-    peekMessage(display);
+    pollMessage(display);
 }
 
 jni_x11_platform(void, nWaitMessage)(JNIEnv* env, jobject, jlong _display, jint timeout) {
     Display* display = (Display*)_display;
-    if(timeout != -1){
-        struct pollfd pfd = {
-            .fd = ConnectionNumber(display),
-            .events = POLLIN,
-        };
-        if (XPending(display) > 0 || poll(&pfd, 1, timeout) > 0)
-            peekMessage(display);
-    } else {
-        XEvent event;
-        XNextEvent(display, &event);
-        dispatchEvent(event);
+
+    // wait for events
+    enum { XLIB_FD, PIPE_FD, INOTIFY_FD };
+    struct pollfd fds[] = {
+        [XLIB_FD] = { ConnectionNumber(display), POLLIN },
+        [PIPE_FD] = { emptyEventPipe[0], POLLIN },
+        [INOTIFY_FD] = { -1, POLLIN }
+    };
+
+    while (!XPending(display)){
+        int result = poll(fds, 2, timeout);
+        if (result == 0)
+            break;
+        if (result < 0) {
+            if (errno == EINTR)
+                continue;
+            break;
+        }
+        if (fds[PIPE_FD].revents & POLLIN)
+            break;
     }
+
+    // poll
+    pollMessage(display);
 }
 
-jni_x11_platform(void, nPostEmptyMessage)(JNIEnv* env, jobject, jlong _display, jlong _window) {
-    Display* display = (Display*)_display;
-    Window window = (Window)_window;
-
-    XClientMessageEvent dummyEvent = {};
-    dummyEvent.type = ClientMessage;
-    dummyEvent.window = window;
-    dummyEvent.format = 32;
-    XSendEvent(display, window, 0, 0, (XEvent*)&dummyEvent);
-    XFlush(display);
+jni_x11_platform(void, nPostEmptyMessage)(JNIEnv* env, jobject) {
+    for (;;) {
+        const char byte = 0;
+        const ssize_t result = write(emptyEventPipe[1], &byte, 1);
+        if (result == 1 || (result == -1 && errno != EINTR))
+            break;
+    }
 }
 
 void initKeyMap(Display* display){

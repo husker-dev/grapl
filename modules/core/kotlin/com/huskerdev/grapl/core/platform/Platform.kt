@@ -87,7 +87,7 @@ abstract class Platform {
 
     internal abstract fun createWindowPeer(): WindowPeer
 
-    abstract fun peekMessages()
+    abstract fun pollMessages()
     abstract fun waitMessages(timeout: Int = -1)
     abstract fun postEmptyMessage()
 

@@ -1,6 +1,6 @@
 #include "grapl-win.h"
 
-static void peekMessage(){
+static void pollMessage(){
     MSG msg = {};
 
     while(PeekMessageA(&msg, NULL, 0, 0, PM_REMOVE)){
@@ -9,8 +9,8 @@ static void peekMessage(){
     }
 }
 
-jni_win_platform(void, nPeekMessage)(JNIEnv* env, jobject) {
-    peekMessage();
+jni_win_platform(void, nPollMessage)(JNIEnv* env, jobject) {
+    pollMessage();
 }
 
 jni_win_platform(void, nWaitMessage)(JNIEnv* env, jobject, jint timeout) {
@@ -18,7 +18,7 @@ jni_win_platform(void, nWaitMessage)(JNIEnv* env, jobject, jint timeout) {
         WaitMessage();
     else
         MsgWaitForMultipleObjects(0, NULL, FALSE, (DWORD)timeout, QS_ALLINPUT);
-    peekMessage();
+    pollMessage();
 }
 
 jni_win_platform(void, nPostEmptyMessage)(JNIEnv* env, jobject) {

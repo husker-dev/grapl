@@ -68,7 +68,7 @@ class BackgroundMessageHandler {
                         }
                         if(activePeers.size > 0) {
                             if (continuousUpdate)
-                                platform.peekMessages()
+                                platform.pollMessages()
                             else
                                 platform.waitMessages()
 

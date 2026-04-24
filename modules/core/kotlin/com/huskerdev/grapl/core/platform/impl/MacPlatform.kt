@@ -11,7 +11,7 @@ class MacPlatform: Platform() {
 
     companion object {
         @JvmStatic private external fun nInvokeOnMainThread(runnable: Runnable, wait: Boolean)
-        @JvmStatic private external fun nPeekMessage()
+        @JvmStatic private external fun nPollMessage()
         @JvmStatic private external fun nWaitMessage(timeout: Int)
         @JvmStatic private external fun nPostEmptyMessage()
         @JvmStatic private external fun nSetTheme(theme: Int)
@@ -43,7 +43,7 @@ class MacPlatform: Platform() {
         NSWindowPeer()
     }
 
-    override fun peekMessages() = nPeekMessage()
+    override fun pollMessages() = nPollMessage()
 
     override fun waitMessages(timeout: Int) = nWaitMessage(timeout)
 

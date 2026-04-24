@@ -27,7 +27,7 @@ class LinuxPlatform: Platform() {
     override val displays: Array<Display>
         get() = windowingSystem.displays
 
-    override fun peekMessages() = windowingSystem.peekMessages()
+    override fun pollMessages() = windowingSystem.pollMessages()
     override fun waitMessages(timeout: Int) = windowingSystem.waitMessages(timeout)
     override fun postEmptyMessage() = windowingSystem.postEmptyMessage()
 }
@@ -38,7 +38,7 @@ interface WindowingSystem {
 
     fun createWindowPeer(): LinuxWindowPeer
 
-    fun peekMessages()
+    fun pollMessages()
     fun waitMessages(timeout: Int)
     fun postEmptyMessage()
 }
@@ -52,9 +52,9 @@ class X11: WindowingSystem {
     companion object {
         @JvmStatic private external fun nXOpenDisplay(): Long
 
-        @JvmStatic private external fun nPeekMessage(display: Long)
+        @JvmStatic private external fun nPollMessage(display: Long)
         @JvmStatic private external fun nWaitMessage(display: Long, timeout: Int)
-        @JvmStatic private external fun nPostEmptyMessage(display: Long, window: Long)
+        @JvmStatic private external fun nPostEmptyMessage()
     }
 
     val display = nXOpenDisplay()
@@ -66,12 +66,9 @@ class X11: WindowingSystem {
         X11WindowPeer()
     }
 
-    override fun peekMessages() = nPeekMessage(display)
+    override fun pollMessages() = nPollMessage(display)
     override fun waitMessages(timeout: Int) = nWaitMessage(display, timeout)
-    override fun postEmptyMessage() {
-        if(BackgroundMessageHandler.activePeers.isNotEmpty())
-            nPostEmptyMessage(display, BackgroundMessageHandler.activePeers.iterator().next().handle)
-    }
+    override fun postEmptyMessage() = nPostEmptyMessage()
 }
 
 class Wayland: WindowingSystem {
@@ -94,7 +91,7 @@ class Wayland: WindowingSystem {
         TODO("Not yet implemented")
     }
 
-    override fun peekMessages() {
+    override fun pollMessages() {
         TODO("Not yet implemented")
     }
 
