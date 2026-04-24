@@ -32,7 +32,7 @@ static void pollMessage(Display* display) {
     while (XPending(display)) {
         XEvent event;
         XNextEvent(display, &event);
-        processEvent(&event);
+        dispatchEvent(&event);
     }
 }
 
