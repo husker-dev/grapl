@@ -17,6 +17,21 @@ std::map<int, int> keyMap;
 
 int emptyEventPipe[2];
 
+static void createEmptyPipe() {
+    if (pipe(emptyEventPipe) != 0)
+        return;
+
+    for (int i = 0; i < 2; i++) {
+        const int sf = fcntl(emptyEventPipe[i], F_GETFL, 0);
+        const int df = fcntl(emptyEventPipe[i], F_GETFD, 0);
+
+        if (sf == -1 || df == -1 ||
+            fcntl(emptyEventPipe[i], F_SETFL, sf | O_NONBLOCK) == -1 ||
+            fcntl(emptyEventPipe[i], F_SETFD, df | FD_CLOEXEC) == -1
+        ) return;
+    }
+}
+
 static void drainEmptyEvents() {
     for (;;) {
         char dummy[64];
@@ -40,13 +55,7 @@ jni_x11_platform(jlong, nXOpenDisplay)(JNIEnv* env, jobject) {
     XInitThreads();
     Display* display = XOpenDisplay(NULL);
 
-    emptyEventPipe[0] = -1;
-    emptyEventPipe[1] = -1;
-    if (pipe(emptyEventPipe) != 0) {
-        emptyEventPipe[0] = -1;
-        emptyEventPipe[1] = -1;
-    }
-
+    createEmptyPipe();
     initKeyMap(display);
 
     WM_PROTOCOLS = XInternAtom(display, "WM_PROTOCOLS", False);
